@@ -5,30 +5,34 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="cJSON">
-      <UniqueIdentifier>{baff3c10-b508-4ae4-b19a-6afd585233f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{e0496585-855c-4dbe-8bab-9bb0b4e32ba7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{d7bafa74-875e-4184-8b53-ea6e6eb7c724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\cJSON">
+      <UniqueIdentifier>{11361bd0-5593-4a83-a8ab-9d71351d2736}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="wv2.h" />
-    <ClInclude Include="cJSON\cJSON.h">
-      <Filter>cJSON</Filter>
-    </ClInclude>
-    <ClInclude Include="wv2util.h" />
     <ClInclude Include="src\cwv2.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\WindowCloseRequested.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="include\wv2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wv2util.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cJSON\cJSON.h">
+      <Filter>src\cJSON</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cJSON\cJSON.c">
-      <Filter>cJSON</Filter>
-    </ClCompile>
     <ClCompile Include="src\cwv2.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -40,6 +44,9 @@
     </ClCompile>
     <ClCompile Include="src\wv2util.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cJSON\cJSON.c">
+      <Filter>src\cJSON</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
