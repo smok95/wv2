@@ -122,8 +122,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   if (webview = wv2CreateSync(nullptr, hWnd)) {
-       wv2Navigate(webview, L"https://google.com");
+   if (webview = wv2createSync(nullptr, hWnd)) {
+       wv2navigate(webview, L"https://google.com");
    }
 
    ShowWindow(hWnd, nCmdShow);
@@ -148,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_SIZE: {
         if (webview) {
-            wv2Resize(webview, LOWORD(lParam), HIWORD(lParam));
+            wv2resize(webview, LOWORD(lParam), HIWORD(lParam));
         }        
     }break;
     case WM_COMMAND:
@@ -178,7 +178,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         if (webview) {
-            wv2Destroy(&webview);
+            wv2destroy(&webview);
         }
         PostQuitMessage(0);
         break;

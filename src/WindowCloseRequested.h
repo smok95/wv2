@@ -1,6 +1,6 @@
 #ifndef WINDOW_CLOSE_REQUESTED_HANDLER_H_
 #define WINDOW_CLOSE_REQUESTED_HANDLER_H_
-#include "../wv2.h"
+#include "wv2.h"
 #include "WebView2.h"
 
 class WindowCloseRequested : public ICoreWebView2WindowCloseRequestedEventHandler {

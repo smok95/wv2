@@ -44,36 +44,36 @@ typedef void(CALLBACK* historyChanged)(wv2_t sender, bool canGoBack,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-WV2_API void wv2Create(LPCWSTR browserExecutableFolder, HWND parentWindow, 
+WV2_API void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow, 
 	createCompleted handler, void* userData);
 
-WV2_API wv2_t wv2CreateSync(LPCWSTR browserExecutableFolder, HWND parentWindow);
+WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow);
 
-WV2_API void wv2Destroy(wv2_t* w);
+WV2_API void wv2destroy(wv2_t* w);
 
-WV2_API bool wv2SetUserData(wv2_t w, void* userData);
+WV2_API bool wv2setUserData(wv2_t w, void* userData);
 
-WV2_API void* wv2GetUserData(wv2_t w);
+WV2_API void* wv2getUserData(wv2_t w);
 
-WV2_API bool wv2SetVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
+WV2_API bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind);
 
-WV2_API bool wv2ExecuteScript(wv2_t w, LPCWSTR script, 
+WV2_API bool wv2executeScript(wv2_t w, LPCWSTR script, 
 	executeScriptCompleted handler);
 
-WV2_API LPCWSTR wv2ExecuteScriptSync(wv2_t w, LPCWSTR script);
+WV2_API LPCWSTR wv2executeScriptSync(wv2_t w, LPCWSTR script);
 
-WV2_API void wv2FreeMemory(void* p);
+WV2_API void wv2freeMemory(void* p);
 
 /*		
 @brief		The URI of the current top level document.
 */
-WV2_API LPCWSTR wv2GetSource(wv2_t w);
+WV2_API LPCWSTR wv2getSource(wv2_t w);
 
 /*
 @brief		Navigates the WebView to the previous page in the navigation history.
 */
-WV2_API bool wv2GoBack(wv2_t w);
+WV2_API bool wv2goBack(wv2_t w);
 
 /*
 @brief		Navigates the WebView to the next page in the navigation history.
@@ -81,16 +81,16 @@ WV2_API bool wv2GoBack(wv2_t w);
 @return		
 @date		2021/06/24
 */
-WV2_API bool wv2GoForward(wv2_t w);
+WV2_API bool wv2goForward(wv2_t w);
 
-WV2_API bool wv2Navigate(wv2_t w, const wchar_t* url);
+WV2_API bool wv2navigate(wv2_t w, const wchar_t* url);
 
 /*
 @brief		Initiates a navigation to htmlContent as source HTML of a new document.
 			The htmlContent parameter may not be larger than 2 MB in total size. 
 			The origin of the new page is `about:blank`.
 */
-WV2_API bool wv2NavigateToString(wv2_t w, const wchar_t* htmlContent);
+WV2_API bool wv2navigateToString(wv2_t w, const wchar_t* htmlContent);
 
 /*		
 @brief		Reload the current page.
@@ -99,28 +99,28 @@ WV2_API bool wv2NavigateToString(wv2_t w, const wchar_t* htmlContent);
 			any entries in the HTTP cache. But, the back or forward history 
 			are not modified.
 */
-WV2_API bool wv2Reload(wv2_t w);
+WV2_API bool wv2reload(wv2_t w);
 
 // 화면사이즈 변경
-WV2_API bool wv2Resize(wv2_t w, int width, int height);
+WV2_API bool wv2resize(wv2_t w, int width, int height);
 
-WV2_API bool wv2SetHistoryChangedHandler(wv2_t w, historyChanged handler);
+WV2_API bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler);
 
-WV2_API bool wv2SetNavigationStartingHandler(wv2_t w, 
+WV2_API bool wv2setNavigationStartingHandler(wv2_t w, 
 	navigationStarting handler);
 
-WV2_API bool wv2SetNavigationCompletedHandler(wv2_t w, 
+WV2_API bool wv2setNavigationCompletedHandler(wv2_t w, 
 	navigationCompleted handler);
 
-WV2_API bool wv2SetDomContentLoadedHandler(wv2_t w, domContentLoaded handler);
+WV2_API bool wv2setDomContentLoadedHandler(wv2_t w, domContentLoaded handler);
 
-WV2_API bool wv2SetWindowCloseRequestedHandler(wv2_t w, 
+WV2_API bool wv2setWindowCloseRequestedHandler(wv2_t w, 
 	windowCloseRequested handler);
 
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
 */
-WV2_API bool wv2Stop(wv2_t w);
+WV2_API bool wv2stop(wv2_t w);
 
 /*		
 @brief		the zoom factor for the WebView
@@ -128,7 +128,7 @@ WV2_API bool wv2Stop(wv2_t w);
 @param		newZoomFactor	변경할 zoomFactor value
 @return		current zoomFactor, get/set실패시 -1리턴
 */
-WV2_API double wv2ZoomFactor(wv2_t w, const double* newZoomFactor);
+WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
 
 #ifdef __cplusplus
 }
