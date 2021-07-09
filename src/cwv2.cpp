@@ -51,7 +51,7 @@ cwv2::~cwv2() {
 	if (coInitilized_) CoUninitialize();
 }
 
-void cwv2::clearAll() {
+void cwv2::clearAll(bool detachController/*=false*/) {
 	userData_ = nullptr;
 
 	if (executeScriptSyncResult_) {
@@ -74,8 +74,13 @@ void cwv2::clearAll() {
 	}
 
 	if (controller_) {
-		controller_->Close();
-		controller_.Release();
+		if (detachController) {
+			controller_.Detach();
+		}
+		else {
+			controller_->Close();
+			controller_.Release();
+		}		
 	}
 }
 
@@ -357,6 +362,11 @@ ULONG STDMETHODCALLTYPE cwv2::Release() {
 
 void cwv2::destroy() {
 	clearAll();
+	Release();
+}
+
+void cwv2::detach() {
+	clearAll(true);
 	Release();
 }
 

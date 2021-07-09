@@ -154,6 +154,7 @@ WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
+	virtual void detach() = 0;
 
 	virtual wv2settings* getSettings() = 0;
 	virtual bool setSettings(const wv2settings* settings) = 0;

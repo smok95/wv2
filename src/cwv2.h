@@ -85,6 +85,7 @@ public:
 	double zoomFactor(const double* newZoomFactor) OVERRIDE;
 	
 	void destroy() OVERRIDE;
+	void detach() OVERRIDE;
 
 	void* getUserData() OVERRIDE;
 	bool setUserData(void* userData) OVERRIDE;
@@ -101,7 +102,7 @@ public:
 
 private:
 	// 모든 리소스 정리
-	void clearAll();
+	void clearAll(bool detachController = false);
 	// 생성실패로 상태 설정
 	HRESULT setStatusCreateFail(HRESULT errorCode);
 
