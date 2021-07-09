@@ -350,4 +350,4 @@ MigrationBackup/
 .ionide/
 
 # WebView2
-!webview2/**
+!src/webview2/**
