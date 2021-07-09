@@ -29,11 +29,18 @@ void CexamplemfcDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_WEBVIEW2, m_webview2);
+	DDX_Control(pDX, IDC_EDIT_URL, m_editUrl);
 }
 
 BEGIN_MESSAGE_MAP(CexamplemfcDlg, CDialog)
 	ON_WM_PAINT()
+	ON_WM_SIZE()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDOK, &CexamplemfcDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDCANCEL, &CexamplemfcDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_BUTTON_BACK, &CexamplemfcDlg::OnBnClickedButtonBack)
+	ON_BN_CLICKED(IDC_BUTTON_FORWARD, &CexamplemfcDlg::OnBnClickedButtonForward)
+	ON_BN_CLICKED(IDC_BUTTON_RELOAD, &CexamplemfcDlg::OnBnClickedButtonReload)
 END_MESSAGE_MAP()
 
 
@@ -49,7 +56,12 @@ BOOL CexamplemfcDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	CRect rect;
+	GetClientRect(rect);
+	MoveWindow(rect);
 	
+	m_webview2.Navigate(_T("https://youtube.com"));
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -82,6 +94,15 @@ void CexamplemfcDlg::OnPaint()
 	}
 }
 
+void CexamplemfcDlg::OnSize(UINT nType, int cx, int cy) {
+	CDialog::OnSize(nType, cx, cy);
+
+	if (GetSafeHwnd()) {
+		const int controlHeight = 50;
+		m_webview2.MoveWindow(0, controlHeight, cx, cy-controlHeight);
+	}
+}
+
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
 //  이 함수를 호출합니다.
 HCURSOR CexamplemfcDlg::OnQueryDragIcon()
@@ -89,3 +110,37 @@ HCURSOR CexamplemfcDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CexamplemfcDlg::OnBnClickedOk()
+{
+	CString url;
+	m_editUrl.GetWindowText(url);
+	m_webview2.Navigate(url);
+	//CDialog::OnOK();
+}
+
+
+void CexamplemfcDlg::OnBnClickedCancel()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CDialog::OnCancel();
+}
+
+
+void CexamplemfcDlg::OnBnClickedButtonBack()
+{
+	m_webview2.GoBack();
+}
+
+
+void CexamplemfcDlg::OnBnClickedButtonForward()
+{
+	m_webview2.GoForward();
+}
+
+
+void CexamplemfcDlg::OnBnClickedButtonReload()
+{
+	m_webview2.Reload();
+}
