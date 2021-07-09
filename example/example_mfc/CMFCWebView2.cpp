@@ -8,7 +8,7 @@
 
 // CMFCWebView2
 
-IMPLEMENT_DYNAMIC(CMFCWebView2, CStatic)
+IMPLEMENT_DYNAMIC(CMFCWebView2, CWnd)
 
 CMFCWebView2::CMFCWebView2()
 {
@@ -24,28 +24,25 @@ CMFCWebView2::~CMFCWebView2()
 }
 
 
-BEGIN_MESSAGE_MAP(CMFCWebView2, CStatic)
+BEGIN_MESSAGE_MAP(CMFCWebView2, CWnd)
 	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 void CMFCWebView2::PreSubclassWindow() {
-	CStatic::PreSubclassWindow();
+	CWnd::PreSubclassWindow();
 	if (webview2_ = (wv2*)wv2createSync(nullptr, GetSafeHwnd())) {
-		webview2_->navigate(L"https://google.com");
-	}
-}
 
-BOOL CMFCWebView2::Create(LPCTSTR lpszText, DWORD dwStyle,
-	const RECT& rect, CWnd* pParentWnd, UINT nID ) {
-	BOOL result = CStatic::Create(lpszText, dwStyle, rect, pParentWnd, nID);
-	if (webview2_ = (wv2*)wv2createSync(nullptr, GetSafeHwnd())) {
+		if (wv2settings* settings = webview2_->getSettings()) {
+			settings->areDevToolsEnabled = false;
+			webview2_->setSettings(settings);
+		}
+
 		webview2_->navigate(L"https://google.com");
 	}
-	return result;
 }
 
 int CMFCWebView2::OnCreate(LPCREATESTRUCT lpcs) {
-	if (CStatic::OnCreate(lpcs) == -1) {
+	if (CWnd::OnCreate(lpcs) == -1) {
 		return -1;
 	}
 

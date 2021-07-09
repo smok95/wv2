@@ -26,6 +26,18 @@ typedef enum wv2HostResourceAccessKind {
 
 typedef void *wv2_t;
 
+typedef struct wv2settings {
+	bool isScriptEnabled;
+	bool isWebMessageEnabled;
+	bool areDefaultScriptDialogsEnabled;
+	bool isStatusBarEnabled;
+	bool areDevToolsEnabled;
+	bool areDefaultContextMenusEnabled;
+	bool areHostObjectsAllowed;
+	bool isZoomControlEnabled;
+	bool isBuiltInErrorPageEnabled;
+}wv2settings;
+
 typedef void (CALLBACK* createCompleted)(wv2_t w, HRESULT errorCode);
 
 typedef void (CALLBACK* executeScriptCompleted)(wv2_t sender, 
@@ -54,6 +66,9 @@ WV2_API void wv2destroy(wv2_t* w);
 WV2_API bool wv2setUserData(wv2_t w, void* userData);
 
 WV2_API void* wv2getUserData(wv2_t w);
+
+WV2_API wv2settings* wv2getSettings(wv2_t w);
+WV2_API bool wv2setSettings(wv2_t w, const wv2settings* settings);
 
 WV2_API bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind);
@@ -139,6 +154,10 @@ WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
+
+	virtual wv2settings* getSettings() = 0;
+	virtual bool setSettings(const wv2settings* settings) = 0;
+
 	virtual bool executeScript(LPCWSTR script, executeScriptCompleted handler) = 0;
 	virtual LPCWSTR executeScriptSync(LPCWSTR script) = 0;
 	virtual LPCWSTR getSource() = 0;

@@ -12,11 +12,7 @@
 #include "resource.h"
 
 #include "wv2.h"
-#ifdef _M_IX86	// x86
-#pragma comment(lib,"x86/wv2")
-#elif _M_X64
-#pragma comment(lib,"x64/wv2")
-#endif
+#pragma comment(lib,"wv2")
 
 
 

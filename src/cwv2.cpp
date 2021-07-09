@@ -25,6 +25,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace std;
 static void wait();
+
 ///////////////////////////////////////////////////////////////////////////////
 void wait() {
 	MSG msg;
@@ -34,7 +35,7 @@ void wait() {
 	}
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
 cwv2::cwv2(HWND parentWindow, 
 	createCompleted createCompletedHandler /*=nullptr*/,
 	void* userData /*=nullptr*/) 
@@ -68,6 +69,7 @@ void cwv2::clearAll() {
 		if (virtualHostName_.length() > 0) {
 			webview_->ClearVirtualHostNameToFolderMapping(virtualHostName_.c_str());
 		}
+
 		webview_.Release();
 	}
 
@@ -75,6 +77,88 @@ void cwv2::clearAll() {
 		controller_->Close();
 		controller_.Release();
 	}
+}
+
+wv2settings* cwv2::getSettings() {
+	if (!webview_) return nullptr;
+
+	CComPtr<ICoreWebView2Settings> s;
+	if (FAILED(webview_->get_Settings(&s))) {
+		return nullptr;
+	}
+
+	BOOL v;
+	s->get_AreDefaultContextMenusEnabled(&v);
+	settings_.areDefaultContextMenusEnabled = v == TRUE;
+	s->get_AreDefaultScriptDialogsEnabled(&v);
+	settings_.areDefaultScriptDialogsEnabled = v == TRUE;
+	s->get_AreDevToolsEnabled(&v);
+	settings_.areDevToolsEnabled= v == TRUE;
+	s->get_AreHostObjectsAllowed(&v);
+	settings_.areHostObjectsAllowed = v == TRUE;
+	s->get_IsBuiltInErrorPageEnabled(&v);
+	settings_.isBuiltInErrorPageEnabled = v == TRUE;
+	s->get_IsScriptEnabled(&v);
+	settings_.isScriptEnabled = v == TRUE;
+	s->get_IsStatusBarEnabled(&v);
+	settings_.isStatusBarEnabled = v == TRUE;
+	s->get_IsWebMessageEnabled(&v);
+	settings_.isWebMessageEnabled = v == TRUE;
+	s->get_IsZoomControlEnabled(&v);
+	settings_.isZoomControlEnabled = v == TRUE;
+
+	return &settings_;
+}
+
+bool cwv2::setSettings(const wv2settings* val) {
+	if (!webview_ or !val) return false;
+	
+	CComPtr<ICoreWebView2Settings> s;
+	if (FAILED(webview_->get_Settings(&s))) {
+		return false;
+	}
+
+	settings_ = *val;
+	auto& r = settings_;
+	if (FAILED(s->put_AreDefaultContextMenusEnabled(
+		r.areDefaultContextMenusEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_AreDefaultScriptDialogsEnabled(
+		r.areDefaultScriptDialogsEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_AreDevToolsEnabled(r.areDevToolsEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_AreHostObjectsAllowed(r.areHostObjectsAllowed))) {
+		return false;
+	}
+
+	if (FAILED(s->put_IsBuiltInErrorPageEnabled(r.isBuiltInErrorPageEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_IsScriptEnabled(r.isScriptEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_IsStatusBarEnabled(r.isStatusBarEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_IsWebMessageEnabled(r.isWebMessageEnabled))) {
+		return false;
+	}
+
+	if (FAILED(s->put_IsZoomControlEnabled(r.isZoomControlEnabled))) {
+		return false;
+	}
+
+	return true;
 }
 
 void* cwv2::getUserData() {
@@ -103,7 +187,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Environment *env) {
 	if (FAILED(errorCode)) {
 		return setStatusCreateFail(errorCode);
 	}
-	
+		
 	HRESULT hr = env->CreateCoreWebView2Controller(parentWindow_, this);
 	if (FAILED(hr)) {
 		createStatus_ = failed;
@@ -192,7 +276,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, LPCWSTR resultObjectAsJson) {
 
 STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, IUnknown *args) {
 	if (sender != webview_) return E_UNEXPECTED;
-
+		
 	if (historyChangedHandler_) {
 		BOOL canGoBack = FALSE;
 		BOOL canGoForward = FALSE;

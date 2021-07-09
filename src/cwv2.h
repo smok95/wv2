@@ -12,7 +12,6 @@
 #include "wv2.h"
 
 #include "WindowCloseRequested.h"
-class cwv2;
 
 class cwv2 :
 	public wv2,
@@ -63,6 +62,9 @@ public:
 	// ICoreWebView2 interfaces	///////////////////////////////////////////////
 
 	// wv2 interface	///////////////////////////////////////////////////////
+	wv2settings* getSettings() OVERRIDE;
+	bool setSettings(const wv2settings* settings) OVERRIDE;
+
 	bool executeScript(LPCWSTR script, executeScriptCompleted handler) OVERRIDE;
 	LPCWSTR executeScriptSync(LPCWSTR script) OVERRIDE;
 	LPCWSTR getSource() OVERRIDE;
@@ -109,29 +111,31 @@ private:
 	ULONG refCount_ = 0;
 	CComPtr<ICoreWebView2_3> webview_;
 	CComPtr<ICoreWebView2Controller3> controller_;
+	
 	request lastRequest_;	// 처리되지 않은 마지막 요청정보
 	CreateStatus createStatus_ = none;
 	void* userData_ = nullptr;
 	LPWSTR executeScriptSyncResult_ = nullptr;
 	std::wstring virtualHostName_;
+	wv2settings settings_ = { true, };
 
 	executeScriptCompleted executeScriptCompletedHandler_ = nullptr;
 	createCompleted createCompletedHandler_ = nullptr;
 	historyChanged historyChangedHandler_ = nullptr;
-	EventRegistrationToken historyChangedToken_;
+	EventRegistrationToken historyChangedToken_ = { 0, };
 
 	navigationCompleted navigationCompletedHandler_ = nullptr;
-	EventRegistrationToken navigationCompletedToken_;
+	EventRegistrationToken navigationCompletedToken_ = { 0, };
 
 	navigationStarting navigationStartingHandler_ = nullptr;
-	EventRegistrationToken navigationStartingToken_;
+	EventRegistrationToken navigationStartingToken_ = { 0, };
 
 	domContentLoaded domContentLoadedHandler_ = nullptr;
-	EventRegistrationToken domContentLoadedToken_;
+	EventRegistrationToken domContentLoadedToken_ = { 0, };
 
 	WindowCloseRequested windowCloseRequestedHandler_;
 
-	EventRegistrationToken permissionRequestedToken_;
+	EventRegistrationToken permissionRequestedToken_ = { 0, };
 
 	bool coInitilized_ = false;
 };

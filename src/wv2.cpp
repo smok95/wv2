@@ -68,6 +68,16 @@ void wv2destroy(wv2_t* h) {
 	*h = nullptr;
 }
 
+wv2settings* wv2getSettings(wv2_t w) {
+	if (!w) return nullptr;
+	return ((cwv2*)w)->getSettings();
+}
+
+bool wv2setSettings(wv2_t w, const wv2settings* settings) {
+	if (!w) return false;
+	return ((cwv2*)w)->setSettings(settings);
+}
+
 void* wv2getUserData(wv2_t w) {
 	if (!w) return nullptr;
 	return ((cwv2*)w)->getUserData();
