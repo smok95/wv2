@@ -42,7 +42,8 @@ cwv2::cwv2(HWND parentWindow,
 	:parentWindow_(parentWindow), createCompletedHandler_(createCompletedHandler), 
 	userData_(userData) {
 
-	coInitilized_ = SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
+	lastError_ = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	coInitilized_ = SUCCEEDED(lastError_);
 	createStatus_ = created;
 };
 
@@ -88,7 +89,8 @@ wv2settings* cwv2::getSettings() {
 	if (!webview_) return nullptr;
 
 	CComPtr<ICoreWebView2Settings> s;
-	if (FAILED(webview_->get_Settings(&s))) {
+	lastError_ = webview_->get_Settings(&s);
+	if (FAILED(lastError_)) {
 		return nullptr;
 	}
 
@@ -118,48 +120,48 @@ wv2settings* cwv2::getSettings() {
 bool cwv2::setSettings(const wv2settings* val) {
 	if (!webview_ or !val) return false;
 	
-	CComPtr<ICoreWebView2Settings> s;
-	if (FAILED(webview_->get_Settings(&s))) {
+	CComPtr<ICoreWebView2Settings> s;	
+	if (FAILED(lastError_ = webview_->get_Settings(&s))) {
 		return false;
 	}
 
 	settings_ = *val;
 	auto& r = settings_;
-	if (FAILED(s->put_AreDefaultContextMenusEnabled(
+	if (FAILED(lastError_ = s->put_AreDefaultContextMenusEnabled(
 		r.areDefaultContextMenusEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_AreDefaultScriptDialogsEnabled(
+	if (FAILED(lastError_ = s->put_AreDefaultScriptDialogsEnabled(
 		r.areDefaultScriptDialogsEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_AreDevToolsEnabled(r.areDevToolsEnabled))) {
+	if (FAILED(lastError_ = s->put_AreDevToolsEnabled(r.areDevToolsEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_AreHostObjectsAllowed(r.areHostObjectsAllowed))) {
+	if (FAILED(lastError_ = s->put_AreHostObjectsAllowed(r.areHostObjectsAllowed))) {
 		return false;
 	}
 
-	if (FAILED(s->put_IsBuiltInErrorPageEnabled(r.isBuiltInErrorPageEnabled))) {
+	if (FAILED(lastError_ = s->put_IsBuiltInErrorPageEnabled(r.isBuiltInErrorPageEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_IsScriptEnabled(r.isScriptEnabled))) {
+	if (FAILED(lastError_ = s->put_IsScriptEnabled(r.isScriptEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_IsStatusBarEnabled(r.isStatusBarEnabled))) {
+	if (FAILED(lastError_ = s->put_IsStatusBarEnabled(r.isStatusBarEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_IsWebMessageEnabled(r.isWebMessageEnabled))) {
+	if (FAILED(lastError_ = s->put_IsWebMessageEnabled(r.isWebMessageEnabled))) {
 		return false;
 	}
 
-	if (FAILED(s->put_IsZoomControlEnabled(r.isZoomControlEnabled))) {
+	if (FAILED(lastError_ = s->put_IsZoomControlEnabled(r.isZoomControlEnabled))) {
 		return false;
 	}
 
@@ -176,6 +178,7 @@ bool cwv2::setUserData(void* userData) {
 }
 
 HRESULT cwv2::setStatusCreateFail(const HRESULT errorCode) {
+	lastError_ = errorCode;
 	// 상태 실패로 설정
 	createStatus_ = failed;
 
@@ -195,6 +198,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Environment *env) {
 		
 	HRESULT hr = env->CreateCoreWebView2Controller(parentWindow_, this);
 	if (FAILED(hr)) {
+		lastError_ = hr;
 		createStatus_ = failed;
 	}
 	return hr;
@@ -380,7 +384,7 @@ bool cwv2::executeScript(LPCWSTR script, executeScriptCompleted handler) {
 		executeScriptCompletedHandler_ = [](wv2_t sender, LPCWSTR resultObjectAsJson){};
 	}
 	
-	return SUCCEEDED(webview_->ExecuteScript(script, this));
+	return SUCCEEDED(lastError_ = webview_->ExecuteScript(script, this));
 }
 
 LPCWSTR cwv2::executeScriptSync(LPCWSTR script) {
@@ -392,7 +396,7 @@ LPCWSTR cwv2::executeScriptSync(LPCWSTR script) {
 	}
 
 	HRESULT hr = webview_->ExecuteScript(script, this);
-	if (FAILED(hr)) {
+	if (FAILED(lastError_ = hr)) {
 		return nullptr;
 	}
 
@@ -408,7 +412,7 @@ LPCWSTR cwv2::getSource() {
 	if (!webview_) return source;
 	
 	LPWSTR uri = nullptr;
-	if (SUCCEEDED(webview_->get_Source(&uri))) {
+	if (SUCCEEDED(lastError_ = webview_->get_Source(&uri))) {
 		source = _wcsdup(uri);
 		CoTaskMemFree(uri);
 	}
@@ -417,12 +421,12 @@ LPCWSTR cwv2::getSource() {
 
 bool cwv2::goBack() {
 	if (!webview_) return false;
-	return SUCCEEDED(webview_->GoBack());
+	return SUCCEEDED(lastError_ = webview_->GoBack());
 }
 
 bool cwv2::goForward() {
 	if (!webview_) return false;
-	return SUCCEEDED(webview_->GoForward());
+	return SUCCEEDED(lastError_ = webview_->GoForward());
 }
 
 bool cwv2::navigate(const wchar_t* url) {
@@ -432,7 +436,7 @@ bool cwv2::navigate(const wchar_t* url) {
 		lastRequest_.uriOrHtmlContent = url;
 		return true;
 	}
-	return SUCCEEDED(webview_->Navigate(url));
+	return SUCCEEDED(lastError_ = webview_->Navigate(url));
 }
 
 bool cwv2::navigateToString(const wchar_t* html) {
@@ -442,12 +446,12 @@ bool cwv2::navigateToString(const wchar_t* html) {
 		lastRequest_.uriOrHtmlContent = html ? html : L"";
 		return true;
 	}
-	return SUCCEEDED(webview_->NavigateToString(html));
+	return SUCCEEDED(lastError_ = webview_->NavigateToString(html));
 }
 
 bool cwv2::reload() {
 	if (!webview_) return false;
-	return SUCCEEDED(webview_->Reload());
+	return SUCCEEDED(lastError_ = webview_->Reload());
 }
 
 bool cwv2::resize(int width, int height) {
@@ -456,7 +460,7 @@ bool cwv2::resize(int width, int height) {
 	RECT bounds = { 0, };
 	bounds.right = bounds.left + width;
 	bounds.bottom = bounds.top + height;
-	return SUCCEEDED(controller_->put_Bounds(bounds));
+	return SUCCEEDED(lastError_ = controller_->put_Bounds(bounds));
 }
 
 bool cwv2::setHistoryChangedHandler(historyChanged handler) {
@@ -493,7 +497,7 @@ bool cwv2::stop() {
 	// webview가 없는 경우에는 stop이 의미가 없기 때문에 성공으로 간주하고, true리턴.
 	if (!webview_) return true;
 
-	return SUCCEEDED(webview_->Stop());
+	return SUCCEEDED(lastError_ = webview_->Stop());
 }
 	
 double cwv2::zoomFactor(const double* newZoomFactor) {
@@ -526,10 +530,10 @@ bool cwv2::setVirtualHostNameToFolderMapping(LPCWSTR hostName,
 	if (!webview_) return false;
 	if (!hostName or !folderPath) return false;
 	
-	HRESULT hr = webview_->SetVirtualHostNameToFolderMapping(hostName, 
+	lastError_ = webview_->SetVirtualHostNameToFolderMapping(hostName,
 		folderPath, (COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND)accessKind);
 
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(lastError_)) {
 		virtualHostName_ = hostName;
 		return true;
 	}

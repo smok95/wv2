@@ -1,10 +1,12 @@
 #include <ciso646>
+#include <comdef.h>
 
 #include "wv2.h"
 
 #include "cwv2.h"
 
 using namespace std;
+HRESULT theLastError_ = E_NOT_SET;
 
 static void wait();
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,14 +25,14 @@ void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
 	cwv2* w = new cwv2(parentWindow, handler, userData);
 	w->AddRef();
 	    
-	HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
+	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
 		browserExecutableFolder, nullptr, nullptr, w);
 
-	if (FAILED(hr)) {
+	if (FAILED(theLastError_)) {
 		w->Release();
 		w = nullptr;
 		if (handler) {
-			handler(nullptr, hr);
+			handler(nullptr, theLastError_);
 		}
 	}
 }
@@ -39,10 +41,10 @@ wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow) {
 	cwv2* handler = new cwv2(parentWindow);
 	handler->AddRef();
 
-	HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
+	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
 		browserExecutableFolder, nullptr, nullptr, handler);
 
-	if (FAILED(hr)) {
+	if (FAILED(theLastError_)) {
 		handler->Release();
 		handler = nullptr;
 		return handler;
@@ -178,4 +180,13 @@ bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName,
 	if (!w) return false;
 	return ((cwv2*)w)->setVirtualHostNameToFolderMapping(hostName, 
 		folderPath, accessKind);
+}
+
+HRESULT wv2lastError(wv2_t w) {
+	return w ? ((cwv2*)w)->lastError() : theLastError_;
+}
+
+LPCWSTR wv2errorMessage(HRESULT hr) {
+	_com_error err(hr);
+	return wcsdup(err.ErrorMessage());
 }

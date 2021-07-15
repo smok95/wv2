@@ -121,6 +121,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    if (webview = wv2createSync(nullptr, hWnd)) {
        wv2navigate(webview, L"https://google.com");
    }
+   else {
+       LPCWSTR errMsg = wv2errorMessage(wv2lastError(nullptr));
+       MessageBoxW(hWnd, errMsg, L"wv2createSync", MB_ICONERROR);
+       wv2freeMemory((void*)errMsg);
+   }
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);

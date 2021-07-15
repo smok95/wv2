@@ -38,20 +38,20 @@ typedef struct wv2settings {
 	bool isBuiltInErrorPageEnabled;
 }wv2settings;
 
-typedef void (CALLBACK* createCompleted)(wv2_t w, HRESULT errorCode);
+typedef void (* createCompleted)(wv2_t w, HRESULT errorCode);
 
-typedef void (CALLBACK* executeScriptCompleted)(wv2_t sender, 
+typedef void (* executeScriptCompleted)(wv2_t sender, 
 	LPCWSTR resultObjectAsJson);
 
-typedef bool(CALLBACK* navigationStarting)(wv2_t sender, LPCWSTR uri);
+typedef bool(* navigationStarting)(wv2_t sender, LPCWSTR uri);
 
-typedef void(CALLBACK* navigationCompleted)(wv2_t sender);
+typedef void(* navigationCompleted)(wv2_t sender);
 
 typedef navigationCompleted domContentLoaded;
 
-typedef bool(CALLBACK* windowCloseRequested)(wv2_t sender);
+typedef bool(* windowCloseRequested)(wv2_t sender);
 
-typedef void(CALLBACK* historyChanged)(wv2_t sender, bool canGoBack, 
+typedef void(* historyChanged)(wv2_t sender, bool canGoBack, 
 	bool canGoForward);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,6 +145,8 @@ WV2_API bool wv2stop(wv2_t w);
 */
 WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
 
+WV2_API HRESULT wv2lastError(wv2_t w);
+WV2_API LPCWSTR wv2errorMessage(HRESULT hr);
 #ifdef __cplusplus
 }
 #endif

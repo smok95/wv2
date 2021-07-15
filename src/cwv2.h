@@ -100,6 +100,7 @@ public:
 	bool isDone() const;
 	CreateStatus crateStatus() const;
 
+	inline HRESULT lastError() const { return lastError_; }
 private:
 	// 葛电 府家胶 沥府
 	void clearAll(bool detachController = false);
@@ -137,7 +138,8 @@ private:
 	WindowCloseRequested windowCloseRequestedHandler_;
 
 	EventRegistrationToken permissionRequestedToken_ = { 0, };
-
+	
+	HRESULT lastError_ = S_OK;
 	bool coInitilized_ = false;
 };
 
