@@ -24,7 +24,6 @@ void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
 
 	cwv2* w = new cwv2(parentWindow, handler, userData);
 	w->AddRef();
-	    
 	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
 		browserExecutableFolder, nullptr, nullptr, w);
 
@@ -188,5 +187,15 @@ HRESULT wv2lastError(wv2_t w) {
 
 LPCWSTR wv2errorMessage(HRESULT hr) {
 	_com_error err(hr);
-	return wcsdup(err.ErrorMessage());
+	return _wcsdup(err.ErrorMessage());
+}
+
+LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder) {
+	LPWSTR versionInfo = nullptr;
+	HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(browserExecutableFolder,
+		&versionInfo);
+	if (SUCCEEDED(hr)) {
+		return _wcsdup(versionInfo);
+	}
+	return nullptr;
 }

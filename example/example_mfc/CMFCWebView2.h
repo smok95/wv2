@@ -1,7 +1,7 @@
 #pragma once
+#include <afxwin.h>
 
-#include "wv2.h"
-#pragma comment(lib,"wv2")
+struct wv2;
 
 class CMFCWebView2 : public CWnd
 {
@@ -10,6 +10,8 @@ class CMFCWebView2 : public CWnd
 public:
 	CMFCWebView2();
 	virtual ~CMFCWebView2();
+
+	static bool Initialize(LPCTSTR browserExecutableFolder);
 
 	virtual bool Navigate(LPCTSTR uri);
 	virtual bool GoBack();

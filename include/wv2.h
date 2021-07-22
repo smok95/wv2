@@ -55,6 +55,7 @@ typedef void(* historyChanged)(wv2_t sender, bool canGoBack,
 	bool canGoForward);
 
 ///////////////////////////////////////////////////////////////////////////////
+WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
 WV2_API void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow, 
 	createCompleted handler, void* userData);

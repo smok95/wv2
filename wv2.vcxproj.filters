@@ -31,6 +31,7 @@
     <ClInclude Include="src\cJSON\cJSON.h">
       <Filter>src\cJSON</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -48,5 +49,10 @@
     <ClCompile Include="src\cJSON\cJSON.c">
       <Filter>src\cJSON</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="wv2.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

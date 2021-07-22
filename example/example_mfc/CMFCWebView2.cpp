@@ -1,13 +1,13 @@
-﻿// CMFCWebView2.cpp: 구현 파일
-//
-
-#include "pch.h"
-#include "example_mfc.h"
+﻿#include "pch.h"
 #include "CMFCWebView2.h"
 
+#include "wv2.h"
+#pragma comment(lib,"wv2")
+
+
+static CStringW gBrowserFolder;
 
 // CMFCWebView2
-
 IMPLEMENT_DYNAMIC(CMFCWebView2, CWnd)
 
 CMFCWebView2::CMFCWebView2()
@@ -29,13 +29,31 @@ BEGIN_MESSAGE_MAP(CMFCWebView2, CWnd)
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
+bool CMFCWebView2::Initialize(LPCTSTR browserExecutableFolder) {
+
+	if (browserExecutableFolder) {
+#if _UNICODE
+		gBrowserFolder = browserExecutableFolder;
+#else
+		gBrowserFolder = CStringW(browserExecutableFolder);
+#endif // _UNICODE
+	}
+
+	LPWSTR verStr = wv2getAvailableBrowserVersionString(gBrowserFolder);
+	if (verStr) {
+		wv2freeMemory((void*)verStr);
+		return true;
+	}
+	return false;
+}
+
 void CMFCWebView2::PreSubclassWindow() {
 	CWnd::PreSubclassWindow();
-	webview2_ = (wv2*)wv2createSync(nullptr, GetSafeHwnd());
+	webview2_ = (wv2*)wv2createSync(gBrowserFolder, GetSafeHwnd());
 }
 
 bool CMFCWebView2::Navigate(LPCTSTR uri) {
-	if (!uri) return false;
+	if (!uri || !webview2_) return false;
 		
 #if _UNICODE
 	LPCWSTR wUri = uri;
@@ -58,8 +76,8 @@ int CMFCWebView2::OnCreate(LPCREATESTRUCT lpcs) {
 
 void CMFCWebView2::OnSize(UINT nType, int cx, int cy) {
 	CWnd::OnSize(nType, cx, cy);
-	if (GetSafeHwnd() && webview2_) {
-		webview2_->resize(cx, cy);
+	if (GetSafeHwnd()) {
+		if (webview2_)	webview2_->resize(cx, cy);
 	}
 }
 

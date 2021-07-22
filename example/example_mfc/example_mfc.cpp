@@ -49,6 +49,11 @@ BOOL CexamplemfcApp::InitInstance()
 	// MFC 컨트롤의 테마를 사용하기 위해 "Windows 원형" 비주얼 관리자 활성화
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
+	// WebView2 초기화
+	if (!CMFCWebView2::Initialize(nullptr)) {
+		return FALSE;
+	}
+
 	// 표준 초기화
 	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면
 	// 아래에서 필요 없는 특정 초기화
