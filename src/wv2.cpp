@@ -160,6 +160,11 @@ bool wv2setWindowCloseRequestedHandler(wv2_t w, windowCloseRequested handler) {
 	return ((cwv2*)w)->setWindowCloseRequestedHandler(handler);
 }
 
+bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler) {
+	if (!w) return false;
+	return ((cwv2*)w)->setWebMessageReceivedHandler(handler);
+}
+
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
 	return ((cwv2*)w)->stop();

@@ -62,6 +62,7 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 
 	if (webview_) {
 		windowCloseRequestedHandler_.remove(webview_);
+		webview_->remove_WebMessageReceived(webMessageReceivedToken_);
 		webview_->remove_PermissionRequested(permissionRequestedToken_);
 		webview_->remove_HistoryChanged(historyChangedToken_);
 		webview_->remove_DOMContentLoaded(domContentLoadedToken_);
@@ -246,6 +247,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		webview_->add_DOMContentLoaded(this, &domContentLoadedToken_);
 		webview_->add_NavigationStarting(this, &navigationStartingToken_);
 		webview_->add_NavigationCompleted(this, &navigationCompletedToken_);
+		webview_->add_WebMessageReceived(this, &webMessageReceivedToken_);
 	}
 	else {
 		createStatus_ = failed;
@@ -311,6 +313,19 @@ STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, ICoreWebView2NavigationStarting
 		CoTaskMemFree(uri);
 	}
 
+	return S_OK;
+}
+
+STDMETHODIMP cwv2::Invoke(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args) {
+	if (sender != webview_) return E_UNEXPECTED;
+
+	if (webMessageReceivedHandler_) {
+		LPWSTR msg = nullptr;
+		if (SUCCEEDED(args->TryGetWebMessageAsString(&msg))) {
+			webMessageReceivedHandler_(this, msg);
+			CoTaskMemFree(msg);
+		}
+	}
 	return S_OK;
 }
 
@@ -493,6 +508,12 @@ bool cwv2::setWindowCloseRequestedHandler(windowCloseRequested handler) {
 	return true;
 }
 
+bool cwv2::setWebMessageReceivedHandler(webMessageReceived handler) {
+	if (!webview_) return false;
+	webMessageReceivedHandler_ = handler;
+	return true;
+}
+
 bool cwv2::stop() {
 	// webview가 없는 경우에는 stop이 의미가 없기 때문에 성공으로 간주하고, true리턴.
 	if (!webview_) return true;
@@ -541,6 +562,18 @@ bool cwv2::setVirtualHostNameToFolderMapping(LPCWSTR hostName,
 		virtualHostName_.clear();
 		return false;
 	}
+}
+
+bool cwv2::postWebMessageAsJson(LPCWSTR messageAsJson) {
+	if (!webview_ or !messageAsJson) return false;
+	lastError_ = webview_->PostWebMessageAsJson(messageAsJson);
+	return SUCCEEDED(lastError_);
+}
+
+bool cwv2::postWebMessageAsString(LPCWSTR messageAsString) {
+	if (!webview_ or !messageAsString) return false;
+	lastError_ = webview_->PostWebMessageAsString(messageAsString);
+	return SUCCEEDED(lastError_);
 }
 
 void cwv2::freeMemory(void* p) {

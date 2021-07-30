@@ -18,6 +18,11 @@ public:
 	virtual bool GoForward();
 	virtual bool Reload();
 	virtual void PreSubclassWindow();
+
+	virtual void OnWebMessageReceived(LPCTSTR message);
+
+	virtual bool PostWebMessageAsString(LPCTSTR message);
+	virtual bool PostWebMessageAsJson(LPCTSTR message);
 protected:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpcs);

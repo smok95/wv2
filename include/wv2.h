@@ -54,6 +54,8 @@ typedef bool(* windowCloseRequested)(wv2_t sender);
 typedef void(* historyChanged)(wv2_t sender, bool canGoBack, 
 	bool canGoForward);
 
+typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
+
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
@@ -120,7 +122,7 @@ WV2_API bool wv2reload(wv2_t w);
 // 화면사이즈 변경
 WV2_API bool wv2resize(wv2_t w, int width, int height);
 
-WV2_API bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler);
+WV2_API bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler);     
 
 WV2_API bool wv2setNavigationStartingHandler(wv2_t w, 
 	navigationStarting handler);
@@ -132,6 +134,8 @@ WV2_API bool wv2setDomContentLoadedHandler(wv2_t w, domContentLoaded handler);
 
 WV2_API bool wv2setWindowCloseRequestedHandler(wv2_t w, 
 	windowCloseRequested handler);
+
+WV2_API bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler);
 
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
@@ -177,6 +181,10 @@ struct wv2 {
 	virtual bool setNavigationCompletedHandler(navigationCompleted handler) = 0;
 	virtual bool setDomContentLoadedHandler(domContentLoaded handler) = 0;
 	virtual bool setWindowCloseRequestedHandler(windowCloseRequested handler) = 0;
+	virtual bool setWebMessageReceivedHandler(webMessageReceived handler) = 0;
+
+	virtual bool postWebMessageAsJson(LPCWSTR messageAsJson) = 0;
+	virtual bool postWebMessageAsString(LPCWSTR messageAsString) = 0;
 
 	virtual bool stop() = 0;
 	virtual double zoomFactor(const double* newZoomFactor) = 0;

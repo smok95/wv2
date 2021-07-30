@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>webmessage_exam</title>
+    <script>
+        "use strict";
+        //! [chromeWebView]
+        window.chrome.webview.addEventListener('message', arg => {
+			alert(arg.data)
+        });
+
+        function sendMessage() {
+            let sendText = document.getElementById("send-text");
+            window.chrome.webview.postMessage(sendText.value);
+        }
+        function GetWindowBounds() {
+            window.chrome.webview.postMessage("GetWindowBounds");
+        }
+        //! [chromeWebView]
+    </script>
+</head>
+<body>
+    <input type="text" id="send-text"/>
+    <button onclick="sendMessage()">Send</button>
+</body>
+</html>

@@ -7,6 +7,9 @@
 
 static CStringW gBrowserFolder;
 
+static void _webMessageReceived(wv2_t sender, LPCWSTR message);
+///////////////////////////////////////////////////////////////////////////////
+
 // CMFCWebView2
 IMPLEMENT_DYNAMIC(CMFCWebView2, CWnd)
 
@@ -50,6 +53,14 @@ bool CMFCWebView2::Initialize(LPCTSTR browserExecutableFolder) {
 void CMFCWebView2::PreSubclassWindow() {
 	CWnd::PreSubclassWindow();
 	webview2_ = (wv2*)wv2createSync(gBrowserFolder, GetSafeHwnd());
+
+	if (webview2_) {
+		webview2_->setUserData(this);
+		webview2_->setWebMessageReceivedHandler(_webMessageReceived);
+	}
+}
+
+void CMFCWebView2::OnWebMessageReceived(LPCTSTR message) {
 }
 
 bool CMFCWebView2::Navigate(LPCTSTR uri) {
@@ -68,9 +79,6 @@ int CMFCWebView2::OnCreate(LPCREATESTRUCT lpcs) {
 	if (CWnd::OnCreate(lpcs) == -1) {
 		return -1;
 	}
-
-	webview2_ = (wv2*)wv2createSync(nullptr, GetSafeHwnd());
-
 	return 0;
 }
 
@@ -91,4 +99,29 @@ bool CMFCWebView2::GoForward() {
 
 bool CMFCWebView2::Reload() {
 	return webview2_ ? webview2_->reload() : false;
+}
+
+bool CMFCWebView2::PostWebMessageAsString(LPCTSTR message) {
+	if (!message) return false;
+	if (webview2_) {
+		CStringW wMsg(message);
+		return webview2_->postWebMessageAsString(wMsg);
+	}
+	return false;
+}
+
+bool CMFCWebView2::PostWebMessageAsJson(LPCTSTR message) {
+	if (!message) return false;
+	if (webview2_) {
+		CStringW sMsg(message);
+		return webview2_->postWebMessageAsJson(sMsg);
+	}
+	return false;
+}
+
+void _webMessageReceived(wv2_t sender, LPCWSTR message) {
+	if(CMFCWebView2* p = (CMFCWebView2*)wv2getUserData(sender)) {
+		CString s(message);
+		p->OnWebMessageReceived(s);
+	}
 }

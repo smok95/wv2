@@ -22,7 +22,9 @@ class cwv2 :
 	public ICoreWebView2NavigationCompletedEventHandler,
 	public ICoreWebView2DOMContentLoadedEventHandler,
 	public ICoreWebView2HistoryChangedEventHandler,
-	public ICoreWebView2PermissionRequestedEventHandler {
+	public ICoreWebView2PermissionRequestedEventHandler,
+	public ICoreWebView2WebMessageReceivedEventHandler
+{
 public:
 	friend class WindowCloseRequested;
 
@@ -55,6 +57,7 @@ public:
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, ICoreWebView2NavigationCompletedEventArgs *args) OVERRIDE;
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, ICoreWebView2DOMContentLoadedEventArgs *args) OVERRIDE;
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, ICoreWebView2PermissionRequestedEventArgs *args) OVERRIDE;
+	STDMETHODIMP Invoke(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args) OVERRIDE;
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, IUnknown *args) OVERRIDE;
 	STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppv) OVERRIDE;
 	ULONG STDMETHODCALLTYPE AddRef() OVERRIDE;
@@ -80,7 +83,7 @@ public:
 	bool setNavigationCompletedHandler(navigationCompleted handler) OVERRIDE;
 	bool setDomContentLoadedHandler(domContentLoaded handler) OVERRIDE;
 	bool setWindowCloseRequestedHandler(windowCloseRequested handler) OVERRIDE;
-
+	bool setWebMessageReceivedHandler(webMessageReceived handler) OVERRIDE;
 	bool stop() OVERRIDE;
 	double zoomFactor(const double* newZoomFactor) OVERRIDE;
 	
@@ -94,6 +97,10 @@ public:
 		wv2HostResourceAccessKind accessKind) OVERRIDE;
 
 	void freeMemory(void* p) OVERRIDE;
+
+	bool postWebMessageAsJson(LPCWSTR messageAsJson) OVERRIDE;
+	bool postWebMessageAsString(LPCWSTR messageAsString) OVERRIDE;
+
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -138,6 +145,9 @@ private:
 	WindowCloseRequested windowCloseRequestedHandler_;
 
 	EventRegistrationToken permissionRequestedToken_ = { 0, };
+
+	webMessageReceived webMessageReceivedHandler_ = nullptr;
+	EventRegistrationToken webMessageReceivedToken_ = { 0, };
 	
 	HRESULT lastError_ = S_OK;
 	bool coInitilized_ = false;
