@@ -122,19 +122,34 @@ WV2_API bool wv2reload(wv2_t w);
 // 화면사이즈 변경
 WV2_API bool wv2resize(wv2_t w, int width, int height);
 
+/*
+@brief		Set an event handler for the historyChanged event.
+*/
 WV2_API bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler);     
 
-WV2_API bool wv2setNavigationStartingHandler(wv2_t w, 
-	navigationStarting handler);
+/*
+@brief		Set an event handler for the navigationStarting event.
+*/
+WV2_API bool wv2setNavigationStartingHandler(wv2_t w, navigationStarting handler);
 
-WV2_API bool wv2setNavigationCompletedHandler(wv2_t w, 
-	navigationCompleted handler);
+/*
+@brief		Set an event handler for the navigationCompleted event.
+*/
+WV2_API bool wv2setNavigationCompletedHandler(wv2_t w, navigationCompleted handler);
 
+/*
+@brief		Set an event handler for the domContentLoaded event.
+*/
 WV2_API bool wv2setDomContentLoadedHandler(wv2_t w, domContentLoaded handler);
 
-WV2_API bool wv2setWindowCloseRequestedHandler(wv2_t w, 
-	windowCloseRequested handler);
+/*
+@brief		Set an event handler for the windowCloseRequested event.
+*/
+WV2_API bool wv2setWindowCloseRequestedHandler(wv2_t w, windowCloseRequested handler);
 
+/*
+@brief		Set an event handler for the webMessageReceived event.
+ */
 WV2_API bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler);
 
 /*		
