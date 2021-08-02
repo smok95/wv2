@@ -135,6 +135,16 @@ bool wv2resize(wv2_t w, int width, int height) {
 	return ((cwv2*)w)->resize(width, height);
 }
 
+bool wv2postWebMessageAsJson(wv2_t w, LPCWSTR messageAsJson) {
+	if (!w or !messageAsJson) return false;
+	return ((cwv2*)w)->postWebMessageAsJson(messageAsJson);
+}
+
+bool wv2postWebMessageAsString(wv2_t w, LPCWSTR messageAsString) {
+	if (!w or !messageAsString) return false;
+	return ((cwv2*)w)->postWebMessageAsString(messageAsString);
+}
+
 bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler) {
 	if (!w) return false;
 	return ((cwv2*)w)->setHistoryChangedHandler(handler);

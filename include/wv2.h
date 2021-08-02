@@ -123,6 +123,18 @@ WV2_API bool wv2reload(wv2_t w);
 WV2_API bool wv2resize(wv2_t w, int width, int height);
 
 /*
+@brief		Post the specified webMessage to the top level document in this WebView.
+*/
+WV2_API bool wv2postWebMessageAsJson(wv2_t w, LPCWSTR messageAsJson);
+
+/*
+@brief		Posts a message that is a simple string rather than a JSON string
+			representation of a JavaScript object.
+*/
+WV2_API bool wv2postWebMessageAsString(wv2_t w, LPCWSTR messageAsString);
+
+
+/*
 @brief		Set an event handler for the historyChanged event.
 */
 WV2_API bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler);     
