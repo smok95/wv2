@@ -5,7 +5,7 @@
 
 class WindowCloseRequested : public ICoreWebView2WindowCloseRequestedEventHandler {
 public:
-	WindowCloseRequested() {};
+	WindowCloseRequested();
 	STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppv) override;
 	ULONG STDMETHODCALLTYPE AddRef() override { return 1;  }
 	ULONG STDMETHODCALLTYPE Release() override { return 1;  }
@@ -15,9 +15,9 @@ public:
 	void remove(ICoreWebView2* webview2);
 	void bind(windowCloseRequested handler, void* userData);
 private:
-	EventRegistrationToken token_ = { 0, };
-	windowCloseRequested handler_ = nullptr;
-	void* userData_ = nullptr;
+	EventRegistrationToken token_;
+	windowCloseRequested handler_;
+	void* userData_;
 };
 
 

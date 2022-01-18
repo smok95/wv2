@@ -122,35 +122,35 @@ private:
 	CComPtr<ICoreWebView2Controller3> controller_;
 	
 	request lastRequest_;	// 처리되지 않은 마지막 요청정보
-	CreateStatus createStatus_ = none;
-	void* userData_ = nullptr;
-	LPWSTR executeScriptSyncResult_ = nullptr;
+	CreateStatus createStatus_;
+	void* userData_;
+	LPWSTR executeScriptSyncResult_;
 	std::wstring virtualHostName_;
-	wv2settings settings_ = { true, };
+	wv2settings settings_;
 
-	executeScriptCompleted executeScriptCompletedHandler_ = nullptr;
-	createCompleted createCompletedHandler_ = nullptr;
-	historyChanged historyChangedHandler_ = nullptr;
-	EventRegistrationToken historyChangedToken_ = { 0, };
+	executeScriptCompleted executeScriptCompletedHandler_;
+	createCompleted createCompletedHandler_;
+	historyChanged historyChangedHandler_;
+	EventRegistrationToken historyChangedToken_;
 
-	navigationCompleted navigationCompletedHandler_ = nullptr;
-	EventRegistrationToken navigationCompletedToken_ = { 0, };
+	navigationCompleted navigationCompletedHandler_;
+	EventRegistrationToken navigationCompletedToken_;
 
-	navigationStarting navigationStartingHandler_ = nullptr;
-	EventRegistrationToken navigationStartingToken_ = { 0, };
+	navigationStarting navigationStartingHandler_;
+	EventRegistrationToken navigationStartingToken_;
 
-	domContentLoaded domContentLoadedHandler_ = nullptr;
-	EventRegistrationToken domContentLoadedToken_ = { 0, };
+	domContentLoaded domContentLoadedHandler_;
+	EventRegistrationToken domContentLoadedToken_;
 
 	WindowCloseRequested windowCloseRequestedHandler_;
 
-	EventRegistrationToken permissionRequestedToken_ = { 0, };
+	EventRegistrationToken permissionRequestedToken_;
 
-	webMessageReceived webMessageReceivedHandler_ = nullptr;
-	EventRegistrationToken webMessageReceivedToken_ = { 0, };
+	webMessageReceived webMessageReceivedHandler_;
+	EventRegistrationToken webMessageReceivedToken_;
 	
-	HRESULT lastError_ = S_OK;
-	bool coInitilized_ = false;
+	HRESULT lastError_;
+	bool coInitilized_;
 };
 
 #endif // _WEBVIEW2_IMPLEMENT_H_

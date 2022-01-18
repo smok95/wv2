@@ -26,6 +26,8 @@ static char THIS_FILE[] = __FILE__;
 using namespace std;
 static void wait();
 
+wv2settings wv2settingsDefault();
+EventRegistrationToken emptyEventRegistrationToken();
 ///////////////////////////////////////////////////////////////////////////////
 void wait() {
 	MSG msg;
@@ -36,12 +38,23 @@ void wait() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-cwv2::cwv2(HWND parentWindow, 
+cwv2::cwv2(HWND parentWindow,
 	createCompleted createCompletedHandler /*=nullptr*/,
-	void* userData /*=nullptr*/) 
-	:parentWindow_(parentWindow), createCompletedHandler_(createCompletedHandler), 
-	userData_(userData) {
-
+	void* userData /*=nullptr*/) :parentWindow_(parentWindow),
+	createCompletedHandler_(createCompletedHandler), userData_(userData),
+	refCount_(0), createStatus_(none), executeScriptSyncResult_(nullptr),
+	settings_(wv2settingsDefault()), executeScriptCompletedHandler_(nullptr),
+	historyChangedHandler_(nullptr), 
+	historyChangedToken_(emptyEventRegistrationToken()),
+	navigationCompletedHandler_(nullptr),
+	navigationCompletedToken_(emptyEventRegistrationToken()),
+	navigationStartingHandler_(nullptr),
+	navigationStartingToken_(emptyEventRegistrationToken()),
+	domContentLoadedHandler_(nullptr),
+	domContentLoadedToken_(emptyEventRegistrationToken()),
+	permissionRequestedToken_(emptyEventRegistrationToken()),
+	webMessageReceivedHandler_(nullptr),
+	webMessageReceivedToken_(emptyEventRegistrationToken()) {
 	lastError_ = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 	coInitilized_ = SUCCEEDED(lastError_);
 	createStatus_ = created;
@@ -579,4 +592,14 @@ bool cwv2::postWebMessageAsString(LPCWSTR messageAsString) {
 void cwv2::freeMemory(void* p) {
 	if (!p) return;
 	free(p);
+}
+
+wv2settings wv2settingsDefault() {
+	wv2settings def = { true, };
+	return def;
+}
+
+EventRegistrationToken emptyEventRegistrationToken() {
+	EventRegistrationToken token = { 0, };
+	return token;
 }

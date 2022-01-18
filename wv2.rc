@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,6,0
- PRODUCTVERSION 0,0,6,0
+ FILEVERSION 0,0,7,0
+ PRODUCTVERSION 0,0,7,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -67,14 +67,14 @@ BEGIN
     BEGIN
         BLOCK "041204b0"
         BEGIN
-            VALUE "CompanyName", "TODO: <회사 이름>"
-            VALUE "FileDescription", "TODO: <파일 설명>"
-            VALUE "FileVersion", "0.0.6.0"
+            VALUE "CompanyName", "Kim,Jong-Kook <d0nzs00n@gmail.com>"
+            VALUE "FileDescription", "WebView2 for C/C++"
+            VALUE "FileVersion", "0.0.7.0"
             VALUE "InternalName", "wv2.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2021"
+            VALUE "LegalCopyright", "Kim,Jong-Kook <d0nzs00n@gmail.com>"
             VALUE "OriginalFilename", "wv2.dll"
-            VALUE "ProductName", "TODO: <제품 이름>"
-            VALUE "ProductVersion", "0.0.6.0"
+            VALUE "ProductName", "wv2"
+            VALUE "ProductVersion", "0.0.7.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -1,5 +1,10 @@
 #include "WindowCloseRequested.h"
 
+WindowCloseRequested::WindowCloseRequested(): handler_(nullptr), 
+userData_(nullptr) {
+	token_.value = 0;
+}
+
 STDMETHODIMP WindowCloseRequested::QueryInterface(REFIID riid, LPVOID* ppv) {
 	return S_OK;
 }
