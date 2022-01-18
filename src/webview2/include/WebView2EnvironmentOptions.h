@@ -9,7 +9,7 @@
 #include <wrl/implements.h>
 
 #include "webview2.h"
-#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"91.0.864.35"
+#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"99.0.1133.0"
 
 #define COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(p)     \
  public:                                                      \
