@@ -200,11 +200,6 @@ HRESULT wv2lastError(wv2_t w) {
 	return w ? ((cwv2*)w)->lastError() : theLastError_;
 }
 
-LPCWSTR wv2errorMessage(HRESULT hr) {
-	_com_error err(hr);
-	return _wcsdup(err.ErrorMessage());
-}
-
 LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder) {
 	LPWSTR versionInfo = nullptr;
 	HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(browserExecutableFolder,

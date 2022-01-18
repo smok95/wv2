@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-
+#include <comdef.h>
 #include "resource.h"
 
 #include "wv2.h"
@@ -122,9 +122,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        wv2navigate(webview, L"https://google.com");
    }
    else {
-       LPCWSTR errMsg = wv2errorMessage(wv2lastError(nullptr));
+       _com_error err(wv2lastError(nullptr));
+       LPCWSTR errMsg = err.ErrorMessage();
        MessageBoxW(hWnd, errMsg, L"wv2createSync", MB_ICONERROR);
-       wv2freeMemory((void*)errMsg);
    }
 
    ShowWindow(hWnd, nCmdShow);

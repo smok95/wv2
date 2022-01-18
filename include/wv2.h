@@ -178,7 +178,7 @@ WV2_API bool wv2stop(wv2_t w);
 WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
 
 WV2_API HRESULT wv2lastError(wv2_t w);
-WV2_API LPCWSTR wv2errorMessage(HRESULT hr);
+
 #ifdef __cplusplus
 }
 #endif
