@@ -105,7 +105,7 @@ public:
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
 	bool isDone() const;
-	CreateStatus crateStatus() const;
+	CreateStatus createStatus() const;
 
 	inline HRESULT lastError() const { return lastError_; }
 private:

@@ -19,7 +19,7 @@ void wait() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
+bool wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
 	createCompleted handler, void* userData) {
 
 	cwv2* w = new cwv2(parentWindow, handler, userData);
@@ -30,10 +30,10 @@ void wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
 	if (FAILED(theLastError_)) {
 		w->Release();
 		w = nullptr;
-		if (handler) {
-			handler(nullptr, theLastError_);
-		}
+		return false;
 	}
+
+	return true;
 }
 
 wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow) {
@@ -54,7 +54,7 @@ wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow) {
 		wait();
 	}
 
-	if (handler->crateStatus() == cwv2::completed) {
+	if (handler->createStatus() == cwv2::completed) {
 		return handler;
 	}
 	else {

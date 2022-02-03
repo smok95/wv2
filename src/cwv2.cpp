@@ -555,7 +555,7 @@ bool cwv2::isDone() const {
 	return createStatus_ == failed || createStatus_ == completed;
 }
 
-cwv2::CreateStatus cwv2::crateStatus() const { 
+cwv2::CreateStatus cwv2::createStatus() const { 
 	return createStatus_; 
 }
 
