@@ -97,7 +97,7 @@ void CexamplemfcDlg::OnPaint()
 void CexamplemfcDlg::OnSize(UINT nType, int cx, int cy) {
 	CDialog::OnSize(nType, cx, cy);
 
-	if (GetSafeHwnd()) {
+	if (m_webview2.GetSafeHwnd()) {
 		const int controlHeight = 50;
 		m_webview2.MoveWindow(0, controlHeight, cx, cy-controlHeight);
 	}

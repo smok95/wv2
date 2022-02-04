@@ -198,7 +198,7 @@ HRESULT cwv2::setStatusCreateFail(const HRESULT errorCode) {
 
 	// createCompleted핸들러에 생설실패 결과 전달
 	if (createCompletedHandler_) {
-		createCompletedHandler_(nullptr, errorCode);
+		createCompletedHandler_(nullptr, errorCode, userData_);
 		// 객체 정리
 		Release();
 	}
@@ -280,7 +280,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 	controller_->put_IsVisible(TRUE);
 
 	if (createCompletedHandler_) {
-		createCompletedHandler_(this, errorCode);
+		createCompletedHandler_(this, errorCode, userData_);
 	}
 
 	return S_OK;

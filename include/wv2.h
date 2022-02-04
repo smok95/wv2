@@ -38,7 +38,7 @@ typedef struct wv2settings {
 	bool isBuiltInErrorPageEnabled;
 }wv2settings;
 
-typedef void (* createCompleted)(wv2_t w, HRESULT errorCode);
+typedef void (* createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
 typedef void (* executeScriptCompleted)(wv2_t sender, 
 	LPCWSTR resultObjectAsJson);
