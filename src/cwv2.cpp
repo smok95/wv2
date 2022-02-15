@@ -428,8 +428,13 @@ LPCWSTR cwv2::executeScriptSync(LPCWSTR script) {
 		return nullptr;
 	}
 
-	while (executeScriptSyncResult_ != nullptr) {
+	const DWORD start = GetTickCount();
+	const DWORD timeout = 3000;
+	while (executeScriptSyncResult_ == nullptr) {
 		wait();
+		if ((GetTickCount() - start) > timeout) {
+			break;
+		}
 	}
 
 	return executeScriptSyncResult_;
