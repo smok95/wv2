@@ -11,7 +11,7 @@ STDMETHODIMP WindowCloseRequested::QueryInterface(REFIID riid, LPVOID* ppv) {
 
 STDMETHODIMP WindowCloseRequested::Invoke(ICoreWebView2 *sender, IUnknown *args) {
 	if (handler_) {
-		if (handler_(sender)){
+		if (handler_(userData_)){
 			return S_OK;
 		}
 	}

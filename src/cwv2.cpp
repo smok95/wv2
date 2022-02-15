@@ -517,7 +517,7 @@ bool cwv2::setDomContentLoadedHandler(domContentLoaded handler) {
 
 bool cwv2::setWindowCloseRequestedHandler(windowCloseRequested handler) {
 	if (!webview_) return false;
-	windowCloseRequestedHandler_.bind(handler, userData_);
+	windowCloseRequestedHandler_.bind(handler, this);
 	return true;
 }
 
