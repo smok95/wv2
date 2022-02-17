@@ -437,7 +437,14 @@ LPCWSTR cwv2::executeScriptSync(LPCWSTR script) {
 		}
 	}
 
-	return executeScriptSyncResult_;
+	LPCWSTR result = nullptr;
+	if (executeScriptSyncResult_) {
+		result = _wcsdup(executeScriptSyncResult_);
+		free(executeScriptSyncResult_);
+		executeScriptSyncResult_ = nullptr;
+	}
+
+	return result;
 }
 
 LPCWSTR cwv2::getSource() {
