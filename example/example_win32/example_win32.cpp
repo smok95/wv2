@@ -118,7 +118,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   if (webview = wv2createSync(nullptr, hWnd)) {
+   if (webview = wv2createSync(nullptr, nullptr, hWnd)) {
        wv2navigate(webview, L"https://google.com");
    }
    else {

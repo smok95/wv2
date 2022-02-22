@@ -52,7 +52,7 @@ bool CMFCWebView2::Initialize(LPCTSTR browserExecutableFolder) {
 
 void CMFCWebView2::PreSubclassWindow() {
 	CWnd::PreSubclassWindow();
-	webview2_ = (wv2*)wv2createSync(gBrowserFolder, GetSafeHwnd());
+	webview2_ = (wv2*)wv2createSync(gBrowserFolder, nullptr, GetSafeHwnd());
 
 	if (webview2_) {
 		webview2_->setUserData(this);

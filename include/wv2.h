@@ -59,10 +59,11 @@ typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
-WV2_API bool wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow, 
-	createCompleted handler, void* userData);
+WV2_API bool wv2create(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
+	HWND parentWindow, createCompleted handler, void* userData);
 
-WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow);
+WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
+	HWND parentWindow);
 
 WV2_API void wv2destroy(wv2_t* w);
 

@@ -13,12 +13,15 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 #ifdef _M_IX86	// x86
+#pragma message("webview2/x86/WebView2Loader.dll.lib")
 #pragma comment(lib, "webview2/x86/WebView2Loader.dll.lib")	// DLL버전
 //#pragma comment(lib, "webview2/x86/WebView2LoaderStatic.lib")	// Static버전
 #elif _M_X64
+#pragma message("webview2/x64/WebView2Loader.dll.lib")
 #pragma comment(lib, "webview2/x64/WebView2Loader.dll.lib")	// DLL버전 
 //#pragma comment(lib, "webview2/x64/WebView2LoaderStatic.lib")	// Static버전
 #elif _M_ARM64
+#pragma message("webview2/arm64/WebView2Loader.dll.lib")
 #pragma comment(lib, "webview2/arm64/WebView2Loader.dll.lib")	// DLL버전
 //#pragma comment(lib, "webview2/arm64/WebView2LoaderStatic.lib")	// Static버전
 #endif

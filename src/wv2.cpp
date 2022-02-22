@@ -19,13 +19,13 @@ void wait() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
-	createCompleted handler, void* userData) {
+bool wv2create(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
+	HWND parentWindow, createCompleted handler, void* userData) {
 
 	cwv2* w = new cwv2(parentWindow, handler, userData);
 	w->AddRef();
 	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
-		browserExecutableFolder, nullptr, nullptr, w);
+		browserExecutableFolder, userDataFolder, nullptr, w);
 
 	if (FAILED(theLastError_)) {
 		w->Release();
@@ -36,12 +36,14 @@ bool wv2create(LPCWSTR browserExecutableFolder, HWND parentWindow,
 	return true;
 }
 
-wv2_t wv2createSync(LPCWSTR browserExecutableFolder, HWND parentWindow) {
+wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
+	HWND parentWindow) {
+
 	cwv2* handler = new cwv2(parentWindow);
 	handler->AddRef();
 
 	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
-		browserExecutableFolder, nullptr, nullptr, handler);
+		browserExecutableFolder, userDataFolder, nullptr, handler);
 
 	if (FAILED(theLastError_)) {
 		handler->Release();
