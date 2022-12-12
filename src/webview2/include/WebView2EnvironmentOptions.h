@@ -9,7 +9,7 @@
 #include <wrl/implements.h>
 
 #include "webview2.h"
-#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"97.0.1072.54"
+#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"108.0.1462.37"
 
 #define COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(p)     \
  public:                                                      \
@@ -55,7 +55,8 @@ template <typename allocate_fn_t,
 class CoreWebView2EnvironmentOptionsBase
     : public Microsoft::WRL::Implements<
           Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
-          ICoreWebView2EnvironmentOptions> {
+          ICoreWebView2EnvironmentOptions,
+          ICoreWebView2EnvironmentOptions2> {
  public:
   CoreWebView2EnvironmentOptionsBase() {
     // Initialize the target compatible browser version value to the version of
@@ -64,7 +65,7 @@ class CoreWebView2EnvironmentOptionsBase
   }
 
  protected:
-  ~CoreWebView2EnvironmentOptionsBase(){};
+  ~CoreWebView2EnvironmentOptionsBase() {}
 
   class AutoCoMemString {
    public:
@@ -110,11 +111,15 @@ class CoreWebView2EnvironmentOptionsBase
     LPWSTR m_string = nullptr;
   };
 
+  // ICoreWebView2EnvironmentOptions
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(AdditionalBrowserArguments)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(Language)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(TargetCompatibleBrowserVersion)
   COREWEBVIEW2ENVIRONMENTOPTIONS_BOOL_PROPERTY(
       AllowSingleSignOnUsingOSPrimaryAccount)
+
+  // ICoreWebView2EnvironmentOptions2
+  COREWEBVIEW2ENVIRONMENTOPTIONS_BOOL_PROPERTY(ExclusiveUserDataFolderAccess)
 };
 
 template <typename allocate_fn_t,
@@ -132,7 +137,7 @@ class CoreWebView2EnvironmentOptionsBaseClass
   CoreWebView2EnvironmentOptionsBaseClass() {}
 
  protected:
-  ~CoreWebView2EnvironmentOptionsBaseClass() override{};
+  ~CoreWebView2EnvironmentOptionsBaseClass() override {}
 };
 
 typedef CoreWebView2EnvironmentOptionsBaseClass<decltype(&::CoTaskMemAlloc),
