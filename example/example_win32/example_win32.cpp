@@ -30,6 +30,8 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void NavigatePostExample();
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -164,6 +166,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+            case IDM_NAVIGATE_WITH_POST:
+                NavigatePostExample();
+                break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -207,4 +212,14 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void NavigatePostExample() {
+    if (!webview) return;
+
+    LPCSTR postData = "hello=world&this=is&wv2=post example";
+    size_t byteSize = strlen(postData) * sizeof(char);
+    LPCWSTR headers = L"Content-Type: application/x-www-form-urlencoded";
+    wv2navigateWithWebResource(webview, L"https://www.w3schools.com/action_page.php",
+        L"POST", (BYTE*)postData, byteSize, headers);
 }

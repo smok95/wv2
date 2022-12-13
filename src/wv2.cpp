@@ -117,14 +117,21 @@ bool wv2goForward(wv2_t w) {
 	return ((cwv2*)w)->goForward();
 }
 
-bool wv2navigate(wv2_t w, const wchar_t* url) {
+bool wv2navigate(wv2_t w, LPCWSTR url) {
 	if (!w) return false;
 	return ((cwv2*)w)->navigate(url);
 }
 
-bool wv2navigateToString(wv2_t w, const wchar_t* htmlContent) {
+bool wv2navigateToString(wv2_t w, LPCWSTR htmlContent) {
 	if (!w) return false;
 	return ((cwv2*)w)->navigateToString(htmlContent);
+}
+
+bool wv2navigateWithWebResource(wv2_t w, LPCWSTR uri,
+	LPCWSTR method, BYTE* postData, size_t byteSize, LPCWSTR headers) {
+	if (!w) return false;
+	return ((cwv2*)w)->navigateWithWebResource(uri, method, postData, byteSize,
+		headers);
 }
 
 bool wv2reload(wv2_t w) {

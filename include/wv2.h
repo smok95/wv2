@@ -1,3 +1,9 @@
+/*
+## 0.0.14(14)	2022-12-13
+- minimum WebView2 SDK version 1.0.774.44
+	For full API compatibility, this version of the WebView2 SDK requires WebView2
+	Runtime version 89.0.774.44 or higher.
+*/
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
@@ -9,6 +15,9 @@
 #else
 #define WV2_API __declspec(dllimport)
 #endif
+
+#define WV2_VERSION			"0.0.14"
+#define WV2_VERSION_NUM		14
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,6 +111,13 @@ WV2_API bool wv2goBack(wv2_t w);
 */
 WV2_API bool wv2goForward(wv2_t w);
 
+/*
+@brief		Causes a navigation of the top level document to the specified URI.
+@param		w
+@param		uri		The URI to navigate to.
+@return		
+@date		2022/12/13
+*/
 WV2_API bool wv2navigate(wv2_t w, const wchar_t* url);
 
 /*
@@ -110,6 +126,22 @@ WV2_API bool wv2navigate(wv2_t w, const wchar_t* url);
 			The origin of the new page is `about:blank`.
 */
 WV2_API bool wv2navigateToString(wv2_t w, const wchar_t* htmlContent);
+
+/*
+@brief		
+@param		w, A handle to the wv2
+@param		uri, URI parameter must be absolute URI. 
+@param		method	
+@param		postData
+@param		byteSize
+@param		headers, The headers string is the raw request header string 
+			delimited by CRLF (optional in last header). 
+@return		
+@see		https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2environment2?view=webview2-1.0.1462.37#createwebresourcerequest
+@date		2022/12/13
+*/
+WV2_API bool wv2navigateWithWebResource(wv2_t w, LPCWSTR uri,
+	LPCWSTR method, BYTE* postData, size_t byteSize, LPCWSTR headers);
 
 /*		
 @brief		Reload the current page.
@@ -223,6 +255,9 @@ struct wv2 {
 	virtual bool setVirtualHostNameToFolderMapping(LPCWSTR hostName, 
 		LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) = 0;
 	virtual void freeMemory(void* p) = 0;
+
+	virtual bool navigateWithWebResource(LPCWSTR uri, LPCWSTR method,
+		BYTE* postData, size_t byteSize, LPCWSTR headers) = 0;
 };
 #endif // __cplusplus
 

@@ -4,7 +4,8 @@
 #include <string>
 #include <ciso646>
 #include <codecvt>
-
+#include <Shlwapi.h>
+#pragma comment(lib, "Shlwapi.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -100,6 +101,11 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 			controller_.Release();
 		}		
 	}
+
+	if (env2_) {		
+		env2_.Release();
+	}
+
 }
 
 wv2settings* cwv2::getSettings() {
@@ -212,12 +218,22 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Environment *env) {
 	if (FAILED(errorCode)) {
 		return setStatusCreateFail(errorCode);
 	}
-		
-	HRESULT hr = env->CreateCoreWebView2Controller(parentWindow_, this);
+
+	// CoreWebView2Environment2 획득, 2022.12.13 kim,jk
+	HRESULT hr = env->QueryInterface(IID_ICoreWebView2Environment2, 
+		(void**)&env2_);
 	if (FAILED(hr)) {
 		lastError_ = hr;
 		createStatus_ = failed;
 	}
+
+		
+	hr = env->CreateCoreWebView2Controller(parentWindow_, this);
+	if (FAILED(hr)) {
+		lastError_ = hr;
+		createStatus_ = failed;
+	}
+
 	return hr;
 }
 
@@ -472,7 +488,7 @@ bool cwv2::goForward() {
 	return SUCCEEDED(lastError_ = webview_->GoForward());
 }
 
-bool cwv2::navigate(const wchar_t* url) {
+bool cwv2::navigate(LPCWSTR url) {
 	if (!webview_) {
 		// 웹뷰 획득 이전 단계인 경우라면 uri를 저장하고 획득후에 navigate 한다.
 		lastRequest_.isHtmlContent = false;
@@ -482,7 +498,7 @@ bool cwv2::navigate(const wchar_t* url) {
 	return SUCCEEDED(lastError_ = webview_->Navigate(url));
 }
 
-bool cwv2::navigateToString(const wchar_t* html) {
+bool cwv2::navigateToString(LPCWSTR html) {
 	if (!webview_) {
 		// 웹뷰 획득 이전 단계인 경우라면 저장한 후 획득 후 navigate 한다.
 		lastRequest_.isHtmlContent = true;
@@ -490,6 +506,35 @@ bool cwv2::navigateToString(const wchar_t* html) {
 		return true;
 	}
 	return SUCCEEDED(lastError_ = webview_->NavigateToString(html));
+}
+
+bool cwv2::navigateWithWebResource(LPCWSTR uri, LPCWSTR method, BYTE* postData,
+	size_t byteSize, LPCWSTR headers) {
+	if (!webview_) return false;
+
+	// postData 및 headers가 없고, method가 GET이면 navigate로 호출한다.
+	if (!postData && !headers && (!method || _wcsicmp(L"GET", method) == 0)) {
+		return navigate(uri);
+	}
+	else {
+		if (!env2_) return false;
+
+		// postData 또는 length값이 null(0)이면 모두 null(0)으로 한다.
+		if (!postData) byteSize = 0;
+		if (byteSize == 0) postData = nullptr;
+
+		CComPtr<IStream> postDataStream = SHCreateMemStream(postData, (UINT)byteSize);
+		CComPtr<ICoreWebView2WebResourceRequest> request;
+		lastError_ = env2_->CreateWebResourceRequest(uri, method, postDataStream, 
+			headers, &request);
+		
+		if (FAILED(lastError_)) {
+			return false;
+		}
+
+		return SUCCEEDED(lastError_ = 
+			webview_->NavigateWithWebResourceRequest(request));
+	}
 }
 
 bool cwv2::reload() {

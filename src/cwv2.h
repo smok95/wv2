@@ -73,8 +73,10 @@ public:
 	LPCWSTR getSource() OVERRIDE;
 	bool goBack() OVERRIDE;
 	bool goForward() OVERRIDE;
-	bool navigate(const wchar_t* url) OVERRIDE;
-	bool navigateToString(const wchar_t* html) OVERRIDE;
+	bool navigate(LPCWSTR url) OVERRIDE;
+	bool navigateToString(LPCWSTR html) OVERRIDE;
+	bool navigateWithWebResource(LPCWSTR uri, LPCWSTR method, BYTE* postData,
+		size_t byteSize, LPCWSTR headers) OVERRIDE;
 	bool reload() OVERRIDE;
 	bool resize(int width, int height) OVERRIDE;
 
@@ -120,6 +122,7 @@ private:
 	ULONG refCount_ = 0;
 	CComPtr<ICoreWebView2_3> webview_;
 	CComPtr<ICoreWebView2Controller3> controller_;
+	CComPtr<ICoreWebView2Environment2> env2_;
 	
 	request lastRequest_;	// 처리되지 않은 마지막 요청정보
 	CreateStatus createStatus_;
