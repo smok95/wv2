@@ -1,4 +1,9 @@
 /*
+## 0.1.0(15)	2023-08-08
+- minimum WebView2 SDK version 1.0.774.44
+	For full API compatibility, this version of the WebView2 SDK requires WebView2
+	Runtime version 89.0.774.44 or higher.
+
 ## 0.0.14(14)	2022-12-13
 - minimum WebView2 SDK version 1.0.774.44
 	For full API compatibility, this version of the WebView2 SDK requires WebView2
@@ -9,6 +14,13 @@
 
 #include <windows.h>
 #include <stdbool.h>
+#include "wv2envOpts.h"
+
+#ifdef _MSC_VER
+#define DEPRECATED(message) [[deprecated(message)]]
+#else
+#define DEPRECATED(message)
+#endif
 
 #ifdef WV2_EXPORTS
 #define WV2_API __declspec(dllexport)
@@ -16,8 +28,8 @@
 #define WV2_API __declspec(dllimport)
 #endif
 
-#define WV2_VERSION			"0.0.14"
-#define WV2_VERSION_NUM		14
+#define WV2_VERSION			"0.1.0"
+#define WV2_VERSION_NUM		15
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,11 +80,20 @@ typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
+DEPRECATED("wv2create deprecated. Use wv2create2 instead.")
 WV2_API bool wv2create(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
 	HWND parentWindow, createCompleted handler, void* userData);
 
+WV2_API bool wv2create2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
+	wv2envOpts_t environmentOptions, HWND parentWindow, 
+	createCompleted handler, void* userData);
+
+DEPRECATED("wv2createSync deprecated. Use wv2createSync2 instead.")
 WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
 	HWND parentWindow);
+
+WV2_API wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
+	wv2envOpts_t environmentOptions, HWND parentWindow);
 
 WV2_API void wv2destroy(wv2_t* w);
 

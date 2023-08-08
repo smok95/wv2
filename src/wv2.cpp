@@ -4,6 +4,7 @@
 #include "wv2.h"
 
 #include "cwv2.h"
+#include "cwv2envOpts.h"
 
 using namespace std;
 HRESULT theLastError_ = E_NOT_SET;
@@ -22,10 +23,24 @@ void wait() {
 bool wv2create(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
 	HWND parentWindow, createCompleted handler, void* userData) {
 
+	return wv2create2(browserExecutableFolder, userDataFolder, nullptr, 
+		parentWindow, handler, userData);
+}
+
+bool wv2create2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
+	wv2envOpts_t environmentOptions, HWND parentWindow, createCompleted handler, 
+	void* userData) {
+
 	cwv2* w = new cwv2(parentWindow, handler, userData);
 	w->AddRef();
+
+	ICoreWebView2EnvironmentOptions* pEnvOptions = nullptr;
+	if (environmentOptions) {
+		pEnvOptions = ((cwv2envOpts*)environmentOptions)->GetCoreWebView2EnvironmentOptions();
+	}
+
 	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
-		browserExecutableFolder, userDataFolder, nullptr, w);
+		browserExecutableFolder, userDataFolder, pEnvOptions, w);
 
 	if (FAILED(theLastError_)) {
 		w->Release();
@@ -38,12 +53,23 @@ bool wv2create(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 
 wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
 	HWND parentWindow) {
+	return wv2createSync2(browserExecutableFolder, userDataFolder, nullptr, 
+		parentWindow);
+}
+
+wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
+	wv2envOpts_t environmentOptions, HWND parentWindow) {
 
 	cwv2* handler = new cwv2(parentWindow);
 	handler->AddRef();
 
+	ICoreWebView2EnvironmentOptions* pEnvOptions = nullptr;
+	if (environmentOptions) {		
+		pEnvOptions = ((cwv2envOpts*)environmentOptions)->GetCoreWebView2EnvironmentOptions();
+	}
+
 	theLastError_ = CreateCoreWebView2EnvironmentWithOptions(
-		browserExecutableFolder, userDataFolder, nullptr, handler);
+		browserExecutableFolder, userDataFolder, pEnvOptions, handler);
 
 	if (FAILED(theLastError_)) {
 		handler->Release();
@@ -64,6 +90,7 @@ wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 		return nullptr;
 	}
 }
+
 
 void wv2destroy(wv2_t* h) {
 	if (!h) return;

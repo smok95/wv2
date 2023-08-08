@@ -32,6 +32,12 @@
       <Filter>src\cJSON</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="include\wv2envOpts.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cwv2envOpts.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -48,6 +54,12 @@
     </ClCompile>
     <ClCompile Include="src\cJSON\cJSON.c">
       <Filter>src\cJSON</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cwv2envOpts.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wv2envOpts.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

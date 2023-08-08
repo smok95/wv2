@@ -120,14 +120,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   if (webview = wv2createSync(nullptr, nullptr, hWnd)) {
-       wv2navigate(webview, L"https://google.com");
+   wv2envOpts_t options = wv2envOptsCreate();
+   wv2envOptsSetString(options, "AdditionalBrowserArguments", L"--auto-open-devtools-for-tabs");
+
+   LPCWSTR url = L"http://localhost:8080/tool_edit.html";
+   //LPCWSTR url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";
+   if (webview = wv2createSync2(nullptr, nullptr, options, hWnd)) {
+       wv2navigate(webview, url);
    }
    else {
        _com_error err(wv2lastError(nullptr));
        LPCWSTR errMsg = err.ErrorMessage();
        MessageBoxW(hWnd, errMsg, L"wv2createSync", MB_ICONERROR);
    }
+
+   wv2envOptsDestroy(&options);
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -216,6 +223,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void NavigatePostExample() {
     if (!webview) return;
+
+
+	LPCWSTR script = L"document.getElementById(\"tryitLeaderboard\").style.backgroundColor = \"green\";";
+	//wv2executeScriptSync(webview, script);
+
+    wv2executeScript(webview, script, nullptr);
+    return;
 
     LPCSTR postData = "hello=world&this=is&wv2=post example";
     size_t byteSize = strlen(postData) * sizeof(char);
