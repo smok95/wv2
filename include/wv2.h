@@ -16,11 +16,12 @@
 #include <stdbool.h>
 #include "wv2envOpts.h"
 
-#ifdef _MSC_VER
-#define DEPRECATED(message) [[deprecated(message)]]
+#if defined(_MSC_VER) && _MSC_VER < 1900 // Visual Studio 2013 
+#define DEPRECATED(message) __declspec(deprecated(message))
 #else
-#define DEPRECATED(message)
+#define DEPRECATED(message) [[deprecated(message)]]
 #endif
+
 
 #ifdef WV2_EXPORTS
 #define WV2_API __declspec(dllexport)
