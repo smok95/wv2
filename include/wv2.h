@@ -1,4 +1,6 @@
 /*
+## 0.1.1(16)	2023-08-09
+- Fix Casting Error
 ## 0.1.0(15)	2023-08-08
 - minimum WebView2 SDK version 1.0.774.44
 	For full API compatibility, this version of the WebView2 SDK requires WebView2

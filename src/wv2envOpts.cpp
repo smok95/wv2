@@ -37,3 +37,8 @@ HRESULT wv2envOptsSetBool(wv2envOpts_t h, LPCSTR name, BOOL value) {
 	if (!h) return E_INVALIDARG;
 	return ENVOPTS(h)->setBool(name, value);
 }
+
+wv2envOpts* wv2envOptsGetPtr(wv2envOpts_t h) {
+	if(!h) return nullptr;
+	return ENVOPTS(h)->Getwv2envOpts();
+}

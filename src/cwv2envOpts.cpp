@@ -185,3 +185,7 @@ HRESULT cwv2envOpts::setBool(LPCSTR name, BOOL value) {
 ICoreWebView2EnvironmentOptions* cwv2envOpts::GetCoreWebView2EnvironmentOptions() {
 	return (ICoreWebView2EnvironmentOptions*)this;
 }
+
+wv2envOpts* cwv2envOpts::Getwv2envOpts() {
+	return dynamic_cast<wv2envOpts*>(this);
+}

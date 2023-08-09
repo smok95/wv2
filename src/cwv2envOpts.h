@@ -93,6 +93,7 @@ public:
 	// wv2envOpts interface	///////////////////////////////////////////////////
 
 	ICoreWebView2EnvironmentOptions* GetCoreWebView2EnvironmentOptions();
+	wv2envOpts* Getwv2envOpts();
 private:
 	ULONG refCount_;
 	AutoCoMemStr additionalBrowserArguments_;

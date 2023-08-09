@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 typedef void* wv2envOpts_t;
+struct wv2envOpts;
 
 WV2_API wv2envOpts_t 
 wv2envOptsCreate();
@@ -68,6 +69,8 @@ wv2envOptsGetBool(wv2envOpts_t h, LPCSTR name);
 */
 WV2_API HRESULT 
 wv2envOptsSetBool(wv2envOpts_t h, LPCSTR name, BOOL value);
+
+WV2_API wv2envOpts* wv2envOptsGetPtr(wv2envOpts_t h);
 #ifdef __cplusplus
 }
 #endif
