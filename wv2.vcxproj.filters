@@ -38,6 +38,12 @@
     <ClInclude Include="src\cwv2envOpts.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\IsMutedChanged.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IsDocumentPlayingAudioChanged.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -59,6 +65,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\wv2envOpts.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IsMutedChanged.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IsDocumentPlayingAudioChanged.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

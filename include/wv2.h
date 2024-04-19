@@ -1,4 +1,12 @@
 /*
+## 0.2.0(17)	2024-04-18
+- Added support for isMutedChangedEvent, isDocumentPlayingAudioEvent.
+- Added support for OpenTaskManagerWindow.
+- minimum WebView2 SDK version 	1.0.1072.54
+	For full API compatibility, this Release version of the WebView2 SDK requires 
+	WebView2 Runtime version 97.0.1072.54 or higher.
+	https://learn.microsoft.com/en-us/microsoft-edge/webview2/release-notes/archive?tabs=dotnetcsharp
+
 ## 0.1.1(16)	2023-08-09
 - Fix Casting Error
 ## 0.1.0(15)	2023-08-08
@@ -31,8 +39,8 @@
 #define WV2_API __declspec(dllimport)
 #endif
 
-#define WV2_VERSION			"0.1.0"
-#define WV2_VERSION_NUM		15
+#define WV2_VERSION			"0.2.0"
+#define WV2_VERSION_NUM		17
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,6 +70,17 @@ typedef struct wv2settings {
 	bool isBuiltInErrorPageEnabled;
 }wv2settings;
 
+// Structure representing the result and support status of a function
+typedef struct {
+	// Result of the function execution
+	bool result;    
+	// Indicates whether the function is supported in the currently loaded WebView2
+	bool supported; 
+	// HRESULT of the function execution
+	HRESULT hr;             
+} wv2bool;
+
+
 typedef void (* createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
 typedef void (* executeScriptCompleted)(wv2_t sender, 
@@ -79,6 +98,9 @@ typedef void(* historyChanged)(wv2_t sender, bool canGoBack,
 	bool canGoForward);
 
 typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
+
+typedef void(*isMutedChanged)(wv2_t sender);
+typedef isMutedChanged isDocumentPlayingAudioChanged;
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -221,18 +243,62 @@ WV2_API bool wv2setWindowCloseRequestedHandler(wv2_t w, windowCloseRequested han
  */
 WV2_API bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler);
 
+/*
+@brief		Set an event handler for the isMutedChanged event.
+*/
+WV2_API bool wv2setIsMutedChangedHandler(wv2_t w, isMutedChanged handler);
+
+/*
+@brief		Set an event handler for the isDocumentPlayingAudioChanged event.
+*/
+WV2_API bool wv2setIsDocumentPlayingAudioChangedHandler(wv2_t w, 
+	isDocumentPlayingAudioChanged handler);
+
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
 */
 WV2_API bool wv2stop(wv2_t w);
 
-/*		
-@brief		the zoom factor for the WebView
-@param		wv2_t	wv2 handle
-@param		newZoomFactor	변경할 zoomFactor value
-@return		current zoomFactor, get/set실패시 -1리턴
+/*
+@brief     Get or set the zoom factor for the WebView.
+@param     w,	The handle to the wv2 instance.
+@param     newZoomFactor,	The new value for the zoom factor.
+@return    The current zoom factor. Returns -1 if get/set operation fails.
 */
 WV2_API double wv2zoomFactor(wv2_t w, const double* newZoomFactor);
+
+/*
+@brief     Get the mute status of the WebView.
+@param     wv2_t w      The handle to the wv2.
+@return    A wv2bool indicating whether the WebView is muted.
+@remark    Minimum WebView2 SDK version required: 1.0.1072.54
+*/
+WV2_API wv2bool wv2isMuted(wv2_t w);
+
+/*
+@brief     Set the mute status of the WebView.
+@param     wv2_t w      The handle to the wv2.
+@param     muted        The new mute status to be set.
+@return    A wv2bool indicating the success or failure of the operation.
+@remark    Minimum WebView2 SDK version required: 1.0.1072.54
+*/
+WV2_API wv2bool wv2setIsMuted(wv2_t w, const bool muted);
+
+/*
+@brief     Check if the WebView is currently playing audio.
+@param     wv2_t w      The handle to the wv2.
+@return    A wv2bool indicating whether the WebView is playing audio.
+@remark    Minimum WebView2 SDK version required: 1.0.1072.54
+*/
+WV2_API wv2bool wv2isDocumentPlayingAudio(wv2_t w);
+
+/*
+@brief		Opens the Browser Task Manager view as a new window in the foreground.
+@param		wv2_t w      The handle to the wv2.
+@return		
+@remark		Minimum WebView2 SDK version required: 1.0.992.28
+*/
+WV2_API wv2bool wv2openTaskManagerWindow(wv2_t w);
 
 WV2_API HRESULT wv2lastError(wv2_t w);
 
@@ -282,6 +348,17 @@ struct wv2 {
 
 	virtual bool navigateWithWebResource(LPCWSTR uri, LPCWSTR method,
 		BYTE* postData, size_t byteSize, LPCWSTR headers) = 0;
+
+	virtual bool setIsMutedChangedHandler(isMutedChanged handler) = 0;
+
+	virtual wv2bool isMuted() = 0;
+	virtual wv2bool setIsMuted(const bool muted) = 0;
+
+	virtual bool setIsDocumentPlayingAudioChangedHandler(
+		isDocumentPlayingAudioChanged handler) = 0;
+
+	virtual wv2bool isDocumentPlayingAudio() = 0;
+	virtual wv2bool openTaskManagerWindow() = 0;
 };
 #endif // __cplusplus
 

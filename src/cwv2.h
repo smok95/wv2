@@ -12,6 +12,8 @@
 #include "wv2.h"
 
 #include "WindowCloseRequested.h"
+#include "IsMutedChanged.h"
+#include "IsDocumentPlayingAudioChanged.h"
 
 class cwv2 :
 	public wv2,
@@ -102,7 +104,15 @@ public:
 
 	bool postWebMessageAsJson(LPCWSTR messageAsJson) OVERRIDE;
 	bool postWebMessageAsString(LPCWSTR messageAsString) OVERRIDE;
+	bool setIsMutedChangedHandler(isMutedChanged handler) OVERRIDE;
+	bool setIsDocumentPlayingAudioChangedHandler(
+		isDocumentPlayingAudioChanged handler) OVERRIDE;
 
+	wv2bool isMuted() OVERRIDE;
+	wv2bool setIsMuted(const bool muted) OVERRIDE;
+
+	wv2bool isDocumentPlayingAudio() OVERRIDE;
+	wv2bool openTaskManagerWindow() OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -120,7 +130,8 @@ private:
 private:
 	HWND parentWindow_ = nullptr;
 	ULONG refCount_ = 0;
-	CComPtr<ICoreWebView2_3> webview_;
+	CComPtr<ICoreWebView2_3> view2_3_;
+	CComPtr<ICoreWebView2_8> view2_8_;
 	CComPtr<ICoreWebView2Controller3> controller_;
 	CComPtr<ICoreWebView2Environment2> env2_;
 	
@@ -151,6 +162,10 @@ private:
 
 	webMessageReceived webMessageReceivedHandler_;
 	EventRegistrationToken webMessageReceivedToken_;
+
+	IsMutedChanged isMutedChangedHandler_;
+	IsDocumentPlayingAudioChanged isDocumentPlayingAudioChangedHandler_;
+
 	
 	HRESULT lastError_;
 	bool coInitilized_;

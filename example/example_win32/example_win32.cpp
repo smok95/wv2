@@ -30,6 +30,8 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void OnIsMutedChanged(wv2_t sender);
+void OnIsDocumentPlayingAudioChanged(wv2_t sender);
 void NavigatePostExample();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -123,9 +125,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    wv2envOpts_t options = wv2envOptsCreate();
    wv2envOptsSetString(options, "AdditionalBrowserArguments", L"--auto-open-devtools-for-tabs");
 
-   LPCWSTR url = L"http://localhost:8080/tool_edit.html";
+   //LPCWSTR url = L"http://localhost:8080/tool_edit.html";
    //LPCWSTR url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";
+   LPCWSTR url = L"https://www.youtube.com";
    if (webview = wv2createSync2(nullptr, nullptr, options, hWnd)) {
+
+       // set isMutedChanged event handler
+       wv2setIsMutedChangedHandler(webview, OnIsMutedChanged);
+
+       // set isDocumentPlayingAudioChanged event handler
+       wv2setIsDocumentPlayingAudioChangedHandler(webview, OnIsDocumentPlayingAudioChanged);
+
        wv2navigate(webview, url);
    }
    else {
@@ -236,4 +246,46 @@ void NavigatePostExample() {
     LPCWSTR headers = L"Content-Type: application/x-www-form-urlencoded";
     wv2navigateWithWebResource(webview, L"https://www.w3schools.com/action_page.php",
         L"POST", (BYTE*)postData, byteSize, headers);
+}
+
+void OnIsMutedChanged(wv2_t sender) {
+	wv2bool result = wv2isMuted(sender);
+	if (!result.supported) {
+		// The function is not supported.
+	}
+	else {
+		const bool isMuted = result.result;
+		if (isMuted) {
+			// The WebView is muted.
+			MessageBox(NULL, L"The WebView is muted.", L"Mute Status", MB_OK | MB_ICONINFORMATION);
+		}
+		else {
+			// The WebView is not muted.
+			MessageBox(NULL, L"The WebView is not muted.", L"Mute Status", MB_OK | MB_ICONINFORMATION);
+		}
+	}
+}
+
+void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
+	// Check if the document in the WebView is currently playing audio
+	wv2bool result = wv2isDocumentPlayingAudio(sender);
+
+	// Check if the function is supported
+	if (!result.supported) {
+		// The function is not supported in the current version of WebView2.
+	}
+	else {
+		// Extract the result indicating whether the document is playing audio
+		const bool isDocumentPlayingAudio = result.result;
+
+		// Show a message box based on the result
+		if (isDocumentPlayingAudio) {
+			// The document in the WebView is playing audio.
+			MessageBox(NULL, L"The document in the WebView is playing audio.", L"Audio Status", MB_OK | MB_ICONINFORMATION);
+		}
+		else {
+			// The document in the WebView is not playing audio.
+			MessageBox(NULL, L"The document in the WebView is not playing audio.", L"Audio Status", MB_OK | MB_ICONINFORMATION);
+		}
+	}
 }

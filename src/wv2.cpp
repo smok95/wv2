@@ -10,6 +10,7 @@ using namespace std;
 HRESULT theLastError_ = E_NOT_SET;
 
 static void wait();
+static inline wv2bool wv2boolInvalidArg(); 
 ///////////////////////////////////////////////////////////////////////////////
 void wait() {
 	MSG msg;
@@ -17,6 +18,12 @@ void wait() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+}
+
+wv2bool wv2boolInvalidArg() {
+	wv2bool r = { 0, };
+	r.hr = E_INVALIDARG;
+	return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -206,6 +213,17 @@ bool wv2setWindowCloseRequestedHandler(wv2_t w, windowCloseRequested handler) {
 	return ((cwv2*)w)->setWindowCloseRequestedHandler(handler);
 }
 
+bool wv2setIsMutedChangedHandler(wv2_t w, isMutedChanged handler) {
+	if (!w) return false;
+	return ((cwv2*)w)->setIsMutedChangedHandler(handler);
+}
+
+bool wv2setIsDocumentPlayingAudioChangedHandler(wv2_t w,
+	isDocumentPlayingAudioChanged handler) {
+	if (!w) return false;
+	return ((cwv2*)w)->setIsDocumentPlayingAudioChangedHandler(handler);
+}
+
 bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler) {
 	if (!w) return false;
 	return ((cwv2*)w)->setWebMessageReceivedHandler(handler);
@@ -225,11 +243,31 @@ double wv2zoomFactor(wv2_t w, const double* newZoomFactor) {
 	return ((cwv2*)w)->zoomFactor(newZoomFactor);
 }
 
+wv2bool wv2isMuted(wv2_t w) {
+	if (!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->isMuted();
+}
+
+wv2bool wv2setIsMuted(wv2_t w, const bool muted) {
+	if (!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->setIsMuted(muted);
+}
+
+wv2bool wv2isDocumentPlayingAudio(wv2_t w) {
+	if (!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->isDocumentPlayingAudio();
+}
+
 bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName,
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
 	if (!w) return false;
 	return ((cwv2*)w)->setVirtualHostNameToFolderMapping(hostName, 
 		folderPath, accessKind);
+}
+
+wv2bool wv2openTaskManagerWindow(wv2_t w) {
+	if (!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->openTaskManagerWindow();
 }
 
 HRESULT wv2lastError(wv2_t w) {
