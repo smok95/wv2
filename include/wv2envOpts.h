@@ -70,13 +70,13 @@ wv2envOptsGetBool(wv2envOpts_t h, LPCSTR name);
 WV2_API HRESULT 
 wv2envOptsSetBool(wv2envOpts_t h, LPCSTR name, BOOL value);
 
-WV2_API wv2envOpts* wv2envOptsGetPtr(wv2envOpts_t h);
 #ifdef __cplusplus
 }
 #endif
 
 
 #ifdef __cplusplus
+
 struct wv2envOpts {
 	virtual ~wv2envOpts() {};
 	virtual void destroy() = 0;
@@ -86,6 +86,8 @@ struct wv2envOpts {
 	virtual BOOL getBool(LPCSTR name) = 0;
 	virtual HRESULT setBool(LPCSTR name, BOOL value) = 0;
 };
+
+WV2_API wv2envOpts* wv2envOptsGetPtr(wv2envOpts_t h);
 #endif // __cplusplus
 
 

@@ -4,11 +4,11 @@
 // Windows 헤더 파일
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include <comdef.h>
 #include "resource.h"
 
 #include "wv2.h"
@@ -22,7 +22,7 @@
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-wv2_t webview = nullptr;
+wv2_t webview = NULL;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -30,8 +30,11 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize);
+
 void OnIsMutedChanged(wv2_t sender);
 void OnIsDocumentPlayingAudioChanged(wv2_t sender);
+void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
 void NavigatePostExample();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -60,7 +63,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (GetMessage(&msg, NULL, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
@@ -91,7 +94,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_EXAMPLEWIN32));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_EXAMPLEWIN32);
     wcex.lpszClassName  = szWindowClass;
@@ -115,7 +118,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -128,7 +131,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //LPCWSTR url = L"http://localhost:8080/tool_edit.html";
    //LPCWSTR url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";
    LPCWSTR url = L"https://www.youtube.com";
-   if (webview = wv2createSync2(nullptr, nullptr, options, hWnd)) {
+   if (webview = wv2createSync2(NULL, NULL, options, hWnd)) {
+
+       // set browserProcessExited event handler
+       wv2env_t env = wv2getEnv(webview);
+       if(env) {
+           wv2envSetBrowserProcessExitedHandler(env, OnBrowserProcessExited);
+       }
 
        // set isMutedChanged event handler
        wv2setIsMutedChangedHandler(webview, OnIsMutedChanged);
@@ -139,8 +148,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        wv2navigate(webview, url);
    }
    else {
-       _com_error err(wv2lastError(nullptr));
-       LPCWSTR errMsg = err.ErrorMessage();
+       WCHAR errMsg[1024];
+       GetErrorMessage(wv2lastError(NULL), errMsg, sizeof(errMsg));
        MessageBoxW(hWnd, errMsg, L"wv2createSync", MB_ICONERROR);
    }
 
@@ -238,7 +247,7 @@ void NavigatePostExample() {
 	LPCWSTR script = L"document.getElementById(\"tryitLeaderboard\").style.backgroundColor = \"green\";";
 	//wv2executeScriptSync(webview, script);
 
-    wv2executeScript(webview, script, nullptr);
+    wv2executeScript(webview, script, NULL);
     return;
 
     LPCSTR postData = "hello=world&this=is&wv2=post example";
@@ -288,4 +297,20 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
 			MessageBox(NULL, L"The document in the WebView is not playing audio.", L"Audio Status", MB_OK | MB_ICONINFORMATION);
 		}
 	}
+}
+
+void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e) {
+    MessageBox(NULL, L"browserProcessExited", L"Process Status", MB_OK | MB_ICONWARNING);
+}
+
+void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
+	FormatMessageW(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		buffer,
+		bufferSize,
+		NULL
+	);
 }

@@ -98,6 +98,16 @@ wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 	}
 }
 
+wv2env_t wv2getEnv(wv2_t w) {
+	if (!w) return nullptr;
+	return ((cwv2*)w)->getEnvironment();
+}
+
+wv2bool wv2envSetBrowserProcessExitedHandler(wv2env_t e, browserProcessExited handler) {
+	if (!e) return wv2boolInvalidArg();
+	return ((cwv2env*)e)->setBrowserProcessExitedHandler(handler);
+}
+
 
 void wv2destroy(wv2_t* h) {
 	if (!h) return;
@@ -151,12 +161,12 @@ bool wv2goForward(wv2_t w) {
 	return ((cwv2*)w)->goForward();
 }
 
-bool wv2navigate(wv2_t w, LPCWSTR url) {
+bool wv2navigate(wv2_t w, const wchar_t* url) {
 	if (!w) return false;
 	return ((cwv2*)w)->navigate(url);
 }
 
-bool wv2navigateToString(wv2_t w, LPCWSTR htmlContent) {
+bool wv2navigateToString(wv2_t w, const wchar_t* htmlContent) {
 	if (!w) return false;
 	return ((cwv2*)w)->navigateToString(htmlContent);
 }

@@ -23,6 +23,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="example_win32.cpp" />
+    <ClCompile Include="example_win32.c" />
   </ItemGroup>
 </Project>

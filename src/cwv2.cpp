@@ -116,10 +116,7 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		}		
 	}
 
-	if (env2_) {		
-		env2_.Release();
-	}
-
+	env_.Release();
 }
 
 wv2settings* cwv2::getSettings() {
@@ -233,15 +230,13 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Environment *env) {
 		return setStatusCreateFail(errorCode);
 	}
 
-	// CoreWebView2Environment2 È¹µæ, 2022.12.13 kim,jk
-	HRESULT hr = env->QueryInterface(IID_ICoreWebView2Environment2, 
-		(void**)&env2_);
-	if (FAILED(hr)) {
+	// CoreWebView2Environment È¹µæ
+	HRESULT hr = env_.createCoreWebView2EnvironmentCompleted(env);	
+	if(FAILED(hr)) {
 		lastError_ = hr;
 		createStatus_ = failed;
 	}
 
-		
 	hr = env->CreateCoreWebView2Controller(parentWindow_, this);
 	if (FAILED(hr)) {
 		lastError_ = hr;
@@ -540,7 +535,8 @@ bool cwv2::navigateWithWebResource(LPCWSTR uri, LPCWSTR method, BYTE* postData,
 		return navigate(uri);
 	}
 	else {
-		if (!env2_) return false;
+		ICoreWebView2Environment2* env2 = env_.getEnv2();
+		if (!env2) return false;
 
 		// postData ¶Ç´Â length°ªÀÌ null(0)ÀÌ¸é ¸ðµÎ null(0)À¸·Î ÇÑ´Ù.
 		if (!postData) byteSize = 0;
@@ -548,7 +544,7 @@ bool cwv2::navigateWithWebResource(LPCWSTR uri, LPCWSTR method, BYTE* postData,
 
 		CComPtr<IStream> postDataStream = SHCreateMemStream(postData, (UINT)byteSize);
 		CComPtr<ICoreWebView2WebResourceRequest> request;
-		lastError_ = env2_->CreateWebResourceRequest(uri, method, postDataStream, 
+		lastError_ = env2->CreateWebResourceRequest(uri, method, postDataStream,
 			headers, &request);
 		
 		if (FAILED(lastError_)) {
@@ -742,4 +738,8 @@ wv2settings wv2settingsDefault() {
 EventRegistrationToken emptyEventRegistrationToken() {
 	EventRegistrationToken token = { 0, };
 	return token;
+}
+
+wv2env* cwv2::getEnvironment() {
+	return &env_;
 }

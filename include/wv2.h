@@ -1,4 +1,17 @@
 /*
+## 0.0.14(14)	2022-12-13
+- minimum WebView2 SDK version 1.0.774.44
+	For full API compatibility, this version of the WebView2 SDK requires WebView2
+	Runtime version 89.0.774.44 or higher.
+
+## 0.1.0(15)	2023-08-08
+- minimum WebView2 SDK version 1.0.774.44
+	For full API compatibility, this version of the WebView2 SDK requires WebView2
+	Runtime version 89.0.774.44 or higher.
+
+## 0.1.1(16)	2023-08-09
+- Fix Casting Error
+
 ## 0.2.0(17)	2024-04-18
 - Added support for isMutedChangedEvent, isDocumentPlayingAudioEvent.
 - Added support for OpenTaskManagerWindow.
@@ -7,29 +20,28 @@
 	WebView2 Runtime version 97.0.1072.54 or higher.
 	https://learn.microsoft.com/en-us/microsoft-edge/webview2/release-notes/archive?tabs=dotnetcsharp
 
-## 0.1.1(16)	2023-08-09
-- Fix Casting Error
-## 0.1.0(15)	2023-08-08
-- minimum WebView2 SDK version 1.0.774.44
-	For full API compatibility, this version of the WebView2 SDK requires WebView2
-	Runtime version 89.0.774.44 or higher.
-
-## 0.0.14(14)	2022-12-13
-- minimum WebView2 SDK version 1.0.774.44
-	For full API compatibility, this version of the WebView2 SDK requires WebView2
-	Runtime version 89.0.774.44 or higher.
+## 0.3.0(18)	2024-05-02
+- Added support for browserProcessExited event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
+#define WV2_VERSION			"0.3.0"
+#define WV2_VERSION_NUM		18
+
 #include <windows.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "wv2envOpts.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900 // Visual Studio 2013 
 #define DEPRECATED(message) __declspec(deprecated(message))
 #else
+#ifdef __cplusplus
 #define DEPRECATED(message) [[deprecated(message)]]
+#else 
+#define DEPRECATED(message)
+#endif // __cplusplus
 #endif
 
 
@@ -38,9 +50,6 @@
 #else
 #define WV2_API __declspec(dllimport)
 #endif
-
-#define WV2_VERSION			"0.2.0"
-#define WV2_VERSION_NUM		17
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +66,7 @@ typedef enum wv2HostResourceAccessKind {
 #endif // __wv2HostResourceAccessKind__DEFINED__
 
 typedef void *wv2_t;
+typedef void *wv2env_t;	// CoreWebView2Environment
 
 typedef struct wv2settings {
 	bool isScriptEnabled;
@@ -80,6 +90,16 @@ typedef struct {
 	HRESULT hr;             
 } wv2bool;
 
+// @see COREWEBVIEW2_BROWSER_PROCESS_EXIT_KIND ( WebView2.h )
+typedef enum wv2browserProcessExitKind {
+	wv2browserProcessExitKindNormal = 0,
+	wv2browserProcessExitKindFailed = (wv2browserProcessExitKindNormal + 1)
+}wv2browserProcessExitKind;
+
+typedef struct {
+	wv2browserProcessExitKind browserProcessExitKind;
+	uint32_t browserProcessId;
+}wv2browserProcessExitedEventArgs;
 
 typedef void (* createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
@@ -102,6 +122,9 @@ typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
 typedef void(*isMutedChanged)(wv2_t sender);
 typedef isMutedChanged isDocumentPlayingAudioChanged;
 
+typedef void(*browserProcessExited)(wv2env_t sender, 
+	wv2browserProcessExitedEventArgs* e);
+
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
@@ -119,6 +142,15 @@ WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFol
 
 WV2_API wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 	wv2envOpts_t environmentOptions, HWND parentWindow);
+
+WV2_API wv2env_t wv2getEnv(wv2_t w);
+
+/*
+@brief		Set an event handler for the browserProcessExited event.
+@remark		Minimum WebView2 SDK version required: 	1.0.992.28
+*/
+WV2_API wv2bool wv2envSetBrowserProcessExitedHandler(wv2env_t e, 
+	browserProcessExited handler);
 
 WV2_API void wv2destroy(wv2_t* w);
 
@@ -308,6 +340,12 @@ WV2_API HRESULT wv2lastError(wv2_t w);
 
 
 #ifdef __cplusplus
+struct wv2env {
+	virtual ~wv2env() {};
+
+	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
+};
+
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
@@ -359,6 +397,8 @@ struct wv2 {
 
 	virtual wv2bool isDocumentPlayingAudio() = 0;
 	virtual wv2bool openTaskManagerWindow() = 0;
+
+	virtual wv2env* getEnvironment() = 0;
 };
 #endif // __cplusplus
 

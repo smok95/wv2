@@ -44,6 +44,12 @@
     <ClInclude Include="src\IsDocumentPlayingAudioChanged.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\cwv2env.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BrowserProcessExited.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -71,6 +77,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\IsDocumentPlayingAudioChanged.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cwv2env.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BrowserProcessExited.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
