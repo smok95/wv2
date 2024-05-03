@@ -22,12 +22,15 @@
 
 ## 0.3.0(18)	2024-05-02
 - Added support for browserProcessExited event.
+
+## 0.4.0(19)	2024-05-03
+- Change the structure of the 'wv2bool' structure
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.3.0"
-#define WV2_VERSION_NUM		18
+#define WV2_VERSION			"0.4.0"
+#define WV2_VERSION_NUM		19
 
 #include <windows.h>
 #include <stdbool.h>
@@ -83,9 +86,7 @@ typedef struct wv2settings {
 // Structure representing the result and support status of a function
 typedef struct {
 	// Result of the function execution
-	bool result;    
-	// Indicates whether the function is supported in the currently loaded WebView2
-	bool supported; 
+	bool value;    	
 	// HRESULT of the function execution
 	HRESULT hr;             
 } wv2bool;
@@ -243,7 +244,6 @@ WV2_API bool wv2postWebMessageAsJson(wv2_t w, LPCWSTR messageAsJson);
 			representation of a JavaScript object.
 */
 WV2_API bool wv2postWebMessageAsString(wv2_t w, LPCWSTR messageAsString);
-
 
 /*
 @brief		Set an event handler for the historyChanged event.
@@ -404,5 +404,3 @@ struct wv2 {
 
 
 #endif // WEBVIEW2_C_WRAPPER_H_
-
-

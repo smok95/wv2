@@ -8,8 +8,7 @@ static char THIS_FILE[] = __FILE__;
 
 static inline wv2bool wv2boolNotSupported() {
 	wv2bool r = {0,};
-	r.supported = false;
-	r.hr = CO_E_NOT_SUPPORTED;
+	r.hr = E_NOINTERFACE;
 	return r;
 }
 
@@ -52,9 +51,8 @@ wv2bool cwv2env::setBrowserProcessExitedHandler(browserProcessExited handler) {
 	if(!env5_) {
 		return r;
 	}
-	r.supported = true;
 
 	browserProcessExitedHandler_.bind(handler, this);
-	r.result = true;
+	r.value = true;
 	return r;
 }

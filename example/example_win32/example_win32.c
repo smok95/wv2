@@ -259,11 +259,13 @@ void NavigatePostExample() {
 
 void OnIsMutedChanged(wv2_t sender) {
 	wv2bool result = wv2isMuted(sender);
-	if (!result.supported) {
-		// The function is not supported.
+	if (FAILED(result.hr)) {
+        if(result.hr == E_NOINTERFACE) {
+            // The function is not supported.
+        }
 	}
 	else {
-		const bool isMuted = result.result;
+		const bool isMuted = result.value;
 		if (isMuted) {
 			// The WebView is muted.
 			MessageBox(NULL, L"The WebView is muted.", L"Mute Status", MB_OK | MB_ICONINFORMATION);
@@ -280,12 +282,14 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
 	wv2bool result = wv2isDocumentPlayingAudio(sender);
 
 	// Check if the function is supported
-	if (!result.supported) {
-		// The function is not supported in the current version of WebView2.
+	if (FAILED(result.hr)) {
+        if(result.hr == E_NOINTERFACE) {
+            // The function is not supported in the current version of WebView2.
+        }
 	}
 	else {
 		// Extract the result indicating whether the document is playing audio
-		const bool isDocumentPlayingAudio = result.result;
+		const bool isDocumentPlayingAudio = result.value;
 
 		// Show a message box based on the result
 		if (isDocumentPlayingAudio) {

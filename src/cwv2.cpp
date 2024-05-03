@@ -34,9 +34,8 @@ wv2settings wv2settingsDefault();
 EventRegistrationToken emptyEventRegistrationToken();
 
 static inline wv2bool wv2boolNotSupported() {
-	wv2bool r = { 0, };
-	r.supported = false;
-	r.hr = CO_E_NOT_SUPPORTED;
+	wv2bool r = { 0, };	
+	r.hr = E_NOINTERFACE;
 	return r;
 }
 
@@ -644,11 +643,10 @@ double cwv2::zoomFactor(const double* newZoomFactor) {
 
 wv2bool cwv2::isMuted() {
 	wv2bool r = wv2boolNotSupported();
-	if (!view2_8_) return r;
-	r.supported = true;
+	if (!view2_8_) return r;	
 	BOOL value;
 	if (SUCCEEDED(r.hr = view2_8_->get_IsMuted(&value))) {
-		r.result = value == TRUE;
+		r.value = value == TRUE;
 	}
 
 	return r;
@@ -657,21 +655,19 @@ wv2bool cwv2::isMuted() {
 wv2bool cwv2::setIsMuted(const bool muted) {
 	wv2bool r = wv2boolNotSupported();
 	if (!view2_8_) return r;
-	r.supported = true;
 
 	r.hr = view2_8_->put_IsMuted(muted ? TRUE : FALSE);
-	r.result = SUCCEEDED(r.hr);
+	r.value = SUCCEEDED(r.hr);
 	return r;
 }
 
 wv2bool cwv2::isDocumentPlayingAudio() {
 	wv2bool r = wv2boolNotSupported();
 	if (!view2_8_) return r;
-	r.supported = true;
 
 	BOOL value;
 	if (SUCCEEDED(r.hr = view2_8_->get_IsDocumentPlayingAudio(&value))) {
-		r.result = value == TRUE;
+		r.value = value == TRUE;
 	}
 
 	return r;
@@ -724,9 +720,8 @@ void cwv2::freeMemory(void* p) {
 wv2bool cwv2::openTaskManagerWindow() {
 	wv2bool r = wv2boolNotSupported();
 	if (!view2_8_) return r;
-	r.supported = true;
 	r.hr = view2_8_->OpenTaskManagerWindow();
-	r.result = SUCCEEDED(r.hr);
+	r.value = SUCCEEDED(r.hr);
 	return r;
 }
 
