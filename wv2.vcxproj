@@ -178,6 +178,7 @@
     <ClCompile Include="src\cwv2.cpp" />
     <ClCompile Include="src\cwv2env.cpp" />
     <ClCompile Include="src\cwv2envOpts.cpp" />
+    <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp" />
     <ClCompile Include="src\IsDocumentPlayingAudioChanged.cpp" />
     <ClCompile Include="src\IsMutedChanged.cpp" />
     <ClCompile Include="src\WindowCloseRequested.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="src\cwv2.h" />
     <ClInclude Include="src\cwv2env.h" />
     <ClInclude Include="src\cwv2envOpts.h" />
+    <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h" />
     <ClInclude Include="src\IsDocumentPlayingAudioChanged.h" />
     <ClInclude Include="src\IsMutedChanged.h" />
     <ClInclude Include="src\WindowCloseRequested.h" />

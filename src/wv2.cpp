@@ -239,6 +239,11 @@ bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler) {
 	return ((cwv2*)w)->setWebMessageReceivedHandler(handler);
 }
 
+wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested handler) {	
+	if(!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->setNewWindowRequestedHandler(handler);
+}
+
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
 	return ((cwv2*)w)->stop();
@@ -292,4 +297,29 @@ LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder) {
 		return _wcsdup(versionInfo);
 	}
 	return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+LPWSTR
+wv2newWindowRequestedEventArgs_uri(wv2newWindowRequestedEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2newWindowRequestedEventArgs*)args)->uri();
+}
+
+bool
+wv2newWindowRequestedEventArgs_handled(wv2newWindowRequestedEventArgs_t args) {
+	if(!args) return false;
+	return ((wv2newWindowRequestedEventArgs*)args)->handled();
+}
+
+wv2bool
+wv2newWindowRequestedEventArgs_setHandled(wv2newWindowRequestedEventArgs_t args, bool handled) {
+	if(!args) return wv2boolInvalidArg();
+	return ((wv2newWindowRequestedEventArgs*)args)->setHandled(handled);
+}
+
+bool
+wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t args) {
+	if(!args) return false;
+	return ((wv2newWindowRequestedEventArgs*)args)->isUserInitiated();
 }

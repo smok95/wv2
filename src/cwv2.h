@@ -26,7 +26,8 @@ class cwv2 :
 	public ICoreWebView2DOMContentLoadedEventHandler,
 	public ICoreWebView2HistoryChangedEventHandler,
 	public ICoreWebView2PermissionRequestedEventHandler,
-	public ICoreWebView2WebMessageReceivedEventHandler
+	public ICoreWebView2WebMessageReceivedEventHandler,
+	public ICoreWebView2NewWindowRequestedEventHandler
 {
 public:
 	friend class WindowCloseRequested;
@@ -62,6 +63,7 @@ public:
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, ICoreWebView2PermissionRequestedEventArgs *args) OVERRIDE;
 	STDMETHODIMP Invoke(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args) OVERRIDE;
 	STDMETHODIMP Invoke(ICoreWebView2 *sender, IUnknown *args) OVERRIDE;
+	STDMETHODIMP Invoke(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args) OVERRIDE;
 	STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppv) OVERRIDE;
 	ULONG STDMETHODCALLTYPE AddRef() OVERRIDE;
 	ULONG STDMETHODCALLTYPE Release() OVERRIDE;
@@ -116,6 +118,7 @@ public:
 	wv2bool openTaskManagerWindow() OVERRIDE;
 
 	wv2env* getEnvironment() OVERRIDE;
+	wv2bool setNewWindowRequestedHandler(newWindowRequested handler) OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -167,6 +170,9 @@ private:
 
 	IsMutedChanged isMutedChangedHandler_;
 	IsDocumentPlayingAudioChanged isDocumentPlayingAudioChangedHandler_;
+
+	newWindowRequested newWindowRequestedHandler_{nullptr};
+	EventRegistrationToken newWindowRequestedToken_;
 
 	
 	HRESULT lastError_;

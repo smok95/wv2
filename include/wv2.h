@@ -25,12 +25,15 @@
 
 ## 0.4.0(19)	2024-05-03
 - Change the structure of the 'wv2bool' structure
+
+## 0.5.0(20)	2024-05-
+- Added partial support for the NewWindowRequested event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.4.0"
-#define WV2_VERSION_NUM		19
+#define WV2_VERSION			"0.5.0"
+#define WV2_VERSION_NUM		20
 
 #include <windows.h>
 #include <stdbool.h>
@@ -68,8 +71,8 @@ typedef enum wv2HostResourceAccessKind {
 }wv2HostResourceAccessKind;
 #endif // __wv2HostResourceAccessKind__DEFINED__
 
-typedef void *wv2_t;
-typedef void *wv2env_t;	// CoreWebView2Environment
+typedef void* wv2_t;
+typedef void* wv2env_t;	// CoreWebView2Environment
 
 typedef struct wv2settings {
 	bool isScriptEnabled;
@@ -102,6 +105,43 @@ typedef struct {
 	uint32_t browserProcessId;
 }wv2browserProcessExitedEventArgs;
 
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2newWindowRequestedEventArgs_t; // ICoreWebView2NewWindowRequestedEventArgs
+
+/*
+@brief      Gets the target uri of the new window request.
+@return     The target URI of the new window request.
+@note       The returned LPWSTR must be freed using wv2freeMemory after use.
+*/
+WV2_API LPWSTR 
+wv2newWindowRequestedEventArgs_uri(wv2newWindowRequestedEventArgs_t args);
+
+/*
+@brief		Indicates whether the NewWindowRequested event is handled by host.
+*/
+WV2_API bool 
+wv2newWindowRequestedEventArgs_handled(wv2newWindowRequestedEventArgs_t args);
+
+/*
+@brief		Indicates whether the NewWindowRequested event is handled by host.
+*/
+WV2_API wv2bool 
+wv2newWindowRequestedEventArgs_setHandled(wv2newWindowRequestedEventArgs_t args, bool handled);
+
+/*
+@brief		true when the new window request was initiated through a user 
+			gesture such as selecting an anchor tag with target.
+*/
+WV2_API bool 
+wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t args);
+
+//wv2bool setNewWindow(ICoreWebView2* newWindow);
+//ICoreWebView2* newWindow();
+//ICoreWebView2Deferral* deferral();
+//ICoreWebView2WindowFeatures* windowFeatures();
+///////////////////////////////////////////////////////////////////////////////
+
+
 typedef void (* createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
 typedef void (* executeScriptCompleted)(wv2_t sender, 
@@ -125,6 +165,8 @@ typedef isMutedChanged isDocumentPlayingAudioChanged;
 
 typedef void(*browserProcessExited)(wv2env_t sender, 
 	wv2browserProcessExitedEventArgs* e);
+
+typedef void(*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -286,6 +328,11 @@ WV2_API bool wv2setIsMutedChangedHandler(wv2_t w, isMutedChanged handler);
 WV2_API bool wv2setIsDocumentPlayingAudioChangedHandler(wv2_t w, 
 	isDocumentPlayingAudioChanged handler);
 
+/*
+@brief		Set an event handler for the newWindowRequested event.
+*/
+WV2_API wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested handler);
+
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
 */
@@ -346,6 +393,15 @@ struct wv2env {
 	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
 };
 
+typedef void* wv2newWindowRequestedEventArgs_t; // ICoreWebView2NewWindowRequestedEventArgs
+
+struct wv2newWindowRequestedEventArgs {
+	virtual LPWSTR uri() = 0;
+	virtual bool handled() = 0;
+	virtual wv2bool setHandled(bool handled) = 0;
+	virtual bool isUserInitiated() = 0;
+};
+
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
@@ -399,6 +455,8 @@ struct wv2 {
 	virtual wv2bool openTaskManagerWindow() = 0;
 
 	virtual wv2env* getEnvironment() = 0;
+
+	virtual wv2bool setNewWindowRequestedHandler(newWindowRequested handler) = 0;
 };
 #endif // __cplusplus
 

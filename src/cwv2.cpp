@@ -6,6 +6,7 @@
 #include <codecvt>
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
+#include "cwv2newWindowRequestedEventArgs.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -65,7 +66,10 @@ cwv2::cwv2(HWND parentWindow,
 	domContentLoadedToken_(emptyEventRegistrationToken()),
 	permissionRequestedToken_(emptyEventRegistrationToken()),
 	webMessageReceivedHandler_(nullptr),
-	webMessageReceivedToken_(emptyEventRegistrationToken()) {
+	webMessageReceivedToken_(emptyEventRegistrationToken()),
+	newWindowRequestedHandler_(nullptr),
+	newWindowRequestedToken_(emptyEventRegistrationToken())
+{
 	lastError_ = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 	coInitilized_ = SUCCEEDED(lastError_);
 	createStatus_ = created;
@@ -95,6 +99,8 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		if (virtualHostName_.length() > 0) {
 			view2_3_->ClearVirtualHostNameToFolderMapping(virtualHostName_.c_str());
 		}
+
+		view2_3_->remove_NewWindowRequested(newWindowRequestedToken_);
 
 		view2_3_.Release();
 	}
@@ -292,6 +298,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		view2_3_->add_NavigationStarting(this, &navigationStartingToken_);
 		view2_3_->add_NavigationCompleted(this, &navigationCompletedToken_);
 		view2_3_->add_WebMessageReceived(this, &webMessageReceivedToken_);
+		view2_3_->add_NewWindowRequested(this, &newWindowRequestedToken_);
 	}
 	else {
 		createStatus_ = failed;
@@ -397,6 +404,17 @@ STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, ICoreWebView2DOMContentLoadedEv
 	return S_OK;
 }
 
+STDMETHODIMP cwv2::Invoke(ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args) {
+	if(sender != view2_3_ || args == nullptr) return E_UNEXPECTED;
+
+	if(newWindowRequestedHandler_) {
+		cwv2newWindowRequestedEventArgs argsWrap(*args);
+		newWindowRequestedHandler_(this, &argsWrap);
+	}
+
+	return S_OK;
+}
+
 STDMETHODIMP cwv2::QueryInterface(REFIID riid, LPVOID* ppv) {
 	// Always set out parameter to NULL, validating it first.
 	if (!ppv) {
@@ -464,11 +482,11 @@ LPCWSTR cwv2::executeScriptSync(LPCWSTR script) {
 		return nullptr;
 	}
 
-	const DWORD start = GetTickCount();
-	const DWORD timeout = 3000;
+	const ULONGLONG start = ::GetTickCount64();
+	const ULONGLONG timeout = 3000;
 	while (executeScriptSyncResult_ == nullptr) {
 		wait();
-		if ((GetTickCount() - start) > timeout) {
+		if ((::GetTickCount64() - start) > timeout) {
 			break;
 		}
 	}
@@ -737,4 +755,15 @@ EventRegistrationToken emptyEventRegistrationToken() {
 
 wv2env* cwv2::getEnvironment() {
 	return &env_;
+}
+
+wv2bool cwv2::setNewWindowRequestedHandler(newWindowRequested handler) {
+	wv2bool r = wv2boolNotSupported();
+	if(!view2_3_) return r;
+	r.hr = S_OK;
+	r.value = true;
+
+	newWindowRequestedHandler_ = handler;
+
+	return r;
 }

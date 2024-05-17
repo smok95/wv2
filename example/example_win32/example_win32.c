@@ -35,6 +35,7 @@ void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize);
 void OnIsMutedChanged(wv2_t sender);
 void OnIsDocumentPlayingAudioChanged(wv2_t sender);
 void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
+void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 void NavigatePostExample();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -144,6 +145,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
        // set isDocumentPlayingAudioChanged event handler
        wv2setIsDocumentPlayingAudioChangedHandler(webview, OnIsDocumentPlayingAudioChanged);
+
+       // set newWindowRequested event handler
+       wv2setNewWindowRequestedHandler(webview, OnNewWindowRequested);
 
        wv2navigate(webview, url);
    }
@@ -305,6 +309,16 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
 
 void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e) {
     MessageBox(NULL, L"browserProcessExited", L"Process Status", MB_OK | MB_ICONWARNING);
+}
+
+void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args) {
+    const int response = MessageBox(NULL,
+        L"Do you want to allow the new window?",
+        L"New Window Requested",
+        MB_YESNO | MB_ICONQUESTION);
+
+    const bool handled = response != IDYES;
+    wv2newWindowRequestedEventArgs_setHandled(args, handled);
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
