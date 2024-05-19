@@ -14,12 +14,12 @@
     <Filter Include="src\cJSON">
       <UniqueIdentifier>{11361bd0-5593-4a83-a8ab-9d71351d2736}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\eventHandler">
+      <UniqueIdentifier>{91eab4d5-9399-4208-aed4-06c3dd6087c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cwv2.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\WindowCloseRequested.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="include\wv2.h">
@@ -38,27 +38,27 @@
     <ClInclude Include="src\cwv2envOpts.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\IsMutedChanged.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IsDocumentPlayingAudioChanged.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\cwv2env.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\BrowserProcessExited.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\eventHandler\BrowserProcessExited.h">
+      <Filter>src\eventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eventHandler\IsDocumentPlayingAudioChanged.h">
+      <Filter>src\eventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eventHandler\IsMutedChanged.h">
+      <Filter>src\eventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eventHandler\WindowCloseRequested.h">
+      <Filter>src\eventHandler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\WindowCloseRequested.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\wv2.cpp">
@@ -76,20 +76,23 @@
     <ClCompile Include="src\wv2envOpts.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\IsMutedChanged.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IsDocumentPlayingAudioChanged.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\cwv2env.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BrowserProcessExited.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventHandler\BrowserProcessExited.cpp">
+      <Filter>src\eventHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventHandler\IsDocumentPlayingAudioChanged.cpp">
+      <Filter>src\eventHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventHandler\IsMutedChanged.cpp">
+      <Filter>src\eventHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventHandler\WindowCloseRequested.cpp">
+      <Filter>src\eventHandler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

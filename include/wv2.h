@@ -26,7 +26,7 @@
 ## 0.4.0(19)	2024-05-03
 - Change the structure of the 'wv2bool' structure
 
-## 0.5.0(20)	2024-05-
+## 0.5.0(20)	2024-05-17
 - Added partial support for the NewWindowRequested event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_

@@ -99,7 +99,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;EZWEBVIEW2_EXPORTS;%(PreprocessorDefinitions);EZWEBVIEW2_EXPORTS;WV2_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\;.\src\eventHandler</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,7 +117,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;EZWEBVIEW2_EXPORTS;%(PreprocessorDefinitions);EZWEBVIEW2_EXPORTS;WV2_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\;.\src\eventHandler</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;EZWEBVIEW2_EXPORTS;%(PreprocessorDefinitions);EZWEBVIEW2_EXPORTS;WV2_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\;.\src\eventHandler</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -159,7 +159,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;EZWEBVIEW2_EXPORTS;%(PreprocessorDefinitions);EZWEBVIEW2_EXPORTS;WV2_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\src\webview2\include;.\include;.\;.\src\eventHandler</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,15 +173,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\BrowserProcessExited.cpp" />
     <ClCompile Include="src\cJSON\cJSON.c" />
     <ClCompile Include="src\cwv2.cpp" />
     <ClCompile Include="src\cwv2env.cpp" />
     <ClCompile Include="src\cwv2envOpts.cpp" />
     <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp" />
-    <ClCompile Include="src\IsDocumentPlayingAudioChanged.cpp" />
-    <ClCompile Include="src\IsMutedChanged.cpp" />
-    <ClCompile Include="src\WindowCloseRequested.cpp" />
+    <ClCompile Include="src\eventHandler\BrowserProcessExited.cpp" />
+    <ClCompile Include="src\eventHandler\IsDocumentPlayingAudioChanged.cpp" />
+    <ClCompile Include="src\eventHandler\IsMutedChanged.cpp" />
+    <ClCompile Include="src\eventHandler\WindowCloseRequested.cpp" />
     <ClCompile Include="src\wv2.cpp" />
     <ClCompile Include="src\wv2envOpts.cpp" />
     <ClCompile Include="src\wv2util.cpp" />
@@ -191,15 +191,15 @@
     <ClInclude Include="include\wv2envOpts.h" />
     <ClInclude Include="include\wv2util.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\BrowserProcessExited.h" />
     <ClInclude Include="src\cJSON\cJSON.h" />
     <ClInclude Include="src\cwv2.h" />
     <ClInclude Include="src\cwv2env.h" />
     <ClInclude Include="src\cwv2envOpts.h" />
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h" />
-    <ClInclude Include="src\IsDocumentPlayingAudioChanged.h" />
-    <ClInclude Include="src\IsMutedChanged.h" />
-    <ClInclude Include="src\WindowCloseRequested.h" />
+    <ClInclude Include="src\eventHandler\BrowserProcessExited.h" />
+    <ClInclude Include="src\eventHandler\IsDocumentPlayingAudioChanged.h" />
+    <ClInclude Include="src\eventHandler\IsMutedChanged.h" />
+    <ClInclude Include="src\eventHandler\WindowCloseRequested.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="wv2.rc" />
