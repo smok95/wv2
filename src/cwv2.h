@@ -11,10 +11,9 @@
 #include "WebView2.h"
 #include "wv2.h"
 
-#include "WindowCloseRequested.h"
-#include "IsMutedChanged.h"
-#include "IsDocumentPlayingAudioChanged.h"
+#include "eventHandler.h"
 #include "cwv2env.h"
+#include "cwv2settings.h"
 
 class cwv2 :
 	public wv2,
@@ -71,8 +70,7 @@ public:
 
 	// wv2 interface	///////////////////////////////////////////////////////
 	wv2settings* getSettings() OVERRIDE;
-	bool setSettings(const wv2settings* settings) OVERRIDE;
-
+	
 	bool executeScript(LPCWSTR script, executeScriptCompleted handler) OVERRIDE;
 	LPCWSTR executeScriptSync(LPCWSTR script) OVERRIDE;
 	LPCWSTR getSource() OVERRIDE;
@@ -119,6 +117,8 @@ public:
 
 	wv2env* getEnvironment() OVERRIDE;
 	wv2bool setNewWindowRequestedHandler(newWindowRequested handler) OVERRIDE;
+	wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) OVERRIDE;
+	LPCWSTR documentTitle() OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -145,7 +145,7 @@ private:
 	void* userData_;
 	LPWSTR executeScriptSyncResult_;
 	std::wstring virtualHostName_;
-	wv2settings settings_;
+	cwv2settings settings_;
 
 	executeScriptCompleted executeScriptCompletedHandler_;
 	createCompleted createCompletedHandler_;
@@ -173,7 +173,8 @@ private:
 
 	newWindowRequested newWindowRequestedHandler_{nullptr};
 	EventRegistrationToken newWindowRequestedToken_;
-
+	DocumentTitleChanged documentTitleChangedHandler_;
+	
 	
 	HRESULT lastError_;
 	bool coInitilized_;

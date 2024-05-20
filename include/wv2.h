@@ -28,12 +28,17 @@
 
 ## 0.5.0(20)	2024-05-17
 - Added partial support for the NewWindowRequested event.
+
+## 0.6.0(21)	2024-05-20
+- Added documentTitleChanged event handler support
+- Removed the old wv2settings structure and setSettings function
+
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.5.0"
-#define WV2_VERSION_NUM		20
+#define WV2_VERSION			"0.6.0"
+#define WV2_VERSION_NUM		21
 
 #include <windows.h>
 #include <stdbool.h>
@@ -74,25 +79,69 @@ typedef enum wv2HostResourceAccessKind {
 typedef void* wv2_t;
 typedef void* wv2env_t;	// CoreWebView2Environment
 
-typedef struct wv2settings {
-	bool isScriptEnabled;
-	bool isWebMessageEnabled;
-	bool areDefaultScriptDialogsEnabled;
-	bool isStatusBarEnabled;
-	bool areDevToolsEnabled;
-	bool areDefaultContextMenusEnabled;
-	bool areHostObjectsAllowed;
-	bool isZoomControlEnabled;
-	bool isBuiltInErrorPageEnabled;
-}wv2settings;
-
 // Structure representing the result and support status of a function
-typedef struct {
+typedef struct wv2bool {
 	// Result of the function execution
-	bool value;    	
+	bool value;
 	// HRESULT of the function execution
-	HRESULT hr;             
+	HRESULT hr;
 } wv2bool;
+
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2settings_t; // ICoreWebView2Settings
+WV2_API wv2bool 
+wv2settings_isScriptEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setIsScriptEnabled(wv2settings_t s, bool isScriptEnabled);
+
+WV2_API wv2bool 
+wv2settings_isWebMessageEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setIsWebMessageEnabled(wv2settings_t s, bool isWebMessageEnabled);
+
+WV2_API wv2bool 
+wv2settings_areDefaultScriptDialogsEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setAreDefaultScriptDialogsEnabled(wv2settings_t s, bool areDefaultScriptDialogsEnabled);
+
+WV2_API wv2bool 
+wv2settings_isStatusBarEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setIsStatusBarEnabled(wv2settings_t s, bool isStatusBarEnabled);
+
+WV2_API wv2bool 
+wv2settings_areDevToolsEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setAreDevToolsEnabled(wv2settings_t s, bool areDevToolsEnabled);
+
+WV2_API wv2bool 
+wv2settings_areDefaultContextMenusEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setAreDefaultContextMenusEnabled(wv2settings_t s, bool enabled);
+
+WV2_API wv2bool 
+wv2settings_areHostObjectsAllowed(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setAreHostObjectsAllowed(wv2settings_t s, bool allowed);
+
+WV2_API wv2bool
+wv2settings_isZoomControlEnabled(wv2settings_t s);
+
+WV2_API wv2bool
+wv2settings_setIsZoomControlEnabled(wv2settings_t s, bool enabled);
+
+WV2_API wv2bool
+wv2settings_isBuiltInErrorPageEnabled(wv2settings_t s);
+
+WV2_API wv2bool 
+wv2settings_setIsBuiltInErrorPageEnabled(wv2settings_t s, bool enabled);
 
 // @see COREWEBVIEW2_BROWSER_PROCESS_EXIT_KIND ( WebView2.h )
 typedef enum wv2browserProcessExitKind {
@@ -168,6 +217,8 @@ typedef void(*browserProcessExited)(wv2env_t sender,
 
 typedef void(*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 
+typedef navigationCompleted documentTitleChanged;
+
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
@@ -201,8 +252,10 @@ WV2_API bool wv2setUserData(wv2_t w, void* userData);
 
 WV2_API void* wv2getUserData(wv2_t w);
 
-WV2_API wv2settings* wv2getSettings(wv2_t w);
-WV2_API bool wv2setSettings(wv2_t w, const wv2settings* settings);
+/*
+@brief		Defines properties that enable, disable, or modify WebView features.
+*/
+WV2_API wv2settings_t wv2getSettings(wv2_t w);
 
 WV2_API bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind);
@@ -333,6 +386,11 @@ WV2_API bool wv2setIsDocumentPlayingAudioChangedHandler(wv2_t w,
 */
 WV2_API wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested handler);
 
+/*
+@brief		Set an event handler for the documentTitleChanged event.
+*/
+WV2_API wv2bool wv2setDocumentTitleChangedHandler(wv2_t w, documentTitleChanged handler);
+
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
 */
@@ -379,6 +437,14 @@ WV2_API wv2bool wv2isDocumentPlayingAudio(wv2_t w);
 */
 WV2_API wv2bool wv2openTaskManagerWindow(wv2_t w);
 
+/*
+@brief		Gets the title for the current top-level document.
+@param		wv2_t w      The handle to the wv2.
+@return		
+@note       The returned LPCWSTR must be freed using wv2freeMemory after use.
+*/
+WV2_API LPCWSTR wv2documentTitle(wv2_t w);
+
 WV2_API HRESULT wv2lastError(wv2_t w);
 
 #ifdef __cplusplus
@@ -393,7 +459,26 @@ struct wv2env {
 	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
 };
 
-typedef void* wv2newWindowRequestedEventArgs_t; // ICoreWebView2NewWindowRequestedEventArgs
+struct wv2settings {
+	virtual wv2bool isScriptEnabled() = 0;
+	virtual wv2bool setIsScriptEnabled(bool isScriptEnabled) = 0;
+	virtual wv2bool isWebMessageEnabled() = 0;
+	virtual wv2bool setIsWebMessageEnabled(bool isWebMessageEnabled) = 0;
+	virtual wv2bool areDefaultScriptDialogsEnabled() = 0;
+	virtual wv2bool setAreDefaultScriptDialogsEnabled(bool areDefaultScriptDialogsEnabled) = 0;
+	virtual wv2bool isStatusBarEnabled() = 0;
+	virtual wv2bool setIsStatusBarEnabled(bool isStatusBarEnabled) = 0;
+	virtual wv2bool areDevToolsEnabled() = 0;
+	virtual wv2bool setAreDevToolsEnabled(bool areDevToolsEnabled) = 0;
+	virtual wv2bool areDefaultContextMenusEnabled() = 0;
+	virtual wv2bool setAreDefaultContextMenusEnabled(bool enabled) = 0;
+	virtual wv2bool areHostObjectsAllowed() = 0;
+	virtual wv2bool setAreHostObjectsAllowed(bool allowed) = 0;
+	virtual wv2bool isZoomControlEnabled() = 0;
+	virtual wv2bool setIsZoomControlEnabled(bool enabled) = 0;
+	virtual wv2bool isBuiltInErrorPageEnabled() = 0;
+	virtual wv2bool setIsBuiltInErrorPageEnabled(bool enabled) = 0;
+};
 
 struct wv2newWindowRequestedEventArgs {
 	virtual LPWSTR uri() = 0;
@@ -408,8 +493,7 @@ struct wv2 {
 	virtual void detach() = 0;
 
 	virtual wv2settings* getSettings() = 0;
-	virtual bool setSettings(const wv2settings* settings) = 0;
-
+	
 	virtual bool executeScript(LPCWSTR script, executeScriptCompleted handler) = 0;
 	virtual LPCWSTR executeScriptSync(LPCWSTR script) = 0;
 	virtual LPCWSTR getSource() = 0;
@@ -457,6 +541,9 @@ struct wv2 {
 	virtual wv2env* getEnvironment() = 0;
 
 	virtual wv2bool setNewWindowRequestedHandler(newWindowRequested handler) = 0;
+	virtual wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) = 0;
+
+	virtual LPCWSTR documentTitle() = 0;
 };
 #endif // __cplusplus
 

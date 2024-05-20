@@ -115,14 +115,9 @@ void wv2destroy(wv2_t* h) {
 	*h = nullptr;
 }
 
-wv2settings* wv2getSettings(wv2_t w) {
+wv2settings_t wv2getSettings(wv2_t w) {
 	if (!w) return nullptr;
 	return ((cwv2*)w)->getSettings();
-}
-
-bool wv2setSettings(wv2_t w, const wv2settings* settings) {
-	if (!w) return false;
-	return ((cwv2*)w)->setSettings(settings);
 }
 
 void* wv2getUserData(wv2_t w) {
@@ -244,6 +239,16 @@ wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested handler) {
 	return ((cwv2*)w)->setNewWindowRequestedHandler(handler);
 }
 
+wv2bool wv2setDocumentTitleChangedHandler(wv2_t w, documentTitleChanged handler) {
+	if(!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->setDocumentTitleChangedHandler(handler);
+}
+
+LPCWSTR wv2documentTitle(wv2_t w) {
+	if(!w) return nullptr;
+	return ((cwv2*)w)->documentTitle();
+}
+
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
 	return ((cwv2*)w)->stop();
@@ -322,4 +327,95 @@ bool
 wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t args) {
 	if(!args) return false;
 	return ((wv2newWindowRequestedEventArgs*)args)->isUserInitiated();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+wv2bool wv2settings_isScriptEnabled(wv2settings_t s) {
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->isScriptEnabled();
+}
+
+wv2bool wv2settings_setIsScriptEnabled(wv2settings_t s, bool isScriptEnabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setIsScriptEnabled(isScriptEnabled);
+}
+
+wv2bool wv2settings_isWebMessageEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->isWebMessageEnabled();
+}
+
+wv2bool wv2settings_setIsWebMessageEnabled(wv2settings_t s, bool isWebMessageEnabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setIsWebMessageEnabled(isWebMessageEnabled);
+}
+
+wv2bool wv2settings_areDefaultScriptDialogsEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->areDefaultScriptDialogsEnabled();
+}
+
+wv2bool wv2settings_setAreDefaultScriptDialogsEnabled(wv2settings_t s, bool areDefaultScriptDialogsEnabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setAreDefaultScriptDialogsEnabled(areDefaultScriptDialogsEnabled);
+}
+
+wv2bool wv2settings_isStatusBarEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->isStatusBarEnabled();
+}
+
+wv2bool wv2settings_setIsStatusBarEnabled(wv2settings_t s, bool isStatusBarEnabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setIsStatusBarEnabled(isStatusBarEnabled);
+}
+
+wv2bool wv2settings_areDevToolsEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->areDevToolsEnabled();
+}
+
+wv2bool wv2settings_setAreDevToolsEnabled(wv2settings_t s, bool areDevToolsEnabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setAreDevToolsEnabled(areDevToolsEnabled);
+}
+
+wv2bool wv2settings_areDefaultContextMenusEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->areDefaultContextMenusEnabled();
+}
+
+wv2bool wv2settings_setAreDefaultContextMenusEnabled(wv2settings_t s, bool enabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setAreDefaultContextMenusEnabled(enabled);
+}
+
+wv2bool wv2settings_areHostObjectsAllowed(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->areHostObjectsAllowed();
+}
+
+wv2bool wv2settings_setAreHostObjectsAllowed(wv2settings_t s, bool allowed){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setAreHostObjectsAllowed(allowed);
+}
+
+wv2bool wv2settings_isZoomControlEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->isZoomControlEnabled();
+}
+
+wv2bool wv2settings_setIsZoomControlEnabled(wv2settings_t s, bool enabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setIsZoomControlEnabled(enabled);
+}
+
+wv2bool wv2settings_isBuiltInErrorPageEnabled(wv2settings_t s){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->isBuiltInErrorPageEnabled();
+}
+
+wv2bool wv2settings_setIsBuiltInErrorPageEnabled(wv2settings_t s, bool enabled){
+	if(!s) return wv2boolInvalidArg();
+	return ((wv2settings*)s)->setIsBuiltInErrorPageEnabled(enabled);
 }

@@ -2,14 +2,11 @@
 #include <atlcomcli.h>
 #include "WebView2.h"
 #include "wv2.h"
-#include "BrowserProcessExited.h"
+#include "eventHandler.h"
 
 class cwv2env:
 	public wv2env {
 public:
-	STDMETHODIMP Invoke(ICoreWebView2Environment* sender,
-		ICoreWebView2BrowserProcessExitedEventArgs* args);
-
 	wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) override;
 
 	HRESULT createCoreWebView2EnvironmentCompleted(ICoreWebView2Environment* env);

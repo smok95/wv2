@@ -31,7 +31,6 @@ static char THIS_FILE[] = __FILE__;
 using namespace std;
 static void wait();
 
-wv2settings wv2settingsDefault();
 EventRegistrationToken emptyEventRegistrationToken();
 
 static inline wv2bool wv2boolNotSupported() {
@@ -55,7 +54,7 @@ cwv2::cwv2(HWND parentWindow,
 	void* userData /*=nullptr*/) :parentWindow_(parentWindow),
 	createCompletedHandler_(createCompletedHandler), userData_(userData),
 	refCount_(0), createStatus_(none), executeScriptSyncResult_(nullptr),
-	settings_(wv2settingsDefault()), executeScriptCompletedHandler_(nullptr),
+	executeScriptCompletedHandler_(nullptr),
 	historyChangedHandler_(nullptr), 
 	historyChangedToken_(emptyEventRegistrationToken()),
 	navigationCompletedHandler_(nullptr),
@@ -101,6 +100,7 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		}
 
 		view2_3_->remove_NewWindowRequested(newWindowRequestedToken_);
+		documentTitleChangedHandler_.remove(view2_3_);
 
 		view2_3_.Release();
 	}
@@ -127,84 +127,17 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 wv2settings* cwv2::getSettings() {
 	if (!view2_3_) return nullptr;
 
-	CComPtr<ICoreWebView2Settings> s;
-	lastError_ = view2_3_->get_Settings(&s);
-	if (FAILED(lastError_)) {
-		return nullptr;
+	if(!settings_.getCoreWebView2Settings()) {
+		CComPtr<ICoreWebView2Settings> s;
+		lastError_ = view2_3_->get_Settings(&s);
+		if(FAILED(lastError_)) {
+			return nullptr;
+		}
+
+		settings_.setCoreWebView2Settings(s);
 	}
-
-	BOOL v;
-	s->get_AreDefaultContextMenusEnabled(&v);
-	settings_.areDefaultContextMenusEnabled = v == TRUE;
-	s->get_AreDefaultScriptDialogsEnabled(&v);
-	settings_.areDefaultScriptDialogsEnabled = v == TRUE;
-	s->get_AreDevToolsEnabled(&v);
-	settings_.areDevToolsEnabled= v == TRUE;
-	s->get_AreHostObjectsAllowed(&v);
-	settings_.areHostObjectsAllowed = v == TRUE;
-	s->get_IsBuiltInErrorPageEnabled(&v);
-	settings_.isBuiltInErrorPageEnabled = v == TRUE;
-	s->get_IsScriptEnabled(&v);
-	settings_.isScriptEnabled = v == TRUE;
-	s->get_IsStatusBarEnabled(&v);
-	settings_.isStatusBarEnabled = v == TRUE;
-	s->get_IsWebMessageEnabled(&v);
-	settings_.isWebMessageEnabled = v == TRUE;
-	s->get_IsZoomControlEnabled(&v);
-	settings_.isZoomControlEnabled = v == TRUE;
-
-	return &settings_;
-}
-
-bool cwv2::setSettings(const wv2settings* val) {
-	if (!view2_3_ or !val) return false;
 	
-	CComPtr<ICoreWebView2Settings> s;	
-	if (FAILED(lastError_ = view2_3_->get_Settings(&s))) {
-		return false;
-	}
-
-	settings_ = *val;
-	auto& r = settings_;
-	if (FAILED(lastError_ = s->put_AreDefaultContextMenusEnabled(
-		r.areDefaultContextMenusEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_AreDefaultScriptDialogsEnabled(
-		r.areDefaultScriptDialogsEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_AreDevToolsEnabled(r.areDevToolsEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_AreHostObjectsAllowed(r.areHostObjectsAllowed))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_IsBuiltInErrorPageEnabled(r.isBuiltInErrorPageEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_IsScriptEnabled(r.isScriptEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_IsStatusBarEnabled(r.isStatusBarEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_IsWebMessageEnabled(r.isWebMessageEnabled))) {
-		return false;
-	}
-
-	if (FAILED(lastError_ = s->put_IsZoomControlEnabled(r.isZoomControlEnabled))) {
-		return false;
-	}
-
-	return true;
+	return &settings_;
 }
 
 void* cwv2::getUserData() {
@@ -299,6 +232,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		view2_3_->add_NavigationCompleted(this, &navigationCompletedToken_);
 		view2_3_->add_WebMessageReceived(this, &webMessageReceivedToken_);
 		view2_3_->add_NewWindowRequested(this, &newWindowRequestedToken_);
+		documentTitleChangedHandler_.add(view2_3_);
 	}
 	else {
 		createStatus_ = failed;
@@ -743,11 +677,6 @@ wv2bool cwv2::openTaskManagerWindow() {
 	return r;
 }
 
-wv2settings wv2settingsDefault() {
-	wv2settings def = { true, };
-	return def;
-}
-
 EventRegistrationToken emptyEventRegistrationToken() {
 	EventRegistrationToken token = { 0, };
 	return token;
@@ -766,4 +695,28 @@ wv2bool cwv2::setNewWindowRequestedHandler(newWindowRequested handler) {
 	newWindowRequestedHandler_ = handler;
 
 	return r;
+}
+
+wv2bool cwv2::setDocumentTitleChangedHandler(documentTitleChanged handler) {
+	wv2bool r = wv2boolNotSupported();
+	if(!view2_3_) return r;
+	r.hr = S_OK;
+	r.value = true;
+
+	documentTitleChangedHandler_.bind(handler, this);
+	return r;
+}
+
+LPCWSTR cwv2::documentTitle() {
+	if(!view2_3_) return nullptr;
+
+	LPCWSTR result = nullptr;
+	LPWSTR title = nullptr;
+	lastError_ = view2_3_->get_DocumentTitle(&title);
+	if(SUCCEEDED(lastError_)) {
+		result = _wcsdup(title);
+		CoTaskMemFree(title);
+	}
+
+	return result;
 }

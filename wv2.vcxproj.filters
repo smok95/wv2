@@ -44,16 +44,10 @@
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\eventHandler\BrowserProcessExited.h">
-      <Filter>src\eventHandler</Filter>
+    <ClInclude Include="src\cwv2settings.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\eventHandler\IsDocumentPlayingAudioChanged.h">
-      <Filter>src\eventHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="src\eventHandler\IsMutedChanged.h">
-      <Filter>src\eventHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="src\eventHandler\WindowCloseRequested.h">
+    <ClInclude Include="src\eventHandler\eventHandler.h">
       <Filter>src\eventHandler</Filter>
     </ClInclude>
   </ItemGroup>
@@ -82,17 +76,8 @@
     <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\eventHandler\BrowserProcessExited.cpp">
-      <Filter>src\eventHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="src\eventHandler\IsDocumentPlayingAudioChanged.cpp">
-      <Filter>src\eventHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="src\eventHandler\IsMutedChanged.cpp">
-      <Filter>src\eventHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="src\eventHandler\WindowCloseRequested.cpp">
-      <Filter>src\eventHandler</Filter>
+    <ClCompile Include="src\cwv2settings.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

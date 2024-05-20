@@ -178,10 +178,7 @@
     <ClCompile Include="src\cwv2env.cpp" />
     <ClCompile Include="src\cwv2envOpts.cpp" />
     <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp" />
-    <ClCompile Include="src\eventHandler\BrowserProcessExited.cpp" />
-    <ClCompile Include="src\eventHandler\IsDocumentPlayingAudioChanged.cpp" />
-    <ClCompile Include="src\eventHandler\IsMutedChanged.cpp" />
-    <ClCompile Include="src\eventHandler\WindowCloseRequested.cpp" />
+    <ClCompile Include="src\cwv2settings.cpp" />
     <ClCompile Include="src\wv2.cpp" />
     <ClCompile Include="src\wv2envOpts.cpp" />
     <ClCompile Include="src\wv2util.cpp" />
@@ -196,10 +193,8 @@
     <ClInclude Include="src\cwv2env.h" />
     <ClInclude Include="src\cwv2envOpts.h" />
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h" />
-    <ClInclude Include="src\eventHandler\BrowserProcessExited.h" />
-    <ClInclude Include="src\eventHandler\IsDocumentPlayingAudioChanged.h" />
-    <ClInclude Include="src\eventHandler\IsMutedChanged.h" />
-    <ClInclude Include="src\eventHandler\WindowCloseRequested.h" />
+    <ClInclude Include="src\cwv2settings.h" />
+    <ClInclude Include="src\eventHandler\eventHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="wv2.rc" />

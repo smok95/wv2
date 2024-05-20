@@ -11,11 +11,13 @@
 #define IDI_EXAMPLEWIN32                107
 #define IDI_SMALL                       108
 #define IDC_EXAMPLEWIN32                109
+#define IDC_STATUSBAR					110
 #define IDR_MAINFRAME                   128
 #define ID_32771                        32771
 #define ID_NAVIGATE_WITH_POST           32772
 #define IDM_NAVIGATE_WITH_POST          32773
 #define IDC_STATIC                      -1
+
 
 // Next default values for new objects
 // 

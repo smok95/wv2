@@ -5,6 +5,8 @@
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
 
+#include <CommCtrl.h>
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -23,6 +25,7 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 wv2_t webview = NULL;
+HWND hStatusWnd = NULL; // statusBar
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -36,7 +39,10 @@ void OnIsMutedChanged(wv2_t sender);
 void OnIsDocumentPlayingAudioChanged(wv2_t sender);
 void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
 void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
+void OnDocumentTitleChanged(wv2_t sender);
+
 void NavigatePostExample();
+void SetStatusText(LPCWSTR text);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -126,6 +132,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
+   wv2settings_t settings = NULL;
    wv2envOpts_t options = wv2envOptsCreate();
    wv2envOptsSetString(options, "AdditionalBrowserArguments", L"--auto-open-devtools-for-tabs");
 
@@ -148,6 +155,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
        // set newWindowRequested event handler
        wv2setNewWindowRequestedHandler(webview, OnNewWindowRequested);
+
+       // set documentTitleChanged event handler
+       wv2setDocumentTitleChangedHandler(webview, OnDocumentTitleChanged);
+       
+       settings = wv2getSettings(webview);
+       if(settings) {
+		   // Check if the zoom control feature is currently enabled.
+		   if(wv2settings_isZoomControlEnabled(settings).value) {
+			   // Disable the zoom control feature.
+			   wv2settings_setIsZoomControlEnabled(settings, false);
+		   }
+       }
 
        wv2navigate(webview, url);
    }
@@ -179,10 +198,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_CREATE:
+    {
+        hStatusWnd = CreateWindowEx(0, STATUSCLASSNAME, NULL, SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE,
+            0, 0, 0, 0, hWnd, (HMENU)IDC_STATUSBAR, hInst, NULL);
+
+		SendMessage(hStatusWnd, SB_SETTEXT, 0, (LPARAM)L"Ready");
+		int parts[1] = {-1};
+		SendMessage(hStatusWnd, SB_SETPARTS, 1, (LPARAM)parts);
+    }break;
     case WM_SIZE: {
+		RECT rcClient;
+		GetClientRect(hWnd, &rcClient);
+		SendMessage(hStatusWnd, WM_SIZE, 0, MAKELONG(rcClient.right - rcClient.left, rcClient.bottom - rcClient.top));
+
+        RECT rcStatusbar;
+        GetClientRect(hStatusWnd, &rcStatusbar);
+
         if (webview) {
-            wv2resize(webview, LOWORD(lParam), HIWORD(lParam));
+            const int w = LOWORD(lParam);
+            const int h = HIWORD(lParam) - (rcStatusbar.bottom - rcStatusbar.top);
+            wv2resize(webview, w, h);
         }        
+
     }break;
     case WM_COMMAND:
         {
@@ -272,11 +310,11 @@ void OnIsMutedChanged(wv2_t sender) {
 		const bool isMuted = result.value;
 		if (isMuted) {
 			// The WebView is muted.
-			MessageBox(NULL, L"The WebView is muted.", L"Mute Status", MB_OK | MB_ICONINFORMATION);
+            SetStatusText(L"The WebView is muted.");
 		}
 		else {
 			// The WebView is not muted.
-			MessageBox(NULL, L"The WebView is not muted.", L"Mute Status", MB_OK | MB_ICONINFORMATION);
+            SetStatusText(L"The WebView is not muted.");
 		}
 	}
 }
@@ -298,11 +336,11 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
 		// Show a message box based on the result
 		if (isDocumentPlayingAudio) {
 			// The document in the WebView is playing audio.
-			MessageBox(NULL, L"The document in the WebView is playing audio.", L"Audio Status", MB_OK | MB_ICONINFORMATION);
+            SetStatusText(L"The document in the WebView is playing audio.");
 		}
 		else {
 			// The document in the WebView is not playing audio.
-			MessageBox(NULL, L"The document in the WebView is not playing audio.", L"Audio Status", MB_OK | MB_ICONINFORMATION);
+            SetStatusText(L"The document in the WebView is not playing audio.");
 		}
 	}
 }
@@ -321,6 +359,15 @@ void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args) {
     wv2newWindowRequestedEventArgs_setHandled(args, handled);
 }
 
+void OnDocumentTitleChanged(wv2_t sender) {
+
+    WCHAR buf[2048];
+    LPCWSTR title = wv2documentTitle(sender);
+    wsprintf(buf, L"documentTitleChanged - %s", title);
+    SetStatusText(buf);
+    wv2freeMemory((void*)title);
+}
+
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
 	FormatMessageW(
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -331,4 +378,9 @@ void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
 		bufferSize,
 		NULL
 	);
+}
+
+void SetStatusText(LPCWSTR text) {
+    if(!IsWindow(hStatusWnd)) return;
+    SendMessage(hStatusWnd, SB_SETTEXT, 0, (LPARAM)text);
 }
