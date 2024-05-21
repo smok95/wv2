@@ -1,17 +1,20 @@
 #include "cwv2settings.h"
-
-static inline wv2bool wv2boolNotSupported() {
-	wv2bool r = {0,};
-	r.hr = E_NOINTERFACE;
-	return r;
-}
+#include "cwv2types.h"
 
 void cwv2settings::setCoreWebView2Settings(CComPtr<ICoreWebView2Settings> settings) {
 	settings_ = settings;
 }
 
+void cwv2settings::setCoreWebView2Settings2(CComPtr<ICoreWebView2Settings2> settings2) {
+	settings2_ = settings2;
+}
+
 ICoreWebView2Settings* cwv2settings::getCoreWebView2Settings() {
 	return settings_;
+}
+
+ICoreWebView2Settings2* cwv2settings::getCoreWebView2Settings2() {
+	return settings2_;
 }
 
 wv2bool cwv2settings::isScriptEnabled() {
@@ -201,4 +204,24 @@ wv2bool cwv2settings::setIsBuiltInErrorPageEnabled(bool enabled) {
 		}
 	}
 	return r;
+}
+
+LPWSTR cwv2settings::userAgent() {
+	LPWSTR result = nullptr;
+	if(settings2_) {
+		LPWSTR userAgent = nullptr;
+		if(SUCCEEDED(settings2_->get_UserAgent(&userAgent))) {
+			result = _wcsdup(userAgent);
+			CoTaskMemFree((void*)userAgent);
+		}
+	}
+
+	return result;
+}
+HRESULT cwv2settings::setUserAgent(LPCWSTR userAgent) {
+	HRESULT hr = E_NOINTERFACE;
+	if(!settings2_) return hr;
+
+	hr = settings2_->put_UserAgent(userAgent);
+	return hr;
 }

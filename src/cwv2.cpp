@@ -7,6 +7,7 @@
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
 #include "cwv2newWindowRequestedEventArgs.h"
+#include "cwv2types.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -32,12 +33,6 @@ using namespace std;
 static void wait();
 
 EventRegistrationToken emptyEventRegistrationToken();
-
-static inline wv2bool wv2boolNotSupported() {
-	wv2bool r = { 0, };	
-	r.hr = E_NOINTERFACE;
-	return r;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 void wait() {
@@ -152,8 +147,13 @@ wv2settings* cwv2::getSettings() {
 		}
 
 		settings_.setCoreWebView2Settings(s);
+
+		CComPtr<ICoreWebView2Settings2> s2;
+		if(SUCCEEDED(s->QueryInterface(__uuidof(ICoreWebView2Settings2), (void**)&s2))) {
+			settings_.setCoreWebView2Settings2(s2);
+		}
 	}
-	
+
 	return &settings_;
 }
 

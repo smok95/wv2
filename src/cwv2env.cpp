@@ -1,17 +1,11 @@
 #include "cwv2env.h"
+#include "cwv2types.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-static inline wv2bool wv2boolNotSupported() {
-	wv2bool r = {0,};
-	r.hr = E_NOINTERFACE;
-	return r;
-}
-
 
 void cwv2env::Release() {
 

@@ -50,6 +50,12 @@
     <ClInclude Include="src\eventHandler\eventHandler.h">
       <Filter>src\eventHandler</Filter>
     </ClInclude>
+    <ClInclude Include="src\cwv2deferral.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cwv2types.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">

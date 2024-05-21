@@ -2,6 +2,7 @@
 
 #include "wv2.h"
 #include "WebView2.h"
+#include "cwv2deferral.h"
 
 template <typename T, typename I>
 class EventHandlerBase: public I {
@@ -228,21 +229,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-class cwv2deferral: public wv2deferral {
-public:
-	cwv2deferral(CComPtr<ICoreWebView2Deferral> deferral):deferral_(deferral) {}
-
-	HRESULT complete() override {
-		if(deferral_) {
-			return deferral_->Complete();
-		}
-		return E_POINTER;
-	}
-
-private:
-	CComPtr<ICoreWebView2Deferral> deferral_;
-};
-
 class cwv2scriptDialogOpeningEventArgs: public wv2scriptDialogOpeningEventArgs {
 public:
 	cwv2scriptDialogOpeningEventArgs(ICoreWebView2ScriptDialogOpeningEventArgs& args):
@@ -302,7 +288,7 @@ public:
 		return args_.put_ResultText(resultText);
 	}
 
-	wv2deferral* deferral() override {
+	wv2deferral* getDeferral() override {
 		CComPtr<ICoreWebView2Deferral> deferral;
 		if(FAILED(args_.GetDeferral(&deferral))) {
 			return nullptr;

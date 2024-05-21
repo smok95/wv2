@@ -36,12 +36,16 @@
 ## 0.7.0(22)	2024-05-21
 - Changed domContentLoaded event type
 - Added support for contentLoading, scriptDialogOpening events
+
+## 0.8.0(23)	2024-05-22
+- Added `getDeferral` and `windowFeatures` to `newWindowRequestedEventArgs`.
+- Added `userAgent` and `setUserAgent` to `settings`
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.7.0"
-#define WV2_VERSION_NUM		22
+#define WV2_VERSION			"0.8.0"
+#define WV2_VERSION_NUM		23
 
 #include <windows.h>
 #include <stdbool.h>
@@ -151,6 +155,12 @@ wv2settings_isBuiltInErrorPageEnabled(wv2settings_t s);
 WV2_API wv2bool 
 wv2settings_setIsBuiltInErrorPageEnabled(wv2settings_t s, bool enabled);
 
+WV2_API LPWSTR
+wv2settings_userAgent(wv2settings_t s);
+
+WV2_API HRESULT
+wv2settings_setUserAgent(wv2settings_t s, LPCWSTR userAgent);
+
 // @see COREWEBVIEW2_BROWSER_PROCESS_EXIT_KIND ( WebView2.h )
 typedef enum wv2browserProcessExitKind {
 	wv2browserProcessExitKindNormal = 0,
@@ -170,6 +180,39 @@ typedef struct {
 	wv2browserProcessExitKind browserProcessExitKind;
 	uint32_t browserProcessId;
 }wv2browserProcessExitedEventArgs;
+
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2windowFeatures_t; // ICoreWebView2WindowFeatures
+
+WV2_API wv2bool 
+wv2windowFeatures_hasPosition(wv2windowFeatures_t f);
+
+WV2_API wv2bool 
+wv2windowFeatures_hasSize(wv2windowFeatures_t f);
+
+WV2_API uint32_t 
+wv2windowFeatures_left(wv2windowFeatures_t f);
+
+WV2_API uint32_t 
+wv2windowFeatures_top(wv2windowFeatures_t f);
+
+WV2_API uint32_t 
+wv2windowFeatures_height(wv2windowFeatures_t f);
+
+WV2_API uint32_t 
+wv2windowFeatures_width(wv2windowFeatures_t f);
+
+WV2_API wv2bool 
+wv2windowFeatures_shouldDisplayMenuBar(wv2windowFeatures_t f);
+
+WV2_API wv2bool 
+wv2windowFeatures_shouldDisplayStatus(wv2windowFeatures_t f);
+
+WV2_API wv2bool 
+wv2windowFeatures_shouldDisplayToolbar(wv2windowFeatures_t f);
+
+WV2_API wv2bool 
+wv2windowFeatures_shouldDisplayScrollBars(wv2windowFeatures_t f);
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2newWindowRequestedEventArgs_t; // ICoreWebView2NewWindowRequestedEventArgs
@@ -201,10 +244,20 @@ wv2newWindowRequestedEventArgs_setHandled(wv2newWindowRequestedEventArgs_t args,
 WV2_API bool 
 wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t args);
 
+/*
+@brief		Gets a wv2deferral_t object and put the event into a deferred state.
+*/
+WV2_API wv2deferral_t 
+wv2newWindowRequestedEventArgs_getDeferral(wv2newWindowRequestedEventArgs_t args);
+
+/*
+@brief		Gets the window features specified by the window.open() call. 
+			These features should be considered for positioning and sizing of new WebView windows.
+*/
+WV2_API wv2windowFeatures_t
+wv2newWindowRequestedEventArgs_windowFeatures(wv2newWindowRequestedEventArgs_t args);
 //wv2bool setNewWindow(ICoreWebView2* newWindow);
 //ICoreWebView2* newWindow();
-//ICoreWebView2Deferral* deferral();
-//ICoreWebView2WindowFeatures* windowFeatures();
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2domContentLoadedEventArgs_t; // ICoreWebView2DOMContentLoadedEventArgs
@@ -240,7 +293,7 @@ WV2_API HRESULT
 wv2scriptDialogOpeningEventArgs_setResultText(wv2scriptDialogOpeningEventArgs_t args, LPCWSTR resultText);
 
 WV2_API wv2deferral_t 
-wv2scriptDialogOpeningEventArgs_deferral(wv2scriptDialogOpeningEventArgs_t args);
+wv2scriptDialogOpeningEventArgs_getDeferral(wv2scriptDialogOpeningEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -567,6 +620,24 @@ struct wv2settings {
 	virtual wv2bool setIsZoomControlEnabled(bool enabled) = 0;
 	virtual wv2bool isBuiltInErrorPageEnabled() = 0;
 	virtual wv2bool setIsBuiltInErrorPageEnabled(bool enabled) = 0;
+
+	// ICoreWebView2Settings2
+	virtual LPWSTR userAgent() = 0;
+	virtual HRESULT setUserAgent(LPCWSTR userAgent) = 0;
+};
+
+struct wv2windowFeatures {
+	virtual ~wv2windowFeatures() {};
+	virtual wv2bool hasPosition() = 0;
+	virtual wv2bool hasSize() = 0;
+	virtual uint32_t left() = 0;
+	virtual uint32_t top() = 0;
+	virtual uint32_t height() = 0;
+	virtual uint32_t width() = 0;
+	virtual wv2bool shouldDisplayMenuBar() = 0;
+	virtual wv2bool shouldDisplayStatus() = 0;
+	virtual wv2bool shouldDisplayToolbar() = 0;
+	virtual wv2bool shouldDisplayScrollBars() = 0;
 };
 
 struct wv2newWindowRequestedEventArgs {
@@ -574,6 +645,8 @@ struct wv2newWindowRequestedEventArgs {
 	virtual bool handled() = 0;
 	virtual wv2bool setHandled(bool handled) = 0;
 	virtual bool isUserInitiated() = 0;
+	virtual wv2deferral* getDeferral() = 0;
+	virtual wv2windowFeatures* windowFeatures() = 0;
 };
 
 struct wv2domContentLoadedEventArgs {
@@ -594,9 +667,8 @@ struct wv2scriptDialogOpeningEventArgs {
 	virtual LPWSTR defaultText() = 0;
 	virtual LPWSTR resultText() = 0;
 	virtual HRESULT setResultText(LPCWSTR resultText) = 0;
-	virtual wv2deferral* deferral() = 0;
+	virtual wv2deferral* getDeferral() = 0;
 };
-
 
 struct wv2 {
 	virtual ~wv2(){};

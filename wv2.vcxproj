@@ -190,10 +190,12 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\cJSON\cJSON.h" />
     <ClInclude Include="src\cwv2.h" />
+    <ClInclude Include="src\cwv2deferral.h" />
     <ClInclude Include="src\cwv2env.h" />
     <ClInclude Include="src\cwv2envOpts.h" />
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h" />
     <ClInclude Include="src\cwv2settings.h" />
+    <ClInclude Include="src\cwv2types.h" />
     <ClInclude Include="src\eventHandler\eventHandler.h" />
   </ItemGroup>
   <ItemGroup>

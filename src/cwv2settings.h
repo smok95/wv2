@@ -7,6 +7,8 @@ class cwv2settings: public wv2settings {
 public:	
 	ICoreWebView2Settings* getCoreWebView2Settings();
 	void setCoreWebView2Settings(CComPtr< ICoreWebView2Settings> settings);
+	ICoreWebView2Settings2* getCoreWebView2Settings2();
+	void setCoreWebView2Settings2(CComPtr<ICoreWebView2Settings2> settings2);
 
 	wv2bool isScriptEnabled() override;
 	wv2bool setIsScriptEnabled(bool isScriptEnabled) override;
@@ -26,7 +28,10 @@ public:
 	wv2bool setIsZoomControlEnabled(bool enabled) override;
 	wv2bool isBuiltInErrorPageEnabled() override;
 	wv2bool setIsBuiltInErrorPageEnabled(bool enabled) override;
+	LPWSTR userAgent() override;
+	HRESULT setUserAgent(LPCWSTR userAgent) override;
 private:
-	CComPtr< ICoreWebView2Settings> settings_;
+	CComPtr<ICoreWebView2Settings> settings_;
+	CComPtr<ICoreWebView2Settings2> settings2_;
 };
 

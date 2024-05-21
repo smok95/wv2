@@ -170,7 +170,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        wv2setScriptDialogOpningHandler(webview, OnScriptDialogOpening);
        
        settings = wv2getSettings(webview);
-       if(settings) {
+       if(settings) {           
 		   // Check if the zoom control feature is currently enabled.
 		   if(wv2settings_isZoomControlEnabled(settings).value) {
 			   // Disable the zoom control feature.
@@ -180,6 +180,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
            if(wv2settings_areDefaultScriptDialogsEnabled(settings).value) {
                wv2settings_setAreDefaultScriptDialogsEnabled(settings, false);
            }
+                      
+           //HRESULT hr = wv2settings_setUserAgent(settings, L"user-agent test");
+
        }
 
        wv2navigate(webview, url);
@@ -397,7 +400,7 @@ void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args)
         wv2freeMemory((void*)message);
     }
 
-    wv2deferral_t deferral = wv2scriptDialogOpeningEventArgs_deferral(args);
+    wv2deferral_t deferral = wv2scriptDialogOpeningEventArgs_getDeferral(args);
     if(deferral) {
         wv2deferral_complete(deferral);
 

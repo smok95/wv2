@@ -10,6 +10,8 @@ public:
 	bool handled() override;
 	wv2bool setHandled(bool handled) override;
 	bool isUserInitiated() override;
+	wv2deferral* getDeferral() override;
+	wv2windowFeatures* windowFeatures() override;
 
 private:
 	ICoreWebView2NewWindowRequestedEventArgs& args_;

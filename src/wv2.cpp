@@ -4,13 +4,13 @@
 #include "wv2.h"
 
 #include "cwv2.h"
+#include "cwv2types.h"
 #include "cwv2envOpts.h"
 
 using namespace std;
 HRESULT theLastError_ = E_NOT_SET;
 
 static void wait();
-static inline wv2bool wv2boolInvalidArg(); 
 ///////////////////////////////////////////////////////////////////////////////
 void wait() {
 	MSG msg;
@@ -18,12 +18,6 @@ void wait() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-}
-
-wv2bool wv2boolInvalidArg() {
-	wv2bool r = { 0, };
-	r.hr = E_INVALIDARG;
-	return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -339,6 +333,18 @@ wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t 
 	return ((wv2newWindowRequestedEventArgs*)args)->isUserInitiated();
 }
 
+wv2deferral_t
+wv2newWindowRequestedEventArgs_getDeferral(wv2newWindowRequestedEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2newWindowRequestedEventArgs*)args)->getDeferral();
+}
+
+wv2windowFeatures_t
+wv2newWindowRequestedEventArgs_windowFeatures(wv2newWindowRequestedEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2newWindowRequestedEventArgs*)args)->windowFeatures();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 uint64_t  wv2domContentLoadedEventArgs_navigationId(wv2domContentLoadedEventArgs_t args) {
 	if(!args) return 0;
@@ -447,6 +453,16 @@ wv2bool wv2settings_setIsBuiltInErrorPageEnabled(wv2settings_t s, bool enabled){
 	return ((wv2settings*)s)->setIsBuiltInErrorPageEnabled(enabled);
 }
 
+LPWSTR wv2settings_userAgent(wv2settings_t s) {
+	if(!s) return nullptr;
+	return ((wv2settings*)s)->userAgent();
+}
+
+HRESULT wv2settings_setUserAgent(wv2settings_t s, LPCWSTR userAgent) {
+	if(!s) return E_INVALIDARG;
+	return ((wv2settings*)s)->setUserAgent(userAgent);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT wv2deferral_complete(wv2deferral_t d) {
 	if(!d) return E_INVALIDARG;
@@ -497,9 +513,70 @@ HRESULT wv2scriptDialogOpeningEventArgs_setResultText(wv2scriptDialogOpeningEven
 	return ((wv2scriptDialogOpeningEventArgs*)args)->setResultText(resultText);
 }
 
-wv2deferral_t wv2scriptDialogOpeningEventArgs_deferral(wv2scriptDialogOpeningEventArgs_t args) {
+wv2deferral_t wv2scriptDialogOpeningEventArgs_getDeferral(wv2scriptDialogOpeningEventArgs_t args) {
 	if(!args) return nullptr;
-	return ((wv2scriptDialogOpeningEventArgs*)args)->deferral();
+	return ((wv2scriptDialogOpeningEventArgs*)args)->getDeferral();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+wv2bool
+wv2windowFeatures_hasPosition(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->hasPosition();
+}
+
+wv2bool
+wv2windowFeatures_hasSize(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->hasSize();
+}
+
+uint32_t
+wv2windowFeatures_left(wv2windowFeatures_t f) {
+	if(!f) return 0;
+	return ((wv2windowFeatures*)f)->left();
+}
+
+uint32_t
+wv2windowFeatures_top(wv2windowFeatures_t f) {
+	if(!f) return 0;
+	return ((wv2windowFeatures*)f)->top();
+}
+
+uint32_t
+wv2windowFeatures_height(wv2windowFeatures_t f) {
+	if(!f) return 0;
+	return ((wv2windowFeatures*)f)->height();
+}
+
+uint32_t
+wv2windowFeatures_width(wv2windowFeatures_t f) {
+	if(!f) return 0;
+	return ((wv2windowFeatures*)f)->width();
+}
+
+wv2bool
+wv2windowFeatures_shouldDisplayMenuBar(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->shouldDisplayMenuBar();
+}
+
+wv2bool
+wv2windowFeatures_shouldDisplayStatus(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->shouldDisplayStatus();
+}
+
+wv2bool
+wv2windowFeatures_shouldDisplayToolbar(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->shouldDisplayToolbar();
+}
+
+wv2bool
+wv2windowFeatures_shouldDisplayScrollBars(wv2windowFeatures_t f) {
+	if(!f) return wv2boolInvalidArg();
+	return ((wv2windowFeatures*)f)->shouldDisplayScrollBars();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
