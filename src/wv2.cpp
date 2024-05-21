@@ -244,6 +244,16 @@ wv2bool wv2setDocumentTitleChangedHandler(wv2_t w, documentTitleChanged handler)
 	return ((cwv2*)w)->setDocumentTitleChangedHandler(handler);
 }
 
+wv2bool wv2setContentLoadingHandler(wv2_t w, contentLoading handler) {
+	if(!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->setContentLoadingHandler(handler);
+}
+
+wv2bool wv2setScriptDialogOpningHandler(wv2_t w, scriptDialogOpening handler) {
+	if(!w) return wv2boolInvalidArg();
+	return ((cwv2*)w)->setScriptDialogOpeningHandler(handler);
+}
+
 LPCWSTR wv2documentTitle(wv2_t w) {
 	if(!w) return nullptr;
 	return ((cwv2*)w)->documentTitle();
@@ -327,6 +337,23 @@ bool
 wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t args) {
 	if(!args) return false;
 	return ((wv2newWindowRequestedEventArgs*)args)->isUserInitiated();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+uint64_t  wv2domContentLoadedEventArgs_navigationId(wv2domContentLoadedEventArgs_t args) {
+	if(!args) return 0;
+	return ((wv2domContentLoadedEventArgs*)args)->navigationId();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool wv2contentLoadingEventArgs_isErrorPage(wv2contentLoadingEventArgs_t args) {
+	if(!args) return false;
+	return ((wv2contentLoadingEventArgs*)args)->isErrorPage();
+}
+
+uint64_t wv2contentLoadingEventArgs_t_navigationId(wv2contentLoadingEventArgs_t args) {
+	if(!args) return 0;
+	return ((wv2contentLoadingEventArgs*)args)->navigationId();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -419,3 +446,60 @@ wv2bool wv2settings_setIsBuiltInErrorPageEnabled(wv2settings_t s, bool enabled){
 	if(!s) return wv2boolInvalidArg();
 	return ((wv2settings*)s)->setIsBuiltInErrorPageEnabled(enabled);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+HRESULT wv2deferral_complete(wv2deferral_t d) {
+	if(!d) return E_INVALIDARG;
+	return ((wv2deferral*)d)->complete();
+}
+
+void wv2deleteDeferral(wv2deferral_t* d) {
+	if(!d) return;
+	wv2deferral* p = (wv2deferral*)*d;
+	delete p;
+	*d = nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+LPWSTR wv2scriptDialogOpeningEventArgs_uri(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->uri();
+}
+
+wv2scriptDialogKind wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return wv2scriptDialogKind_undefined;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->kind();
+}
+
+LPWSTR wv2scriptDialogOpeningEventArgs_message(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->message();
+}
+
+HRESULT wv2scriptDialogOpeningEventArgs_accept(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return E_INVALIDARG;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->accept();
+}
+
+LPWSTR wv2scriptDialogOpeningEventArgs_defaultText(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->defaultText();
+}
+
+LPWSTR wv2scriptDialogOpeningEventArgs_resultText(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->resultText();
+}
+
+HRESULT wv2scriptDialogOpeningEventArgs_setResultText(wv2scriptDialogOpeningEventArgs_t args, 
+	LPCWSTR resultText) {
+	if(!args || !resultText) return E_INVALIDARG;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->setResultText(resultText);
+}
+
+wv2deferral_t wv2scriptDialogOpeningEventArgs_deferral(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return nullptr;
+	return ((wv2scriptDialogOpeningEventArgs*)args)->deferral();
+}
+
+///////////////////////////////////////////////////////////////////////////////

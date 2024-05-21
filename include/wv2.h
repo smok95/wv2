@@ -1,4 +1,4 @@
-/*
+Ôªø/*
 ## 0.0.14(14)	2022-12-13
 - minimum WebView2 SDK version 1.0.774.44
 	For full API compatibility, this version of the WebView2 SDK requires WebView2
@@ -33,12 +33,15 @@
 - Added documentTitleChanged event handler support
 - Removed the old wv2settings structure and setSettings function
 
+## 0.7.0(22)	2024-05-21
+- Changed domContentLoaded event type
+- Added support for contentLoading, scriptDialogOpening events
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.6.0"
-#define WV2_VERSION_NUM		21
+#define WV2_VERSION			"0.7.0"
+#define WV2_VERSION_NUM		22
 
 #include <windows.h>
 #include <stdbool.h>
@@ -87,6 +90,11 @@ typedef struct wv2bool {
 	HRESULT hr;
 } wv2bool;
 
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2deferral_t; // ICoreWebView2Deferral
+WV2_API HRESULT wv2deferral_complete(wv2deferral_t d);
+
+WV2_API void wv2deleteDeferral(wv2deferral_t* d);
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2settings_t; // ICoreWebView2Settings
 WV2_API wv2bool 
@@ -149,6 +157,15 @@ typedef enum wv2browserProcessExitKind {
 	wv2browserProcessExitKindFailed = (wv2browserProcessExitKindNormal + 1)
 }wv2browserProcessExitKind;
 
+// @see COREWEBVIEW2_SCRIPT_DIALOG_KIND
+typedef enum wv2scriptDialogKind {
+	wv2scriptDialogKind_undefined = -1,
+	wv2scriptDialogKind_alert = 0,
+	wv2scriptDialogKind_confirm = (wv2scriptDialogKind_alert + 1),
+	wv2scriptDialogKind_prompt = (wv2scriptDialogKind_confirm + 1),
+	wv2scriptDialogKind_beforeunload = (wv2scriptDialogKind_prompt + 1)
+}wv2scriptDialogKind;
+
 typedef struct {
 	wv2browserProcessExitKind browserProcessExitKind;
 	uint32_t browserProcessId;
@@ -188,36 +205,87 @@ wv2newWindowRequestedEventArgs_isUserInitiated(wv2newWindowRequestedEventArgs_t 
 //ICoreWebView2* newWindow();
 //ICoreWebView2Deferral* deferral();
 //ICoreWebView2WindowFeatures* windowFeatures();
+
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2domContentLoadedEventArgs_t; // ICoreWebView2DOMContentLoadedEventArgs
+
+WV2_API uint64_t  wv2domContentLoadedEventArgs_navigationId(wv2domContentLoadedEventArgs_t args);
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2contentLoadingEventArgs_t; // ICoreWebView2ContentLoadingEventArgs
+
+WV2_API bool wv2contentLoadingEventArgs_isErrorPage(wv2contentLoadingEventArgs_t args);
+WV2_API uint64_t wv2contentLoadingEventArgs_t_navigationId(wv2contentLoadingEventArgs_t args);
+
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2scriptDialogOpeningEventArgs_t; // ICoreWebView2ScriptDialogOpeningEventArgs
+WV2_API LPWSTR 
+wv2scriptDialogOpeningEventArgs_uri(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API wv2scriptDialogKind 
+wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API LPWSTR 
+wv2scriptDialogOpeningEventArgs_message(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API HRESULT 
+wv2scriptDialogOpeningEventArgs_accept(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API LPWSTR 
+wv2scriptDialogOpeningEventArgs_defaultText(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API LPWSTR 
+wv2scriptDialogOpeningEventArgs_resultText(wv2scriptDialogOpeningEventArgs_t args);
+
+WV2_API HRESULT 
+wv2scriptDialogOpeningEventArgs_setResultText(wv2scriptDialogOpeningEventArgs_t args, LPCWSTR resultText);
+
+WV2_API wv2deferral_t 
+wv2scriptDialogOpeningEventArgs_deferral(wv2scriptDialogOpeningEventArgs_t args);
+
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef void 
+(*createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
-typedef void (* createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
+typedef void 
+(*executeScriptCompleted)(wv2_t sender, LPCWSTR resultObjectAsJson);
 
-typedef void (* executeScriptCompleted)(wv2_t sender, 
-	LPCWSTR resultObjectAsJson);
+typedef bool
+(*navigationStarting)(wv2_t sender, LPCWSTR uri);
 
-typedef bool(* navigationStarting)(wv2_t sender, LPCWSTR uri);
+typedef void
+(*navigationCompleted)(wv2_t sender);
 
-typedef void(* navigationCompleted)(wv2_t sender);
+typedef bool
+(*windowCloseRequested)(wv2_t sender);
 
-typedef navigationCompleted domContentLoaded;
+typedef void
+(*historyChanged)(wv2_t sender, bool canGoBack, bool canGoForward);
 
-typedef bool(* windowCloseRequested)(wv2_t sender);
+typedef void 
+(*webMessageReceived)(wv2_t sender, LPCWSTR message);
 
-typedef void(* historyChanged)(wv2_t sender, bool canGoBack, 
-	bool canGoForward);
+typedef void
+(*isMutedChanged)(wv2_t sender);
 
-typedef void (*webMessageReceived)(wv2_t sender, LPCWSTR message);
-
-typedef void(*isMutedChanged)(wv2_t sender);
 typedef isMutedChanged isDocumentPlayingAudioChanged;
 
-typedef void(*browserProcessExited)(wv2env_t sender, 
-	wv2browserProcessExitedEventArgs* e);
+typedef void
+(*browserProcessExited)(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
 
-typedef void(*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
+typedef void
+(*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 
 typedef navigationCompleted documentTitleChanged;
+
+typedef void
+(*domContentLoaded)(wv2_t sender, wv2domContentLoadedEventArgs_t args);
+
+typedef void
+(*contentLoading)(wv2_t sender, wv2contentLoadingEventArgs_t args);
+
+typedef void
+(*scriptDialogOpening)(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -260,8 +328,7 @@ WV2_API wv2settings_t wv2getSettings(wv2_t w);
 WV2_API bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind);
 
-WV2_API bool wv2executeScript(wv2_t w, LPCWSTR script, 
-	executeScriptCompleted handler);
+WV2_API bool wv2executeScript(wv2_t w, LPCWSTR script, executeScriptCompleted handler);
 
 WV2_API LPCWSTR wv2executeScriptSync(wv2_t w, LPCWSTR script);
 
@@ -326,7 +393,13 @@ WV2_API bool wv2navigateWithWebResource(wv2_t w, LPCWSTR uri,
 */
 WV2_API bool wv2reload(wv2_t w);
 
-// »≠∏ÈªÁ¿Ã¡Ó ∫Ø∞Ê
+/*
+@brief      Changes the size of the WebView2 window.
+@param      w, A handle to the wv2.
+@param      width, The new width of the window.
+@param      height, The new height of the window.
+@return     true if the resize operation was successful; otherwise, false.
+*/
 WV2_API bool wv2resize(wv2_t w, int width, int height);
 
 /*
@@ -390,6 +463,16 @@ WV2_API wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested hand
 @brief		Set an event handler for the documentTitleChanged event.
 */
 WV2_API wv2bool wv2setDocumentTitleChangedHandler(wv2_t w, documentTitleChanged handler);
+
+/*
+@brief		Set an event handler for the contentLoading event.
+*/
+WV2_API wv2bool wv2setContentLoadingHandler(wv2_t w, contentLoading handler);
+
+/*
+@brief		Set an event handler for the scriptDialogOpening event.
+ */
+WV2_API wv2bool wv2setScriptDialogOpningHandler(wv2_t w, scriptDialogOpening handler);
 
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
@@ -459,6 +542,12 @@ struct wv2env {
 	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
 };
 
+struct wv2deferral {
+	virtual ~wv2deferral() {};
+
+	virtual HRESULT complete() = 0;
+};
+
 struct wv2settings {
 	virtual wv2bool isScriptEnabled() = 0;
 	virtual wv2bool setIsScriptEnabled(bool isScriptEnabled) = 0;
@@ -486,6 +575,28 @@ struct wv2newWindowRequestedEventArgs {
 	virtual wv2bool setHandled(bool handled) = 0;
 	virtual bool isUserInitiated() = 0;
 };
+
+struct wv2domContentLoadedEventArgs {
+	virtual uint64_t navigationId() = 0;
+};
+
+struct wv2contentLoadingEventArgs {
+	virtual bool isErrorPage() = 0;
+	virtual uint64_t navigationId() = 0;
+};
+
+struct wv2scriptDialogOpeningEventArgs {
+	virtual ~wv2scriptDialogOpeningEventArgs() {};
+	virtual LPWSTR uri() = 0;
+	virtual wv2scriptDialogKind kind() = 0;
+	virtual LPWSTR message() = 0;
+	virtual HRESULT accept() = 0;
+	virtual LPWSTR defaultText() = 0;
+	virtual LPWSTR resultText() = 0;
+	virtual HRESULT setResultText(LPCWSTR resultText) = 0;
+	virtual wv2deferral* deferral() = 0;
+};
+
 
 struct wv2 {
 	virtual ~wv2(){};
@@ -542,8 +653,10 @@ struct wv2 {
 
 	virtual wv2bool setNewWindowRequestedHandler(newWindowRequested handler) = 0;
 	virtual wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) = 0;
+	virtual wv2bool setContentLoadingHandler(contentLoading handler) = 0;
 
 	virtual LPCWSTR documentTitle() = 0;
+	virtual wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) = 0;
 };
 #endif // __cplusplus
 

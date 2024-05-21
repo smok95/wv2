@@ -48,6 +48,21 @@ void wait() {
 	}
 }
 
+
+class cwv2domContentLoadedEventArgs: public wv2domContentLoadedEventArgs {
+public:
+	cwv2domContentLoadedEventArgs(ICoreWebView2DOMContentLoadedEventArgs& args):args_(args) {}
+
+	uint64_t navigationId() override {
+		UINT64 id = 0;
+		args_.get_NavigationId(&id);
+		return id;
+	}
+
+private:
+	ICoreWebView2DOMContentLoadedEventArgs& args_;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 cwv2::cwv2(HWND parentWindow,
 	createCompleted createCompletedHandler /*=nullptr*/,
@@ -101,6 +116,8 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 
 		view2_3_->remove_NewWindowRequested(newWindowRequestedToken_);
 		documentTitleChangedHandler_.remove(view2_3_);
+		contentLoadingHandler_.remove(view2_3_);
+		scriptDialogOpeningHandler_.remove(view2_3_);
 
 		view2_3_.Release();
 	}
@@ -233,6 +250,8 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		view2_3_->add_WebMessageReceived(this, &webMessageReceivedToken_);
 		view2_3_->add_NewWindowRequested(this, &newWindowRequestedToken_);
 		documentTitleChangedHandler_.add(view2_3_);
+		contentLoadingHandler_.add(view2_3_);
+		scriptDialogOpeningHandler_.add(view2_3_);
 	}
 	else {
 		createStatus_ = failed;
@@ -330,10 +349,11 @@ STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, ICoreWebView2NavigationComplete
 }
 
 STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, ICoreWebView2DOMContentLoadedEventArgs *args) {
-	if (sender != view2_3_) return E_UNEXPECTED;
+	if (sender != view2_3_ || args == nullptr) return E_UNEXPECTED;
 
 	if (domContentLoadedHandler_) {
-		domContentLoadedHandler_(this);
+		cwv2domContentLoadedEventArgs argsWrap(*args);		
+		domContentLoadedHandler_(this, &argsWrap);
 	}
 	return S_OK;
 }
@@ -719,4 +739,25 @@ LPCWSTR cwv2::documentTitle() {
 	}
 
 	return result;
+}
+
+wv2bool cwv2::setContentLoadingHandler(contentLoading handler) {
+	wv2bool r = wv2boolNotSupported();
+	if(!view2_3_) return r;
+	r.hr = S_OK;
+	r.value = true;
+
+	contentLoadingHandler_.bind(handler, this);
+	return r;
+}
+
+wv2bool cwv2::setScriptDialogOpeningHandler(scriptDialogOpening handler) {
+	wv2bool r = wv2boolNotSupported();
+	if(!view2_3_) return r;
+	r.hr = S_OK;
+	r.value = true;
+
+	scriptDialogOpeningHandler_.bind(handler, this);
+
+	return r;
 }

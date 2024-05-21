@@ -119,6 +119,8 @@ public:
 	wv2bool setNewWindowRequestedHandler(newWindowRequested handler) OVERRIDE;
 	wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) OVERRIDE;
 	LPCWSTR documentTitle() OVERRIDE;
+	wv2bool setContentLoadingHandler(contentLoading handler) OVERRIDE;
+	wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -174,7 +176,8 @@ private:
 	newWindowRequested newWindowRequestedHandler_{nullptr};
 	EventRegistrationToken newWindowRequestedToken_;
 	DocumentTitleChanged documentTitleChangedHandler_;
-	
+	ContentLoading contentLoadingHandler_;
+	ScriptDialogOpening scriptDialogOpeningHandler_;
 	
 	HRESULT lastError_;
 	bool coInitilized_;

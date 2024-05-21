@@ -40,6 +40,8 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender);
 void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
 void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 void OnDocumentTitleChanged(wv2_t sender);
+void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args);
+void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args);
 
 void NavigatePostExample();
 void SetStatusText(LPCWSTR text);
@@ -136,9 +138,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    wv2envOpts_t options = wv2envOptsCreate();
    wv2envOptsSetString(options, "AdditionalBrowserArguments", L"--auto-open-devtools-for-tabs");
 
-   //LPCWSTR url = L"http://localhost:8080/tool_edit.html";
-   //LPCWSTR url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";
-   LPCWSTR url = L"https://www.youtube.com";
+   LPCWSTR url = L"";
+   //url = L"http://localhost:8080/tool_edit.html";
+   //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";   
+   //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_alert";
+   url = L"https://www.youtube.com";
    if (webview = wv2createSync2(NULL, NULL, options, hWnd)) {
 
        // set browserProcessExited event handler
@@ -158,6 +162,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
        // set documentTitleChanged event handler
        wv2setDocumentTitleChangedHandler(webview, OnDocumentTitleChanged);
+
+       // set domContentLoaded event handler
+       wv2setDomContentLoadedHandler(webview, OnDomContentLoaded);
+
+       // set scriptDialogOpening event handler
+       wv2setScriptDialogOpningHandler(webview, OnScriptDialogOpening);
        
        settings = wv2getSettings(webview);
        if(settings) {
@@ -166,6 +176,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			   // Disable the zoom control feature.
 			   wv2settings_setIsZoomControlEnabled(settings, false);
 		   }
+
+           if(wv2settings_areDefaultScriptDialogsEnabled(settings).value) {
+               wv2settings_setAreDefaultScriptDialogsEnabled(settings, false);
+           }
        }
 
        wv2navigate(webview, url);
@@ -366,6 +380,29 @@ void OnDocumentTitleChanged(wv2_t sender) {
     wsprintf(buf, L"documentTitleChanged - %s", title);
     SetStatusText(buf);
     wv2freeMemory((void*)title);
+}
+
+void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args) {
+    WCHAR buf[2048];
+    uint64_t navigationId = wv2domContentLoadedEventArgs_navigationId(args);
+    wsprintf(buf, L"domContentLoaded: navigationId=%I64u", navigationId);
+    SetStatusText(buf);
+}
+
+void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args) {
+
+    if(wv2scriptDialogOpeningEventArgs_kind(args) == wv2scriptDialogKind_alert) {        
+        LPWSTR message = wv2scriptDialogOpeningEventArgs_message(args);
+        MessageBox(NULL, message, L"Custom Alert", MB_OK|MB_ICONWARNING);
+        wv2freeMemory((void*)message);
+    }
+
+    wv2deferral_t deferral = wv2scriptDialogOpeningEventArgs_deferral(args);
+    if(deferral) {
+        wv2deferral_complete(deferral);
+
+        wv2deleteDeferral(&deferral);
+    }
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
