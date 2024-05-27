@@ -409,3 +409,96 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+class cwv2webResourceRequest : public wv2webResourceRequest {
+public:
+	void setRequest(CComPtr<ICoreWebView2WebResourceRequest> request) {
+		request_ = request;
+	}
+
+	LPWSTR uri() override {
+		if (!request_) return nullptr;
+		LPWSTR uri = nullptr;
+		LPWSTR result = nullptr;
+		if (SUCCEEDED(request_->get_Uri(&uri))) {
+			result = _wcsdup(uri);
+			CoTaskMemFree((void*)uri);
+		}
+		return result;
+	}
+
+	HRESULT setUri(LPCWSTR uri) override {
+		if (!request_) return E_NOINTERFACE;
+
+		return request_->put_Uri(uri);
+	}
+
+	LPWSTR method() override {
+		if (!request_) return nullptr;
+		LPWSTR method = nullptr;
+		LPWSTR result = nullptr;
+		if (SUCCEEDED(request_->get_Method(&method))) {
+			result = _wcsdup(method);
+			CoTaskMemFree((void*)method);
+		}
+		return result;
+	}
+
+	HRESULT setMethod(LPCWSTR method) override {
+		if (!request_) return E_NOINTERFACE;
+		return request_->put_Method(method);
+	}
+
+private:
+	CComPtr<ICoreWebView2WebResourceRequest> request_;
+};
+
+class cwv2webResourceRequestedEventArgs : public wv2webResourceRequestedEventArgs {
+public:
+	cwv2webResourceRequestedEventArgs(ICoreWebView2WebResourceRequestedEventArgs& args) :args_(args) {}
+
+	wv2webResourceRequest* request() override {		
+		CComPtr<ICoreWebView2WebResourceRequest> req;
+		if (FAILED(args_.get_Request(&req))) {
+			return nullptr;
+		}
+
+		request_.setRequest(req);
+		return &request_;
+	}
+
+private:
+	ICoreWebView2WebResourceRequestedEventArgs& args_;
+	cwv2webResourceRequest request_;
+};
+
+class WebResourceRequested :
+	public EventHandlerBase<webResourceRequested,
+	ICoreWebView2WebResourceRequestedEventHandler> {
+public:
+	STDMETHODIMP Invoke(ICoreWebView2* sender, 
+		ICoreWebView2WebResourceRequestedEventArgs* args) override {
+		if (handler_ && args) {
+			cwv2webResourceRequestedEventArgs argsWrap(*args);
+			handler_(userData_, &argsWrap);
+		}
+		return S_OK;
+	}
+
+	void add(CComPtr<ICoreWebView2> view) {
+		if (!view) return;
+		webview_ = view;
+		webview_->add_WebResourceRequested(this, &token_);
+	}
+
+	void remove() {
+		if (!webview_) return;
+		webview_->remove_WebResourceRequested(token_);
+	}
+
+	bool IsSupported() const {
+		return webview_ != nullptr;
+	}
+
+private:
+	CComPtr<ICoreWebView2> webview_;
+};

@@ -42,13 +42,16 @@
 - Added `userAgent` and `setUserAgent` to `settings`
 
 ## 0.9.0(24)	2024-05-27
-- Added partial support for the `DownloadStarting` event.
+- Added partial support for the `downloadStarting` event.
+
+## 0.10.0(25)	2024-05-27
+- Added partial support for the `webResourceRequested` event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.9.0"
-#define WV2_VERSION_NUM		24
+#define WV2_VERSION			"0.10.0"
+#define WV2_VERSION_NUM		25
 
 #include <windows.h>
 #include <stdbool.h>
@@ -178,6 +181,29 @@ typedef enum wv2scriptDialogKind {
 	wv2scriptDialogKind_prompt = (wv2scriptDialogKind_confirm + 1),
 	wv2scriptDialogKind_beforeunload = (wv2scriptDialogKind_prompt + 1)
 }wv2scriptDialogKind;
+
+
+// @see COREWEBVIEW2_WEB_RESOURCE_CONTEXT
+typedef enum wv2webResourceContext
+{
+	wv2webResourceContext_all = 0,
+	wv2webResourceContext_document = (wv2webResourceContext_all + 1),
+	wv2webResourceContext_stylesheet = (wv2webResourceContext_document + 1),
+	wv2webResourceContext_image = (wv2webResourceContext_stylesheet + 1),
+	wv2webResourceContext_media = (wv2webResourceContext_image + 1),
+	wv2webResourceContext_font = (wv2webResourceContext_media + 1),
+	wv2webResourceContext_script = (wv2webResourceContext_font + 1),
+	wv2webResourceContext_xml_http_request = (wv2webResourceContext_script + 1),
+	wv2webResourceContext_fetch = (wv2webResourceContext_xml_http_request + 1),
+	wv2webResourceContext_text_track = (wv2webResourceContext_fetch + 1),
+	wv2webResourceContext_event_source = (wv2webResourceContext_text_track + 1),
+	wv2webResourceContext_websocket = (wv2webResourceContext_event_source + 1),
+	wv2webResourceContext_manifest = (wv2webResourceContext_websocket + 1),
+	wv2webResourceContext_signed_exchange = (wv2webResourceContext_manifest + 1),
+	wv2webResourceContext_ping = (wv2webResourceContext_signed_exchange + 1),
+	wv2webResourceContext_csp_violation_report = (wv2webResourceContext_ping + 1),
+	wv2webResourceContext_other = (wv2webResourceContext_csp_violation_report + 1)
+}wv2webResourceContext;
 
 typedef struct {
 	wv2browserProcessExitKind browserProcessExitKind;
@@ -324,6 +350,54 @@ WV2_API wv2deferral_t
 wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2webResourceRequest_t; // ICoreWebView2WebResourceRequest
+
+WV2_API LPWSTR
+wv2webResourceRequest_uri(wv2webResourceRequest_t handle);
+
+WV2_API HRESULT
+wv2webResourceRequest_setUri(wv2webResourceRequest_t handle, LPCWSTR uri);
+
+WV2_API LPWSTR
+wv2webResourceRequest_method(wv2webResourceRequest_t handle);
+
+WV2_API HRESULT
+wv2webResourceRequest_setMethod(wv2webResourceRequest_t handle, LPCWSTR method);
+
+// HRESULT get_Content(IStream** content)
+// HRESULT put_Content(IStream* content)
+// HRESULT get_Headers(ICoreWebView2HttpRequestHeaders** headers)
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2webResourceResponse_t; // ICoreWebView2WebResourceResponse
+
+// HRESULT get_Content(IStream** content)
+// HRESULT put_Content(IStream* content)
+// HRESULT get_Headers(ICoreWebView2HttpResponseHeaders** headers)
+
+WV2_API int32_t 
+wv2webResourceResponse_statusCode(wv2webResourceResponse_t handle);
+
+WV2_API HRESULT
+wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int statusCode);
+
+WV2_API LPWSTR
+wv2webResourceResponse_reasonPhrase(wv2webResourceResponse_t handle);
+
+WV2_API HRESULT
+wv2webResourceResponse_setReasonPhrase(wv2webResourceResponse_t handle, LPCWSTR reasonPhrase);
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2webResourceRequestedEventArgs_t; // ICoreWebView2WebResourceRequestedEventArgs
+
+WV2_API wv2webResourceRequest_t
+wv2webResourceRequestedEventArgs_request(wv2webResourceRequestedEventArgs_t args);
+
+//WV2_API wv2webResourceResponse_t
+//wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args);
+
+// HRESULT put_Response(ICoreWebView2WebResourceResponse* response)
+// HRESULT GetDeferral(ICoreWebView2Deferral** deferral)
+// HRESULT get_ResourceContext(COREWEBVIEW2_WEB_RESOURCE_CONTEXT* context)
+///////////////////////////////////////////////////////////////////////////////
 
 typedef void 
 (*createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
@@ -370,6 +444,9 @@ typedef void
 
 typedef void
 (*downloadStarting)(wv2_t sender, wv2downloadStartingEventArgs_t args);
+
+typedef void
+(*webResourceRequested)(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -559,10 +636,15 @@ WV2_API wv2bool wv2setContentLoadingHandler(wv2_t w, contentLoading handler);
 WV2_API wv2bool wv2setScriptDialogOpningHandler(wv2_t w, scriptDialogOpening handler);
 
 /*
-@beief		Set an event handler for the downloadingStarting event.
+@brief		Set an event handler for the downloadingStarting event.
 @remark		Minimum WebView2 SDK version required: 1.0.902.49
 */
 WV2_API wv2bool wv2setDownloadStartingHandler(wv2_t w, downloadStarting handler);
+
+/*
+@brief		Set an event handler for the webResourceRequested event.
+*/
+WV2_API wv2bool wv2setWebResourceRequestedHandler(wv2_t w, webResourceRequested handler);
 
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
@@ -617,6 +699,19 @@ WV2_API wv2bool wv2openTaskManagerWindow(wv2_t w);
 @note       The returned LPCWSTR must be freed using wv2freeMemory after use.
 */
 WV2_API LPCWSTR wv2documentTitle(wv2_t w);
+
+/*
+@brief		Adds a URI and resource context filter for the WebResourceRequested event.
+*/
+WV2_API HRESULT wv2addWebResourceRequestedFilter(wv2_t w, 
+	LPCWSTR uri, const wv2webResourceContext resourceContext);
+
+/*
+@brief		Removes a matching WebResource filter that was previously added for the WebResourceRequested event.
+*/
+WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w, 
+	LPCWSTR uri, const wv2webResourceContext resourceContext);
+
 
 WV2_API HRESULT wv2lastError(wv2_t w);
 
@@ -718,6 +813,26 @@ struct wv2downloadStartingEventArgs {
 	virtual wv2deferral* getDeferral() = 0;
 };
 
+struct wv2webResourceRequest {
+	virtual LPWSTR uri() = 0;
+	virtual HRESULT setUri(LPCWSTR uri) = 0;
+	virtual LPWSTR method() = 0;
+	virtual HRESULT setMethod(LPCWSTR method) = 0;
+};
+
+struct wv2webResourceResponse {
+	virtual int32_t statusCode() = 0;
+	virtual HRESULT setStatusCode(int statusCode) = 0;
+	virtual LPWSTR reasonPhrase() = 0;
+	virtual HRESULT setReasonPhrase(LPCWSTR reasonPhrase) = 0;
+};
+
+struct wv2webResourceRequestedEventArgs {
+	virtual wv2webResourceRequest* request() = 0;
+	//virtual wv2webResourceResponse* response() = 0;
+};
+
+
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
@@ -778,6 +893,11 @@ struct wv2 {
 	virtual LPCWSTR documentTitle() = 0;
 	virtual wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) = 0;
 	virtual wv2bool setDownloadingStartingHandler(downloadStarting handler) = 0;
+	virtual wv2bool setWebResourceRequestedHandler(webResourceRequested handler) = 0;
+	virtual HRESULT addWebResourceRequestedFilter(LPCWSTR uri, 
+		const wv2webResourceContext resourceContext) = 0;
+	virtual HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
+		const wv2webResourceContext resourceContext) = 0;
 };
 #endif // __cplusplus
 

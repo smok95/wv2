@@ -122,6 +122,12 @@ public:
 	wv2bool setContentLoadingHandler(contentLoading handler) OVERRIDE;
 	wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) OVERRIDE;
 	wv2bool setDownloadingStartingHandler(downloadStarting handler) OVERRIDE;
+	wv2bool setWebResourceRequestedHandler(webResourceRequested handler) OVERRIDE;
+
+	HRESULT addWebResourceRequestedFilter(LPCWSTR uri,
+		const wv2webResourceContext resourceContext) OVERRIDE;
+	HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
+		const wv2webResourceContext resourceContext) OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -181,6 +187,7 @@ private:
 	ContentLoading contentLoadingHandler_;
 	ScriptDialogOpening scriptDialogOpeningHandler_;
 	DownloadStarting downloadStartingHandler_;
+	WebResourceRequested webResourceRequestedHandler_;
 	
 	HRESULT lastError_;
 	bool coInitilized_;

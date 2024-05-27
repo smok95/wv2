@@ -115,6 +115,7 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		scriptDialogOpeningHandler_.remove(view2_3_);
 
 		downloadStartingHandler_.remove();
+		webResourceRequestedHandler_.remove();
 
 		view2_3_.Release();
 	}
@@ -259,6 +260,8 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		if (SUCCEEDED(webview2->QueryInterface(__uuidof(ICoreWebView2_4), (void**)&view4))) {
 			downloadStartingHandler_.add(view4);
 		}
+
+		webResourceRequestedHandler_.add(webview2);
 	}
 	else {
 		createStatus_ = failed;
@@ -780,4 +783,31 @@ wv2bool cwv2::setDownloadingStartingHandler(downloadStarting handler) {
 
 	downloadStartingHandler_.bind(handler, this);
 	return r;
+}
+
+wv2bool cwv2::setWebResourceRequestedHandler(webResourceRequested handler) {
+	wv2bool r = wv2boolNotSupported();
+	if (not webResourceRequestedHandler_.IsSupported()) {
+		return r;
+	}
+
+	r.hr = S_OK;
+	r.value = true;
+
+	webResourceRequestedHandler_.bind(handler, this);
+	return r;
+}
+
+HRESULT cwv2::addWebResourceRequestedFilter(LPCWSTR uri,
+	const wv2webResourceContext resourceContext) {
+	if (!view2_3_) return E_NOINTERFACE;
+	return view2_3_->AddWebResourceRequestedFilter(uri, 
+		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);
+}
+
+HRESULT cwv2::removeWebResourceRequestedFilter(LPCWSTR uri,
+	const wv2webResourceContext resourceContext) {
+	if (!view2_3_) return E_NOINTERFACE;
+	return view2_3_->RemoveWebResourceRequestedFilter(uri, 
+		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);
 }

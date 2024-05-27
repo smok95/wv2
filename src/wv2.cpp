@@ -255,9 +255,26 @@ wv2bool wv2setDownloadStartingHandler(wv2_t w, downloadStarting handler) {
 	return CWV2(w)->setDownloadingStartingHandler(handler);
 }
 
+wv2bool wv2setWebResourceRequestedHandler(wv2_t w, webResourceRequested handler) {
+	if (!w) return wv2boolInvalidArg();
+	return CWV2(w)->setWebResourceRequestedHandler(handler);
+}
+
 LPCWSTR wv2documentTitle(wv2_t w) {
 	if(!w) return nullptr;
 	return CWV2(w)->documentTitle();
+}
+
+HRESULT wv2addWebResourceRequestedFilter(wv2_t w,
+	LPCWSTR uri, const wv2webResourceContext resourceContext) {
+	if (!w || !uri) return E_INVALIDARG;
+	return CWV2(w)->addWebResourceRequestedFilter(uri, resourceContext);
+}
+
+HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
+	LPCWSTR uri, const wv2webResourceContext resourceContext) {
+	if (!w || !uri) return E_INVALIDARG;
+	return CWV2(w)->removeWebResourceRequestedFilter(uri, resourceContext);
 }
 
 bool wv2stop(wv2_t w) {
@@ -629,4 +646,71 @@ wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args) {
 	return ((wv2downloadStartingEventArgs*)args)->getDeferral();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+#define WRREQ ((wv2webResourceRequest*)handle)
+
+LPWSTR
+wv2webResourceRequest_uri(wv2webResourceRequest_t handle) {
+	if (!handle) return nullptr;
+	return WRREQ->uri();
+}
+
+HRESULT
+wv2webResourceRequest_setUri(wv2webResourceRequest_t handle, LPCWSTR uri) {
+	if (!handle || !uri) return E_INVALIDARG;
+	return WRREQ->setUri(uri);
+}
+
+LPWSTR
+wv2webResourceRequest_method(wv2webResourceRequest_t handle) {
+	if (!handle) return nullptr;
+	return WRREQ->method();
+}
+
+HRESULT
+wv2webResourceRequest_setMethod(wv2webResourceRequest_t handle, LPCWSTR method) {
+	if (!handle || !method) return E_INVALIDARG;
+	return WRREQ->setMethod(method);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+#define WRRES ((wv2webResourceResponse*)handle)
+int32_t
+wv2webResourceResponse_statusCode(wv2webResourceResponse_t handle) {
+	if (!handle) return -1;
+	return WRRES->statusCode();
+}
+
+HRESULT
+wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int statusCode) {
+	if (!handle) return E_INVALIDARG;
+	return WRRES->setStatusCode(statusCode);
+}
+
+LPWSTR
+wv2webResourceResponse_reasonPhrase(wv2webResourceResponse_t handle) {
+	if (!handle) return nullptr;
+	return WRRES->reasonPhrase();
+}
+
+HRESULT
+wv2webResourceResponse_setReasonPhrase(wv2webResourceResponse_t handle, LPCWSTR reasonPhrase) {
+	if (!handle || !reasonPhrase) return E_INVALIDARG;
+	return WRRES->setReasonPhrase(reasonPhrase);
+}
+///////////////////////////////////////////////////////////////////////////////
+#define WRREQUESTED_ARGS ((wv2webResourceRequestedEventArgs*)args)
+wv2webResourceRequest_t
+wv2webResourceRequestedEventArgs_request(wv2webResourceRequestedEventArgs_t args) {
+	if (!args) return nullptr;
+	return WRREQUESTED_ARGS->request();
+}
+
+/*
+wv2webResourceResponse_t
+wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args) {
+	if (!args) return nullptr;
+	return WRREQUESTED_ARGS->response();
+}
+*/
 ///////////////////////////////////////////////////////////////////////////////
