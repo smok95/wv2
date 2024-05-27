@@ -121,6 +121,7 @@ public:
 	LPCWSTR documentTitle() OVERRIDE;
 	wv2bool setContentLoadingHandler(contentLoading handler) OVERRIDE;
 	wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) OVERRIDE;
+	wv2bool setDownloadingStartingHandler(downloadStarting handler) OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -138,6 +139,7 @@ private:
 	HWND parentWindow_ = nullptr;
 	ULONG refCount_ = 0;
 	CComPtr<ICoreWebView2_3> view2_3_;
+	CComPtr<ICoreWebView2_4> view2_4_;
 	CComPtr<ICoreWebView2_8> view2_8_;
 	CComPtr<ICoreWebView2Controller3> controller_;
 	cwv2env env_;
@@ -178,6 +180,7 @@ private:
 	DocumentTitleChanged documentTitleChangedHandler_;
 	ContentLoading contentLoadingHandler_;
 	ScriptDialogOpening scriptDialogOpeningHandler_;
+	DownloadStarting downloadStartingHandler_;
 	
 	HRESULT lastError_;
 	bool coInitilized_;

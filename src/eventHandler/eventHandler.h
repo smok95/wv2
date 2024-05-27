@@ -325,3 +325,87 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+class cwv2downloadStartingEventArgs : public wv2downloadStartingEventArgs {
+public:
+	cwv2downloadStartingEventArgs(ICoreWebView2DownloadStartingEventArgs& args):args_(args){}
+
+	bool cancel() override {
+		bool result = false;
+		args_.get_Cancel((BOOL*)&result);
+		return result;
+	}
+
+	HRESULT setCancel(bool cancel) override {
+		return args_.put_Cancel((BOOL)cancel);
+	}
+
+	LPWSTR resultFilePath() override {
+		LPWSTR result = nullptr;
+		LPWSTR resultFilePath = nullptr;
+		if(SUCCEEDED(args_.get_ResultFilePath(&resultFilePath))) {
+			result = _wcsdup(resultFilePath);
+			CoTaskMemFree((void*)resultFilePath);
+		}
+		return result;
+	}
+
+	HRESULT setResultFilePath(LPCWSTR resultFilePath) override {
+		return args_.put_ResultFilePath(resultFilePath);
+	}
+
+	bool handled() override {
+		bool result = false;
+		args_.get_Handled((BOOL*)result);
+		return result;
+	}
+
+	HRESULT setHandled(bool handled) override {
+		return args_.put_Handled((BOOL)handled);
+	}
+
+	wv2deferral* getDeferral() override {
+		CComPtr<ICoreWebView2Deferral> deferral;
+		if (FAILED(args_.GetDeferral(&deferral))) {
+			return nullptr;
+		}
+
+		return new cwv2deferral(deferral);
+	}
+
+private:
+	ICoreWebView2DownloadStartingEventArgs& args_;
+};
+
+class DownloadStarting :
+	public EventHandlerBase<downloadStarting,
+	ICoreWebView2DownloadStartingEventHandler> {
+public:
+	STDMETHODIMP Invoke(ICoreWebView2* sender, 
+		ICoreWebView2DownloadStartingEventArgs* args) override {
+		if (handler_ && args) {
+			cwv2downloadStartingEventArgs argsWrap(*args);
+			handler_(userData_, &argsWrap);
+		}
+		return S_OK;
+	}
+
+	void add(CComPtr<ICoreWebView2_4> view) {
+		if(!view) return;
+		webview_ = view;
+		webview_->add_DownloadStarting(this, &token_);
+	}
+
+	void remove() {
+		if (!webview_) return;
+		webview_->remove_DownloadStarting(token_);
+	}
+
+	bool IsSupported() const {
+		return webview_ != nullptr;
+	}
+
+private:
+	CComPtr<ICoreWebView2_4> webview_;
+};
+
+///////////////////////////////////////////////////////////////////////////////

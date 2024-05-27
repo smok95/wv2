@@ -114,6 +114,8 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		contentLoadingHandler_.remove(view2_3_);
 		scriptDialogOpeningHandler_.remove(view2_3_);
 
+		downloadStartingHandler_.remove();
+
 		view2_3_.Release();
 	}
 
@@ -252,6 +254,11 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		documentTitleChangedHandler_.add(view2_3_);
 		contentLoadingHandler_.add(view2_3_);
 		scriptDialogOpeningHandler_.add(view2_3_);
+
+		CComPtr<ICoreWebView2_4> view4;
+		if (SUCCEEDED(webview2->QueryInterface(__uuidof(ICoreWebView2_4), (void**)&view4))) {
+			downloadStartingHandler_.add(view4);
+		}
 	}
 	else {
 		createStatus_ = failed;
@@ -759,5 +766,18 @@ wv2bool cwv2::setScriptDialogOpeningHandler(scriptDialogOpening handler) {
 
 	scriptDialogOpeningHandler_.bind(handler, this);
 
+	return r;
+}
+
+wv2bool cwv2::setDownloadingStartingHandler(downloadStarting handler) {
+	wv2bool r = wv2boolNotSupported();
+	if (not downloadStartingHandler_.IsSupported()) {
+		return r;
+	}
+
+	r.hr = S_OK;
+	r.value = true;
+
+	downloadStartingHandler_.bind(handler, this);
 	return r;
 }

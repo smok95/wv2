@@ -52,6 +52,8 @@ bool wv2create2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 	return true;
 }
 
+#define CWV2(handle) ((cwv2*)handle)
+
 wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder, 
 	HWND parentWindow) {
 	return wv2createSync2(browserExecutableFolder, userDataFolder, nullptr, 
@@ -94,7 +96,7 @@ wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 
 wv2env_t wv2getEnv(wv2_t w) {
 	if (!w) return nullptr;
-	return ((cwv2*)w)->getEnvironment();
+	return CWV2(w)->getEnvironment();
 }
 
 wv2bool wv2envSetBrowserProcessExitedHandler(wv2env_t e, browserProcessExited handler) {
@@ -111,151 +113,156 @@ void wv2destroy(wv2_t* h) {
 
 wv2settings_t wv2getSettings(wv2_t w) {
 	if (!w) return nullptr;
-	return ((cwv2*)w)->getSettings();
+	return CWV2(w)->getSettings();
 }
 
 void* wv2getUserData(wv2_t w) {
 	if (!w) return nullptr;
-	return ((cwv2*)w)->getUserData();
+	return CWV2(w)->getUserData();
 }
 
 bool wv2setUserData(wv2_t w, void* userData) {
 	if (!w) return false;
-	return ((cwv2*)w)->setUserData(userData);
+	return CWV2(w)->setUserData(userData);
 }
 
 bool wv2executeScript(wv2_t w, LPCWSTR script, executeScriptCompleted handler) 
 {
 	if (!w) return false;
-	return ((cwv2*)w)->executeScript(script, handler);
+	return CWV2(w)->executeScript(script, handler);
 }
 
 LPCWSTR wv2executeScriptSync(wv2_t w, LPCWSTR script) {
 	if (!w) return nullptr;
-	return ((cwv2*)w)->executeScriptSync(script);                              
+	return CWV2(w)->executeScriptSync(script);                              
 }
 
 LPCWSTR wv2getSource(wv2_t w) {
 	if (!w) return nullptr;
-	return ((cwv2*)w)->getSource();
+	return CWV2(w)->getSource();
 }
 
 bool wv2goBack(wv2_t w) {
 	if (!w) return false;
-	return ((cwv2*)w)->goBack();
+	return CWV2(w)->goBack();
 }
 
 bool wv2goForward(wv2_t w) {
 	if (!w) return false;
-	return ((cwv2*)w)->goForward();
+	return CWV2(w)->goForward();
 }
 
 bool wv2navigate(wv2_t w, const wchar_t* url) {
 	if (!w) return false;
-	return ((cwv2*)w)->navigate(url);
+	return CWV2(w)->navigate(url);
 }
 
 bool wv2navigateToString(wv2_t w, const wchar_t* htmlContent) {
 	if (!w) return false;
-	return ((cwv2*)w)->navigateToString(htmlContent);
+	return CWV2(w)->navigateToString(htmlContent);
 }
 
 bool wv2navigateWithWebResource(wv2_t w, LPCWSTR uri,
 	LPCWSTR method, BYTE* postData, size_t byteSize, LPCWSTR headers) {
 	if (!w) return false;
-	return ((cwv2*)w)->navigateWithWebResource(uri, method, postData, byteSize,
+	return CWV2(w)->navigateWithWebResource(uri, method, postData, byteSize,
 		headers);
 }
 
 bool wv2reload(wv2_t w) {
 	if (!w) return false;
-	return ((cwv2*)w)->reload();
+	return CWV2(w)->reload();
 }
 
 bool wv2resize(wv2_t w, int width, int height) {
 	if (!w) return false;
-	return ((cwv2*)w)->resize(width, height);
+	return CWV2(w)->resize(width, height);
 }
 
 bool wv2postWebMessageAsJson(wv2_t w, LPCWSTR messageAsJson) {
 	if (!w or !messageAsJson) return false;
-	return ((cwv2*)w)->postWebMessageAsJson(messageAsJson);
+	return CWV2(w)->postWebMessageAsJson(messageAsJson);
 }
 
 bool wv2postWebMessageAsString(wv2_t w, LPCWSTR messageAsString) {
 	if (!w or !messageAsString) return false;
-	return ((cwv2*)w)->postWebMessageAsString(messageAsString);
+	return CWV2(w)->postWebMessageAsString(messageAsString);
 }
 
 bool wv2setHistoryChangedHandler(wv2_t w, historyChanged handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setHistoryChangedHandler(handler);
+	return CWV2(w)->setHistoryChangedHandler(handler);
 }
 
 bool wv2setNavigationStartingHandler(wv2_t w, navigationStarting handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setNavigationStartingHandler(handler);
+	return CWV2(w)->setNavigationStartingHandler(handler);
 }
 
 bool wv2setNavigationCompletedHandler(wv2_t w, navigationCompleted handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setNavigationCompletedHandler(handler);
+	return CWV2(w)->setNavigationCompletedHandler(handler);
 }
 
 bool wv2setDomContentLoadedHandler(wv2_t w, domContentLoaded handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setDomContentLoadedHandler(handler);
+	return CWV2(w)->setDomContentLoadedHandler(handler);
 }
 
 bool wv2setWindowCloseRequestedHandler(wv2_t w, windowCloseRequested handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setWindowCloseRequestedHandler(handler);
+	return CWV2(w)->setWindowCloseRequestedHandler(handler);
 }
 
 bool wv2setIsMutedChangedHandler(wv2_t w, isMutedChanged handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setIsMutedChangedHandler(handler);
+	return CWV2(w)->setIsMutedChangedHandler(handler);
 }
 
 bool wv2setIsDocumentPlayingAudioChangedHandler(wv2_t w,
 	isDocumentPlayingAudioChanged handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setIsDocumentPlayingAudioChangedHandler(handler);
+	return CWV2(w)->setIsDocumentPlayingAudioChangedHandler(handler);
 }
 
 bool wv2setWebMessageReceivedHandler(wv2_t w, webMessageReceived handler) {
 	if (!w) return false;
-	return ((cwv2*)w)->setWebMessageReceivedHandler(handler);
+	return CWV2(w)->setWebMessageReceivedHandler(handler);
 }
 
 wv2bool wv2setNewWindowRequestedHandler(wv2_t w, newWindowRequested handler) {	
 	if(!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->setNewWindowRequestedHandler(handler);
+	return CWV2(w)->setNewWindowRequestedHandler(handler);
 }
 
 wv2bool wv2setDocumentTitleChangedHandler(wv2_t w, documentTitleChanged handler) {
 	if(!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->setDocumentTitleChangedHandler(handler);
+	return CWV2(w)->setDocumentTitleChangedHandler(handler);
 }
 
 wv2bool wv2setContentLoadingHandler(wv2_t w, contentLoading handler) {
 	if(!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->setContentLoadingHandler(handler);
+	return CWV2(w)->setContentLoadingHandler(handler);
 }
 
 wv2bool wv2setScriptDialogOpningHandler(wv2_t w, scriptDialogOpening handler) {
 	if(!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->setScriptDialogOpeningHandler(handler);
+	return CWV2(w)->setScriptDialogOpeningHandler(handler);
+}
+
+wv2bool wv2setDownloadStartingHandler(wv2_t w, downloadStarting handler) {
+	if (!w) return wv2boolInvalidArg();
+	return CWV2(w)->setDownloadingStartingHandler(handler);
 }
 
 LPCWSTR wv2documentTitle(wv2_t w) {
 	if(!w) return nullptr;
-	return ((cwv2*)w)->documentTitle();
+	return CWV2(w)->documentTitle();
 }
 
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
-	return ((cwv2*)w)->stop();
+	return CWV2(w)->stop();
 }
 
 void wv2freeMemory(void* p) {
@@ -264,38 +271,38 @@ void wv2freeMemory(void* p) {
 
 double wv2zoomFactor(wv2_t w, const double* newZoomFactor) {
 	if (!w) return -1.0;
-	return ((cwv2*)w)->zoomFactor(newZoomFactor);
+	return CWV2(w)->zoomFactor(newZoomFactor);
 }
 
 wv2bool wv2isMuted(wv2_t w) {
 	if (!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->isMuted();
+	return CWV2(w)->isMuted();
 }
 
 wv2bool wv2setIsMuted(wv2_t w, const bool muted) {
 	if (!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->setIsMuted(muted);
+	return CWV2(w)->setIsMuted(muted);
 }
 
 wv2bool wv2isDocumentPlayingAudio(wv2_t w) {
 	if (!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->isDocumentPlayingAudio();
+	return CWV2(w)->isDocumentPlayingAudio();
 }
 
 bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName,
 	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
 	if (!w) return false;
-	return ((cwv2*)w)->setVirtualHostNameToFolderMapping(hostName, 
+	return CWV2(w)->setVirtualHostNameToFolderMapping(hostName, 
 		folderPath, accessKind);
 }
 
 wv2bool wv2openTaskManagerWindow(wv2_t w) {
 	if (!w) return wv2boolInvalidArg();
-	return ((cwv2*)w)->openTaskManagerWindow();
+	return CWV2(w)->openTaskManagerWindow();
 }
 
 HRESULT wv2lastError(wv2_t w) {
-	return w ? ((cwv2*)w)->lastError() : theLastError_;
+	return w ? CWV2(w)->lastError() : theLastError_;
 }
 
 LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder) {
@@ -577,6 +584,49 @@ wv2bool
 wv2windowFeatures_shouldDisplayScrollBars(wv2windowFeatures_t f) {
 	if(!f) return wv2boolInvalidArg();
 	return ((wv2windowFeatures*)f)->shouldDisplayScrollBars();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+wv2downloadStartingEventArgs_cancel(wv2downloadStartingEventArgs_t args) {
+	if (!args) return false;
+	return ((wv2downloadStartingEventArgs*)args)->cancel();
+}
+
+HRESULT
+wv2downloadStartingEventArgs_setCancel(wv2downloadStartingEventArgs_t args, bool cancel) {
+	if (!args) return E_INVALIDARG;
+	return ((wv2downloadStartingEventArgs*)args)->setCancel(cancel);
+}
+
+LPWSTR
+wv2downloadStartingEventArgs_resultFilePath(wv2downloadStartingEventArgs_t args) {
+	if (!args) return nullptr;
+	return ((wv2downloadStartingEventArgs*)args)->resultFilePath();
+}
+
+HRESULT
+wv2downloadStartingEventArgs_setResultFilePath(wv2downloadStartingEventArgs_t args, LPCWSTR resultFilePath) {
+	if (!args || !resultFilePath) return E_INVALIDARG;
+	return ((wv2downloadStartingEventArgs*)args)->setResultFilePath(resultFilePath);
+}
+
+bool
+wv2downloadStartingEventArgs_handled(wv2downloadStartingEventArgs_t args) {
+	if (!args) return false;
+	return ((wv2downloadStartingEventArgs*)args)->handled();
+}
+
+HRESULT
+wv2downloadStartingEventArgs_setHandled(wv2downloadStartingEventArgs_t args, bool handled) {
+	if (!args) return E_INVALIDARG;
+	return ((wv2downloadStartingEventArgs*)args)->setHandled(handled);
+}
+
+wv2deferral_t
+wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args) {
+	if (!args) return nullptr;
+	return ((wv2downloadStartingEventArgs*)args)->getDeferral();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

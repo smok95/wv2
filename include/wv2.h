@@ -40,12 +40,15 @@
 ## 0.8.0(23)	2024-05-22
 - Added `getDeferral` and `windowFeatures` to `newWindowRequestedEventArgs`.
 - Added `userAgent` and `setUserAgent` to `settings`
+
+## 0.9.0(24)	2024-05-27
+- Added partial support for the `DownloadStarting` event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.8.0"
-#define WV2_VERSION_NUM		23
+#define WV2_VERSION			"0.9.0"
+#define WV2_VERSION_NUM		24
 
 #include <windows.h>
 #include <stdbool.h>
@@ -296,6 +299,31 @@ WV2_API wv2deferral_t
 wv2scriptDialogOpeningEventArgs_getDeferral(wv2scriptDialogOpeningEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2downloadStartingEventArgs_t; // ICoreWebView2DownloadStartingEventArgs 
+
+// HRESULT get_DownloadOperation(ICoreWebView2DownloadOperation** downloadOperation);
+WV2_API bool 
+wv2downloadStartingEventArgs_cancel(wv2downloadStartingEventArgs_t args);
+
+WV2_API HRESULT
+wv2downloadStartingEventArgs_setCancel(wv2downloadStartingEventArgs_t args, bool cancel);
+
+WV2_API LPWSTR
+wv2downloadStartingEventArgs_resultFilePath(wv2downloadStartingEventArgs_t args);
+
+WV2_API HRESULT
+wv2downloadStartingEventArgs_setResultFilePath(wv2downloadStartingEventArgs_t args, LPCWSTR resultFilePath);
+
+WV2_API bool
+wv2downloadStartingEventArgs_handled(wv2downloadStartingEventArgs_t args);
+
+WV2_API HRESULT
+wv2downloadStartingEventArgs_setHandled(wv2downloadStartingEventArgs_t args, bool handled);
+
+WV2_API wv2deferral_t
+wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args);
+
+///////////////////////////////////////////////////////////////////////////////
 
 typedef void 
 (*createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
@@ -339,6 +367,9 @@ typedef void
 
 typedef void
 (*scriptDialogOpening)(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args);
+
+typedef void
+(*downloadStarting)(wv2_t sender, wv2downloadStartingEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -527,6 +558,12 @@ WV2_API wv2bool wv2setContentLoadingHandler(wv2_t w, contentLoading handler);
  */
 WV2_API wv2bool wv2setScriptDialogOpningHandler(wv2_t w, scriptDialogOpening handler);
 
+/*
+@beief		Set an event handler for the downloadingStarting event.
+@remark		Minimum WebView2 SDK version required: 1.0.902.49
+*/
+WV2_API wv2bool wv2setDownloadStartingHandler(wv2_t w, downloadStarting handler);
+
 /*		
 @brief		Stop all navigations and pending resource fetches. Does not stop scripts.
 */
@@ -670,6 +707,17 @@ struct wv2scriptDialogOpeningEventArgs {
 	virtual wv2deferral* getDeferral() = 0;
 };
 
+struct wv2downloadStartingEventArgs {
+	// HRESULT get_DownloadOperation(ICoreWebView2DownloadOperation** downloadOperation);
+	virtual bool cancel() = 0;
+	virtual HRESULT setCancel(bool cancel) = 0;
+	virtual LPWSTR resultFilePath() = 0;
+	virtual HRESULT setResultFilePath(LPCWSTR resultFilePath) = 0;
+	virtual bool handled() = 0;
+	virtual HRESULT setHandled(bool handled) = 0;
+	virtual wv2deferral* getDeferral() = 0;
+};
+
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
@@ -729,6 +777,7 @@ struct wv2 {
 
 	virtual LPCWSTR documentTitle() = 0;
 	virtual wv2bool setScriptDialogOpeningHandler(scriptDialogOpening handler) = 0;
+	virtual wv2bool setDownloadingStartingHandler(downloadStarting handler) = 0;
 };
 #endif // __cplusplus
 

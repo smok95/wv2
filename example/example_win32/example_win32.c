@@ -42,6 +42,7 @@ void OnNewWindowRequested(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 void OnDocumentTitleChanged(wv2_t sender);
 void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args);
 void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args);
+void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args);
 
 void NavigatePostExample();
 void SetStatusText(LPCWSTR text);
@@ -138,8 +139,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    wv2envOpts_t options = wv2envOptsCreate();
    wv2envOptsSetString(options, "AdditionalBrowserArguments", L"--auto-open-devtools-for-tabs");
 
-   LPCWSTR url = L"";
-   //url = L"http://localhost:8080/tool_edit.html";
+   LPCWSTR url = L"";   
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";   
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_alert";
    url = L"https://www.youtube.com";
@@ -168,6 +168,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
        // set scriptDialogOpening event handler
        wv2setScriptDialogOpningHandler(webview, OnScriptDialogOpening);
+
+       // set downloadStarting event handler
+       wv2setDownloadStartingHandler(webview, OnDownloadStarting);
        
        settings = wv2getSettings(webview);
        if(settings) {           
@@ -406,6 +409,21 @@ void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args)
 
         wv2deleteDeferral(&deferral);
     }
+}
+
+void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args) {
+
+    LPWSTR resultFilePath = wv2downloadStartingEventArgs_resultFilePath(args);
+    if (resultFilePath) {
+
+        // Hide the default download dialog.
+        wv2downloadStartingEventArgs_setHandled(args, true);
+
+        MessageBox(NULL, resultFilePath, L"downloadStarting", MB_OK | MB_ICONINFORMATION);
+
+        wv2freeMemory((void*)resultFilePath);
+    }
+
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
