@@ -46,12 +46,15 @@
 
 ## 0.10.0(25)	2024-05-27
 - Added partial support for the `webResourceRequested` event.
+
+## 0.11.0(26)	2024-05-28
+- Added support for the `webResourceRequest.headers` property.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.10.0"
-#define WV2_VERSION_NUM		25
+#define WV2_VERSION			"0.11.0"
+#define WV2_VERSION_NUM		26
 
 #include <windows.h>
 #include <stdbool.h>
@@ -350,6 +353,25 @@ WV2_API wv2deferral_t
 wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2httpRequestHeaders_t; // ICoreWebView2HttpRequestHeaders
+
+WV2_API LPWSTR 
+wv2httpRequestHeaders_getHeader(wv2httpRequestHeaders_t handle, LPCWSTR name);
+
+// HRESULT GetHeaders(LPCWSTR name, ICoreWebView2HttpHeadersCollectionIterator** iterator)
+
+WV2_API bool
+wv2httpRequestHeaders_contains(wv2httpRequestHeaders_t handle, LPCWSTR name);
+
+WV2_API HRESULT
+wv2httpRequestHeaders_setHeader(wv2httpRequestHeaders_t handle, LPCWSTR name, LPCWSTR value);
+
+WV2_API HRESULT
+wv2httpRequestHeaders_removeHeader(wv2httpRequestHeaders_t handle, LPCWSTR name);
+
+// HRESULT GetIterator(ICoreWebView2HttpHeadersCollectionIterator** iterator)
+
+///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2webResourceRequest_t; // ICoreWebView2WebResourceRequest
 
 WV2_API LPWSTR
@@ -366,7 +388,9 @@ wv2webResourceRequest_setMethod(wv2webResourceRequest_t handle, LPCWSTR method);
 
 // HRESULT get_Content(IStream** content)
 // HRESULT put_Content(IStream* content)
-// HRESULT get_Headers(ICoreWebView2HttpRequestHeaders** headers)
+// 
+WV2_API wv2httpRequestHeaders_t
+wv2webResourceRequest_headers(wv2webResourceRequest_t handle);
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2webResourceResponse_t; // ICoreWebView2WebResourceResponse
 
@@ -813,11 +837,19 @@ struct wv2downloadStartingEventArgs {
 	virtual wv2deferral* getDeferral() = 0;
 };
 
+struct wv2httpRequestHeaders {
+	virtual LPWSTR getHeader(LPCWSTR name) = 0;
+	virtual bool contains(LPCWSTR name) = 0;
+	virtual HRESULT setHeader(LPCWSTR name, LPCWSTR value) = 0;
+	virtual HRESULT removeHeader(LPCWSTR name) = 0;
+};
+
 struct wv2webResourceRequest {
 	virtual LPWSTR uri() = 0;
 	virtual HRESULT setUri(LPCWSTR uri) = 0;
 	virtual LPWSTR method() = 0;
 	virtual HRESULT setMethod(LPCWSTR method) = 0;
+	virtual wv2httpRequestHeaders* headers() = 0;
 };
 
 struct wv2webResourceResponse {

@@ -4,6 +4,17 @@
 #include "WebView2.h"
 #include "cwv2deferral.h"
 
+template <typename Func>
+LPWSTR getStrVal(Func func) {
+	LPWSTR result = nullptr;
+	LPWSTR value = nullptr;
+	if (SUCCEEDED(func(&value))) {
+		result = _wcsdup(value);
+		CoTaskMemFree((void*)value);
+	}
+	return result;
+}
+
 template <typename T, typename I>
 class EventHandlerBase: public I {
 
@@ -234,14 +245,10 @@ public:
 	cwv2scriptDialogOpeningEventArgs(ICoreWebView2ScriptDialogOpeningEventArgs& args):
 		args_(args) {}
 
-	LPWSTR uri() override {
-		LPWSTR result = nullptr;
-		LPWSTR uri = nullptr;
-		if(SUCCEEDED(args_.get_Uri(&uri))) {
-			result = _wcsdup(uri);
-			CoTaskMemFree((void*)uri);
-		}
-		return result;
+	LPWSTR uri() override {		
+		return getStrVal([&](LPWSTR* value) -> HRESULT {
+			return args_.get_Uri(value);
+			});
 	}
 
 	wv2scriptDialogKind kind() override {
@@ -251,13 +258,9 @@ public:
 	}
 
 	LPWSTR message() override {
-		LPWSTR result = nullptr;
-		LPWSTR msg = nullptr;
-		if(SUCCEEDED(args_.get_Message(&msg))) {
-			result = _wcsdup(msg);
-			CoTaskMemFree((void*)msg);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value) -> HRESULT {
+			return args_.get_Message(value);
+			});
 	}
 
 	HRESULT accept() override {
@@ -265,23 +268,15 @@ public:
 	}
 
 	LPWSTR defaultText() override {
-		LPWSTR result = nullptr;
-		LPWSTR defText = nullptr;
-		if(SUCCEEDED(args_.get_DefaultText(&defText))) {
-			result = _wcsdup(defText);
-			CoTaskMemFree((void*)defText);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value) -> HRESULT {
+			return args_.get_DefaultText(value);
+			});
 	}
 
 	LPWSTR resultText() override {
-		LPWSTR result = nullptr;
-		LPWSTR text = nullptr;
-		if(SUCCEEDED(args_.get_ResultText(&text))) {
-			result = _wcsdup(text);
-			CoTaskMemFree((void*)text);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value)->HRESULT {
+			return args_.get_ResultText(value);
+			});
 	}
 
 	HRESULT setResultText(LPCWSTR resultText) override {
@@ -340,13 +335,9 @@ public:
 	}
 
 	LPWSTR resultFilePath() override {
-		LPWSTR result = nullptr;
-		LPWSTR resultFilePath = nullptr;
-		if(SUCCEEDED(args_.get_ResultFilePath(&resultFilePath))) {
-			result = _wcsdup(resultFilePath);
-			CoTaskMemFree((void*)resultFilePath);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value)->HRESULT {
+			return args_.get_ResultFilePath(value);
+			});
 	}
 
 	HRESULT setResultFilePath(LPCWSTR resultFilePath) override {
@@ -409,6 +400,43 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+class cwv2httpRequestHeaders :public wv2httpRequestHeaders {
+public:
+	void setHttpRequestHeaders(CComPtr<ICoreWebView2HttpRequestHeaders> headers) {
+		headers_ = headers;
+	}
+
+	LPWSTR getHeader(LPCWSTR name) override {
+		if (!headers_) return nullptr;
+
+		return getStrVal([&](LPWSTR* value) -> HRESULT {
+			return headers_->GetHeader(name, value);
+			});
+	}
+
+	bool contains(LPCWSTR name) override {
+		if (!headers_) return false;
+
+		BOOL contains = FALSE;
+		headers_->Contains(name, &contains);
+		return contains == TRUE;
+	}
+
+	HRESULT setHeader(LPCWSTR name, LPCWSTR value) override {
+		if (!headers_) return E_NOINTERFACE;
+
+		return headers_->SetHeader(name, value);
+	}
+
+	HRESULT removeHeader(LPCWSTR name) override {
+		if (!headers_) return E_NOINTERFACE;
+		return headers_->RemoveHeader(name);
+	}
+
+private:
+	CComPtr<ICoreWebView2HttpRequestHeaders> headers_;
+};
+
 class cwv2webResourceRequest : public wv2webResourceRequest {
 public:
 	void setRequest(CComPtr<ICoreWebView2WebResourceRequest> request) {
@@ -417,13 +445,9 @@ public:
 
 	LPWSTR uri() override {
 		if (!request_) return nullptr;
-		LPWSTR uri = nullptr;
-		LPWSTR result = nullptr;
-		if (SUCCEEDED(request_->get_Uri(&uri))) {
-			result = _wcsdup(uri);
-			CoTaskMemFree((void*)uri);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value)->HRESULT {
+			return request_->get_Uri(value);
+			});
 	}
 
 	HRESULT setUri(LPCWSTR uri) override {
@@ -434,13 +458,9 @@ public:
 
 	LPWSTR method() override {
 		if (!request_) return nullptr;
-		LPWSTR method = nullptr;
-		LPWSTR result = nullptr;
-		if (SUCCEEDED(request_->get_Method(&method))) {
-			result = _wcsdup(method);
-			CoTaskMemFree((void*)method);
-		}
-		return result;
+		return getStrVal([&](LPWSTR* value)->HRESULT {
+			return request_->get_Method(value);
+			});
 	}
 
 	HRESULT setMethod(LPCWSTR method) override {
@@ -448,8 +468,20 @@ public:
 		return request_->put_Method(method);
 	}
 
+	wv2httpRequestHeaders* headers() override {
+		if (!request_) return nullptr;
+
+		CComPtr<ICoreWebView2HttpRequestHeaders> headers;
+		if (SUCCEEDED(request_->get_Headers(&headers))) {
+			headers_.setHttpRequestHeaders(headers);
+		}
+
+		return &headers_;
+	}
+
 private:
 	CComPtr<ICoreWebView2WebResourceRequest> request_;
+	cwv2httpRequestHeaders headers_;
 };
 
 class cwv2webResourceRequestedEventArgs : public wv2webResourceRequestedEventArgs {

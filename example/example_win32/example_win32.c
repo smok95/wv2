@@ -435,6 +435,19 @@ void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args) {
 void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t args) {
     wv2webResourceRequest_t request = wv2webResourceRequestedEventArgs_request(args);
     if (request) {
+        wv2httpRequestHeaders_t headers = wv2webResourceRequest_headers(request);
+        if (headers) {
+            LPWSTR value = NULL;
+            wv2httpRequestHeaders_setHeader(headers, L"testName", L"testValue");
+
+            value = wv2httpRequestHeaders_getHeader(headers, L"testName");
+			if (wcscmp(L"testValue", value) != 0) {
+				MessageBox(NULL, L"The retrieved value does not match the expected value!", L"Error", MB_OK | MB_ICONERROR);
+			}
+
+            wv2freeMemory((void*)value);
+        }
+
         LPCWSTR uri = wv2webResourceRequest_uri(request);
         if (uri) {
             MessageBox(NULL, uri, L"webResourceRequested", MB_OK | MB_ICONINFORMATION);

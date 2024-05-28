@@ -649,28 +649,29 @@ wv2downloadStartingEventArgs_getDeferral(wv2downloadStartingEventArgs_t args) {
 ///////////////////////////////////////////////////////////////////////////////
 #define WRREQ ((wv2webResourceRequest*)handle)
 
-LPWSTR
-wv2webResourceRequest_uri(wv2webResourceRequest_t handle) {
+LPWSTR wv2webResourceRequest_uri(wv2webResourceRequest_t handle) {
 	if (!handle) return nullptr;
 	return WRREQ->uri();
 }
 
-HRESULT
-wv2webResourceRequest_setUri(wv2webResourceRequest_t handle, LPCWSTR uri) {
+HRESULT wv2webResourceRequest_setUri(wv2webResourceRequest_t handle, LPCWSTR uri) {
 	if (!handle || !uri) return E_INVALIDARG;
 	return WRREQ->setUri(uri);
 }
 
-LPWSTR
-wv2webResourceRequest_method(wv2webResourceRequest_t handle) {
+LPWSTR wv2webResourceRequest_method(wv2webResourceRequest_t handle) {
 	if (!handle) return nullptr;
 	return WRREQ->method();
 }
 
-HRESULT
-wv2webResourceRequest_setMethod(wv2webResourceRequest_t handle, LPCWSTR method) {
+HRESULT wv2webResourceRequest_setMethod(wv2webResourceRequest_t handle, LPCWSTR method) {
 	if (!handle || !method) return E_INVALIDARG;
 	return WRREQ->setMethod(method);
+}
+
+wv2httpRequestHeaders_t wv2webResourceRequest_headers(wv2webResourceRequest_t handle) {
+	if (!handle) return nullptr;
+	return WRREQ->headers();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -713,4 +714,28 @@ wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t arg
 	return WRREQUESTED_ARGS->response();
 }
 */
+///////////////////////////////////////////////////////////////////////////////
+#define REQ_HDRS ((wv2httpRequestHeaders*)handle)
+
+LPWSTR wv2httpRequestHeaders_getHeader(wv2httpRequestHeaders_t handle, LPCWSTR name) {
+	if (!handle || !name) return nullptr;
+	return REQ_HDRS->getHeader(name);
+}
+
+bool wv2httpRequestHeaders_contains(wv2httpRequestHeaders_t handle, LPCWSTR name) {
+	if (!handle || !name) return false;
+	return REQ_HDRS->contains(name);
+}
+
+HRESULT wv2httpRequestHeaders_setHeader(wv2httpRequestHeaders_t handle, LPCWSTR name, 
+	LPCWSTR value) {
+	if (!handle || !name) return E_INVALIDARG;
+	return REQ_HDRS->setHeader(name, value);
+}
+
+HRESULT wv2httpRequestHeaders_removeHeader(wv2httpRequestHeaders_t handle, LPCWSTR name) {
+	if (!handle || !name) return E_INVALIDARG;
+	return REQ_HDRS->removeHeader(name);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
