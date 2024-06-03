@@ -115,7 +115,7 @@ public:
 	wv2bool isDocumentPlayingAudio() OVERRIDE;
 	wv2bool openTaskManagerWindow() OVERRIDE;
 
-	wv2env* getEnvironment() OVERRIDE;
+	wv2environment* getEnvironment() OVERRIDE;
 	wv2bool setNewWindowRequestedHandler(newWindowRequested handler) OVERRIDE;
 	wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) OVERRIDE;
 	LPCWSTR documentTitle() OVERRIDE;

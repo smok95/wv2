@@ -1,11 +1,14 @@
 #include "cwv2env.h"
 #include "cwv2types.h"
+#include "cwv2webResourceResponse.h"
 
+/*
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+*/
 
 void cwv2env::Release() {
 
@@ -49,4 +52,16 @@ wv2bool cwv2env::setBrowserProcessExitedHandler(browserProcessExited handler) {
 	browserProcessExitedHandler_.bind(handler, this);
 	r.value = true;
 	return r;
+}
+
+wv2webResourceResponse* cwv2env::createWebResourceResponse(
+	IStream* content, int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers) {
+	if (!env2_) {
+		return nullptr;
+	}
+
+	CComPtr<ICoreWebView2WebResourceResponse> response;
+	const HRESULT hr = env2_->CreateWebResourceResponse(content, statusCode, reasonPhrase, headers, &response);
+	if (FAILED(hr)) return nullptr;
+	return new cwv2webResourceResponse(response);
 }

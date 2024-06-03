@@ -49,16 +49,21 @@
 
 ## 0.11.0(26)	2024-05-28
 - Added support for the `webResourceRequest.headers` property.
+
+## 0.12(27)		2024-06-03
+- Added support for the `webRequestedEventArgs.resourceContext` property.
+- Changed `wv2env_t` to `wv2environment_t`
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.11.0"
-#define WV2_VERSION_NUM		26
+#define WV2_VERSION			"0.12"
+#define WV2_VERSION_NUM		27
 
 #include <windows.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <objidl.h>
 #include "wv2envOpts.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900 // Visual Studio 2013 
@@ -93,7 +98,9 @@ typedef enum wv2HostResourceAccessKind {
 #endif // __wv2HostResourceAccessKind__DEFINED__
 
 typedef void* wv2_t;
-typedef void* wv2env_t;	// CoreWebView2Environment
+typedef void* wv2environment_t;	// CoreWebView2Environment
+typedef wv2environment_t wv2env_t;
+
 
 // Structure representing the result and support status of a function
 typedef struct wv2bool {
@@ -103,7 +110,6 @@ typedef struct wv2bool {
 	HRESULT hr;
 } wv2bool;
 
-///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2deferral_t; // ICoreWebView2Deferral
 WV2_API HRESULT wv2deferral_complete(wv2deferral_t d);
 
@@ -189,6 +195,7 @@ typedef enum wv2scriptDialogKind {
 // @see COREWEBVIEW2_WEB_RESOURCE_CONTEXT
 typedef enum wv2webResourceContext
 {
+	wv2webResourceContext_undefined = -1,
 	wv2webResourceContext_all = 0,
 	wv2webResourceContext_document = (wv2webResourceContext_all + 1),
 	wv2webResourceContext_stylesheet = (wv2webResourceContext_document + 1),
@@ -402,7 +409,7 @@ WV2_API int32_t
 wv2webResourceResponse_statusCode(wv2webResourceResponse_t handle);
 
 WV2_API HRESULT
-wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int statusCode);
+wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int32_t statusCode);
 
 WV2_API LPWSTR
 wv2webResourceResponse_reasonPhrase(wv2webResourceResponse_t handle);
@@ -415,12 +422,14 @@ typedef void* wv2webResourceRequestedEventArgs_t; // ICoreWebView2WebResourceReq
 WV2_API wv2webResourceRequest_t
 wv2webResourceRequestedEventArgs_request(wv2webResourceRequestedEventArgs_t args);
 
-//WV2_API wv2webResourceResponse_t
-//wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args);
+WV2_API wv2webResourceResponse_t
+wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args);
 
+WV2_API wv2webResourceContext
+wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args);
 // HRESULT put_Response(ICoreWebView2WebResourceResponse* response)
 // HRESULT GetDeferral(ICoreWebView2Deferral** deferral)
-// HRESULT get_ResourceContext(COREWEBVIEW2_WEB_RESOURCE_CONTEXT* context)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef void 
@@ -450,7 +459,7 @@ typedef void
 typedef isMutedChanged isDocumentPlayingAudioChanged;
 
 typedef void
-(*browserProcessExited)(wv2env_t sender, wv2browserProcessExitedEventArgs* e);
+(*browserProcessExited)(wv2environment_t sender, wv2browserProcessExitedEventArgs* e);
 
 typedef void
 (*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
@@ -490,14 +499,9 @@ WV2_API wv2_t wv2createSync(LPCWSTR browserExecutableFolder, LPCWSTR userDataFol
 WV2_API wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 	wv2envOpts_t environmentOptions, HWND parentWindow);
 
-WV2_API wv2env_t wv2getEnv(wv2_t w);
-
-/*
-@brief		Set an event handler for the browserProcessExited event.
-@remark		Minimum WebView2 SDK version required: 	1.0.992.28
-*/
-WV2_API wv2bool wv2envSetBrowserProcessExitedHandler(wv2env_t e, 
-	browserProcessExited handler);
+DEPRECATED("wv2getEnv deprecated. Use wv2environment instead.")
+WV2_API wv2environment_t wv2getEnv(wv2_t w);
+WV2_API wv2environment_t wv2getEnvironment(wv2_t w);
 
 WV2_API void wv2destroy(wv2_t* w);
 
@@ -739,18 +743,26 @@ WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
 
 WV2_API HRESULT wv2lastError(wv2_t w);
 
+////////////////////////////////////////////////////////////////////////////////
+
+/*
+@brief		Set an event handler for the browserProcessExited event.
+@remark		Minimum WebView2 SDK version required: 	1.0.992.28
+*/
+WV2_API wv2bool wv2environment_setBrowserProcessExitedHandler(wv2environment_t env,
+	browserProcessExited handler);
+
+WV2_API wv2webResourceResponse_t
+wv2environment_createWebResourceResponse(wv2environment_t env, IStream* content, 
+	int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers);
+
+///////////////////////////////////////////////////////////////////////////////
 #ifdef __cplusplus
 }
 #endif
 
 
 #ifdef __cplusplus
-struct wv2env {
-	virtual ~wv2env() {};
-
-	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
-};
-
 struct wv2deferral {
 	virtual ~wv2deferral() {};
 
@@ -854,15 +866,26 @@ struct wv2webResourceRequest {
 
 struct wv2webResourceResponse {
 	virtual int32_t statusCode() = 0;
-	virtual HRESULT setStatusCode(int statusCode) = 0;
+	virtual HRESULT setStatusCode(int32_t statusCode) = 0;
 	virtual LPWSTR reasonPhrase() = 0;
 	virtual HRESULT setReasonPhrase(LPCWSTR reasonPhrase) = 0;
 };
 
 struct wv2webResourceRequestedEventArgs {
 	virtual wv2webResourceRequest* request() = 0;
-	//virtual wv2webResourceResponse* response() = 0;
+	virtual wv2webResourceResponse* response() = 0;
+	virtual wv2webResourceContext resourceContext() = 0;
 };
+
+struct wv2environment {
+	virtual ~wv2environment() {};
+
+	virtual wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) = 0;
+
+	virtual wv2webResourceResponse* createWebResourceResponse(
+		IStream* content, int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers) = 0;
+};
+
 
 
 struct wv2 {
@@ -916,7 +939,7 @@ struct wv2 {
 	virtual wv2bool isDocumentPlayingAudio() = 0;
 	virtual wv2bool openTaskManagerWindow() = 0;
 
-	virtual wv2env* getEnvironment() = 0;
+	virtual wv2environment* getEnvironment() = 0;
 
 	virtual wv2bool setNewWindowRequestedHandler(newWindowRequested handler) = 0;
 	virtual wv2bool setDocumentTitleChangedHandler(documentTitleChanged handler) = 0;

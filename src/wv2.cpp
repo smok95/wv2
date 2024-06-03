@@ -94,16 +94,29 @@ wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFolder,
 	}
 }
 
-wv2env_t wv2getEnv(wv2_t w) {
+wv2environment_t wv2getEnvironment(wv2_t w) {
 	if (!w) return nullptr;
 	return CWV2(w)->getEnvironment();
 }
 
-wv2bool wv2envSetBrowserProcessExitedHandler(wv2env_t e, browserProcessExited handler) {
+
+wv2environment_t wv2getEnv(wv2_t w) {
+	return wv2getEnvironment(w);
+}
+
+wv2bool wv2environment_setBrowserProcessExitedHandler(wv2environment_t e, 
+	browserProcessExited handler) {
 	if (!e) return wv2boolInvalidArg();
 	return ((cwv2env*)e)->setBrowserProcessExitedHandler(handler);
 }
 
+wv2webResourceResponse_t
+wv2environment_createWebResourceResponse(wv2environment_t env, IStream* content,
+	int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers) {
+	if (!env) return nullptr;
+	return ((cwv2env*)env)->createWebResourceResponse(content, statusCode, 
+		reasonPhrase, headers);
+}
 
 void wv2destroy(wv2_t* h) {
 	if (!h) return;
@@ -683,7 +696,7 @@ wv2webResourceResponse_statusCode(wv2webResourceResponse_t handle) {
 }
 
 HRESULT
-wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int statusCode) {
+wv2webResourceResponse_setStatusCode(wv2webResourceResponse_t handle, int32_t statusCode) {
 	if (!handle) return E_INVALIDARG;
 	return WRRES->setStatusCode(statusCode);
 }
@@ -707,13 +720,18 @@ wv2webResourceRequestedEventArgs_request(wv2webResourceRequestedEventArgs_t args
 	return WRREQUESTED_ARGS->request();
 }
 
-/*
 wv2webResourceResponse_t
 wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args) {
 	if (!args) return nullptr;
 	return WRREQUESTED_ARGS->response();
 }
-*/
+
+wv2webResourceContext
+wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args) {
+	if (!args) return wv2webResourceContext_undefined;
+	return WRREQUESTED_ARGS->resourceContext();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 #define REQ_HDRS ((wv2httpRequestHeaders*)handle)
 

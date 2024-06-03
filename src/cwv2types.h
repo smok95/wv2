@@ -18,3 +18,14 @@ static inline wv2bool wv2boolDefault() {
 	r.hr = S_OK;
 	return r;
 }
+
+template <typename Func>
+LPWSTR getStrVal(Func func) {
+	LPWSTR result = nullptr;
+	LPWSTR value = nullptr;
+	if (SUCCEEDED(func(&value))) {
+		result = _wcsdup(value);
+		CoTaskMemFree((void*)value);
+	}
+	return result;
+}

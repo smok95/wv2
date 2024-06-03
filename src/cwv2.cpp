@@ -712,7 +712,7 @@ EventRegistrationToken emptyEventRegistrationToken() {
 	return token;
 }
 
-wv2env* cwv2::getEnvironment() {
+wv2environment* cwv2::getEnvironment() {
 	return &env_;
 }
 

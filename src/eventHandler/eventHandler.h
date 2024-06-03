@@ -3,17 +3,8 @@
 #include "wv2.h"
 #include "WebView2.h"
 #include "cwv2deferral.h"
-
-template <typename Func>
-LPWSTR getStrVal(Func func) {
-	LPWSTR result = nullptr;
-	LPWSTR value = nullptr;
-	if (SUCCEEDED(func(&value))) {
-		result = _wcsdup(value);
-		CoTaskMemFree((void*)value);
-	}
-	return result;
-}
+#include "cwv2types.h"
+#include "cwv2webResourceResponse.h"
 
 template <typename T, typename I>
 class EventHandlerBase: public I {
@@ -484,6 +475,7 @@ private:
 	cwv2httpRequestHeaders headers_;
 };
 
+
 class cwv2webResourceRequestedEventArgs : public wv2webResourceRequestedEventArgs {
 public:
 	cwv2webResourceRequestedEventArgs(ICoreWebView2WebResourceRequestedEventArgs& args) :args_(args) {}
@@ -495,12 +487,37 @@ public:
 		}
 
 		request_.setRequest(req);
+
+		if (!req) {
+			return nullptr;
+		}
 		return &request_;
+	}
+
+	wv2webResourceResponse* response() override {
+		CComPtr<ICoreWebView2WebResourceResponse> res;
+		if (FAILED(args_.get_Response(&res))) {
+			return nullptr;
+		}
+
+		response_.setResponse(res);
+
+		if (!res) {
+			return nullptr;
+		}
+		return &response_;
+	}
+
+	wv2webResourceContext resourceContext() override {
+		wv2webResourceContext context = wv2webResourceContext_undefined;
+		args_.get_ResourceContext((COREWEBVIEW2_WEB_RESOURCE_CONTEXT*)&context);
+		return context;
 	}
 
 private:
 	ICoreWebView2WebResourceRequestedEventArgs& args_;
 	cwv2webResourceRequest request_;
+	cwv2webResourceResponse response_;
 };
 
 class WebResourceRequested :

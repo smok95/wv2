@@ -150,7 +150,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        // set browserProcessExited event handler
        wv2env_t env = wv2getEnv(webview);
        if(env) {
-           wv2envSetBrowserProcessExitedHandler(env, OnBrowserProcessExited);
+           wv2environment_setBrowserProcessExitedHandler(env, OnBrowserProcessExited);
        }
 
        // set isMutedChanged event handler
@@ -455,6 +455,19 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
             wv2freeMemory((void*)uri);
         }
     }
+
+	wv2webResourceResponse_t response = wv2webResourceRequestedEventArgs_response(args);
+	if (response) {
+		int32_t statusCode = wv2webResourceResponse_statusCode(response);
+		LPWSTR reasonPhrase = wv2webResourceResponse_reasonPhrase(response);
+		WCHAR buf[2048];
+		wsprintf(buf, L"Status Code: %d, Reason Phrase: %s", statusCode, reasonPhrase);
+
+		wv2freeMemory((void*)reasonPhrase);
+
+        MessageBox(NULL, buf, L"webResourceRequested", MB_OK | MB_ICONINFORMATION);
+	}
+
 
     wv2removeWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
 }

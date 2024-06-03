@@ -179,6 +179,7 @@
     <ClCompile Include="src\cwv2envOpts.cpp" />
     <ClCompile Include="src\cwv2newWindowRequestedEventArgs.cpp" />
     <ClCompile Include="src\cwv2settings.cpp" />
+    <ClCompile Include="src\cwv2webResourceResponse.cpp" />
     <ClCompile Include="src\wv2.cpp" />
     <ClCompile Include="src\wv2envOpts.cpp" />
     <ClCompile Include="src\wv2util.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\cwv2newWindowRequestedEventArgs.h" />
     <ClInclude Include="src\cwv2settings.h" />
     <ClInclude Include="src\cwv2types.h" />
+    <ClInclude Include="src\cwv2webResourceResponse.h" />
     <ClInclude Include="src\eventHandler\eventHandler.h" />
   </ItemGroup>
   <ItemGroup>

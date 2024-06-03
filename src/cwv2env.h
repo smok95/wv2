@@ -5,11 +5,14 @@
 #include "eventHandler.h"
 
 class cwv2env:
-	public wv2env {
+	public wv2environment {
 public:
 	wv2bool setBrowserProcessExitedHandler(browserProcessExited handler) override;
 
 	HRESULT createCoreWebView2EnvironmentCompleted(ICoreWebView2Environment* env);
+
+	wv2webResourceResponse* createWebResourceResponse(
+		IStream* content, int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers) override;
 
 	void Release();
 
