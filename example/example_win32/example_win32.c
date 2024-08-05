@@ -45,6 +45,7 @@ void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args);
 void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args);
 void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args);
 void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
+void OnWebMessageReceived(wv2_t sender, LPCWSTR message);
 
 void NavigatePostExample();
 void SetStatusText(LPCWSTR text);
@@ -152,6 +153,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        if(env) {
            wv2environment_setBrowserProcessExitedHandler(env, OnBrowserProcessExited);
        }
+
+       wv2setWebMessageReceivedHandler(webview, OnWebMessageReceived);
 
        // set isMutedChanged event handler
        wv2setIsMutedChangedHandler(webview, OnIsMutedChanged);
@@ -470,6 +473,10 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
 
 
     wv2removeWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
+}
+
+void OnWebMessageReceived(wv2_t sender, LPCWSTR message) {
+	MessageBox(NULL, message, L"WebMessageReceived", MB_OK | MB_ICONINFORMATION);
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
