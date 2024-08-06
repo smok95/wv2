@@ -757,3 +757,18 @@ HRESULT wv2httpRequestHeaders_removeHeader(wv2httpRequestHeaders_t handle, LPCWS
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#define NC_ARSG ((wv2navigationCompletedEventArgs*)args)
+bool wv2navigationCompletedEventArgs_isSuccess(wv2navigationCompletedEventArgs_t args) {
+	if (!args) return false;
+	return NC_ARSG->isSuccess();
+}
+
+wv2webErrorStatus wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args) {
+	if (!args) return wv2webErrorStatus_unknown;
+	return NC_ARSG->webErrorStatus();
+}
+
+uint64_t wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEventArgs_t args) {
+	if (!args) return 0;
+	return NC_ARSG->navigationId();
+}

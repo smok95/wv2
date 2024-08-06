@@ -551,3 +551,33 @@ public:
 private:
 	CComPtr<ICoreWebView2> webview_;
 };
+
+//////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+class cwv2navigationCompletedEventArgs: public wv2navigationCompletedEventArgs {
+public:
+	cwv2navigationCompletedEventArgs(ICoreWebView2NavigationCompletedEventArgs& args)
+		: args_(args) {}
+
+	bool isSuccess() override {
+		BOOL b = FALSE;
+		args_.get_IsSuccess(&b);
+		return b == TRUE;
+	}
+	
+	wv2webErrorStatus webErrorStatus() override {
+		COREWEBVIEW2_WEB_ERROR_STATUS status = COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
+		args_.get_WebErrorStatus(&status);
+		return (wv2webErrorStatus)status;
+	}
+
+	uint64_t navigationId() override {
+		UINT64 navId = 0;
+		args_.get_NavigationId(&navId);
+		return navId;
+	}
+
+private:
+	ICoreWebView2NavigationCompletedEventArgs& args_;
+};

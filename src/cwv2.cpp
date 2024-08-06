@@ -348,11 +348,13 @@ STDMETHODIMP cwv2::Invoke(ICoreWebView2* sender, ICoreWebView2WebMessageReceived
 	return S_OK;
 }
 
-STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, ICoreWebView2NavigationCompletedEventArgs *args) {
+STDMETHODIMP cwv2::Invoke(ICoreWebView2 *sender, 
+	ICoreWebView2NavigationCompletedEventArgs *args) {
 	if (sender != view2_3_) return E_UNEXPECTED;
 	
 	if (navigationCompletedHandler_) {
-		navigationCompletedHandler_(this);
+		cwv2navigationCompletedEventArgs argsWrap(*args);
+		navigationCompletedHandler_(this, &argsWrap);
 	}
 	
 	return S_OK;

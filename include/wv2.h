@@ -53,11 +53,14 @@
 ## 0.12(27)		2024-06-03
 - Added support for the `webRequestedEventArgs.resourceContext` property.
 - Changed `wv2env_t` to `wv2environment_t`
+
+@@ 0.13(28)		2024-088-06
+- Changed `navigationCompleted` event.
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.12"
+#define WV2_VERSION			"0.13"
 #define WV2_VERSION_NUM		27
 
 #include <windows.h>
@@ -214,6 +217,31 @@ typedef enum wv2webResourceContext
 	wv2webResourceContext_csp_violation_report = (wv2webResourceContext_ping + 1),
 	wv2webResourceContext_other = (wv2webResourceContext_csp_violation_report + 1)
 }wv2webResourceContext;
+
+// @see COREWEBVIEW2_WEB_ERROR_STATUS
+typedef enum wv2webErrorStatus
+{
+	wv2webErrorStatus_unknown = 0,
+	wv2webErrorStatus_certificate_common_name_is_incorrect = (wv2webErrorStatus_unknown + 1),
+	wv2webErrorStatus_certificate_expired = (wv2webErrorStatus_certificate_common_name_is_incorrect + 1),
+	wv2webErrorStatus_client_certificate_contains_errors = (wv2webErrorStatus_certificate_expired + 1),
+	wv2webErrorStatus_certificate_revoked = (wv2webErrorStatus_client_certificate_contains_errors + 1),
+	wv2webErrorStatus_certificate_is_invalid = (wv2webErrorStatus_certificate_revoked + 1),
+	wv2webErrorStatus_server_unreachable = (wv2webErrorStatus_certificate_is_invalid + 1),
+	wv2webErrorStatus_timeout = (wv2webErrorStatus_server_unreachable + 1),
+	wv2webErrorStatus_error_http_invalid_server_response = (wv2webErrorStatus_timeout + 1),
+	wv2webErrorStatus_connection_aborted = (wv2webErrorStatus_error_http_invalid_server_response + 1),
+	wv2webErrorStatus_connection_reset = (wv2webErrorStatus_connection_aborted + 1),
+	wv2webErrorStatus_disconnected = (wv2webErrorStatus_connection_reset + 1),
+	wv2webErrorStatus_cannot_connect = (wv2webErrorStatus_disconnected + 1),
+	wv2webErrorStatus_host_name_not_resolved = (wv2webErrorStatus_cannot_connect + 1),
+	wv2webErrorStatus_operation_canceled = (wv2webErrorStatus_host_name_not_resolved + 1),
+	wv2webErrorStatus_redirect_failed = (wv2webErrorStatus_operation_canceled + 1),
+	wv2webErrorStatus_unexpected_error = (wv2webErrorStatus_redirect_failed + 1),
+	wv2webErrorStatus_valid_authentication_credentials_required = (wv2webErrorStatus_unexpected_error + 1),
+	wv2webErrorStatus_valid_proxy_authentication_required = (wv2webErrorStatus_valid_authentication_credentials_required + 1)
+}wv2webErrorStatus;
+
 
 typedef struct {
 	wv2browserProcessExitKind browserProcessExitKind;
@@ -431,7 +459,18 @@ wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArg
 // HRESULT GetDeferral(ICoreWebView2Deferral** deferral)
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2navigationCompletedEventArgs_t; // ICoreWebView2NavigationCompletedEventArgs
 
+WV2_API bool 
+wv2navigationCompletedEventArgs_isSuccess(wv2navigationCompletedEventArgs_t args);
+
+WV2_API wv2webErrorStatus
+wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args);
+
+WV2_API uint64_t
+wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEventArgs_t args);
+
+///////////////////////////////////////////////////////////////////////////////
 typedef void 
 (*createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
@@ -442,7 +481,7 @@ typedef bool
 (*navigationStarting)(wv2_t sender, LPCWSTR uri);
 
 typedef void
-(*navigationCompleted)(wv2_t sender);
+(*navigationCompleted)(wv2_t sender, wv2navigationCompletedEventArgs_t args);
 
 typedef bool
 (*windowCloseRequested)(wv2_t sender);
@@ -464,7 +503,8 @@ typedef void
 typedef void
 (*newWindowRequested)(wv2_t sender, wv2newWindowRequestedEventArgs_t args);
 
-typedef navigationCompleted documentTitleChanged;
+typedef void
+(*documentTitleChanged)(wv2_t sender);
 
 typedef void
 (*domContentLoaded)(wv2_t sender, wv2domContentLoadedEventArgs_t args);
@@ -847,6 +887,12 @@ struct wv2downloadStartingEventArgs {
 	virtual bool handled() = 0;
 	virtual HRESULT setHandled(bool handled) = 0;
 	virtual wv2deferral* getDeferral() = 0;
+};
+
+struct wv2navigationCompletedEventArgs {
+	virtual bool isSuccess() = 0;
+	virtual wv2webErrorStatus webErrorStatus() = 0;
+	virtual uint64_t navigationId() = 0;
 };
 
 struct wv2httpRequestHeaders {

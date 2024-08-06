@@ -46,6 +46,7 @@ void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args)
 void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args);
 void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
 void OnWebMessageReceived(wv2_t sender, LPCWSTR message);
+void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args);
 
 void NavigatePostExample();
 void SetStatusText(LPCWSTR text);
@@ -181,6 +182,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        wv2setWebResourceRequestedHandler(webview, OnWebResourceRequested);
 
        wv2addWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
+
+       // set navigationCompleted event handler
+       wv2setNavigationCompletedHandler(webview, OnNavigationCompleted);
        
        settings = wv2getSettings(webview);
        if(settings) {           
@@ -477,6 +481,17 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
 
 void OnWebMessageReceived(wv2_t sender, LPCWSTR message) {
 	MessageBox(NULL, message, L"WebMessageReceived", MB_OK | MB_ICONINFORMATION);
+}
+
+void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args) {
+    const bool isSuccess = wv2navigationCompletedEventArgs_isSuccess(args);
+    const uint64_t navId = wv2navigationCompletedEventArgs_navigationId(args);
+    const wv2webErrorStatus status = wv2navigationCompletedEventArgs_webErrorStatus(args);
+    WCHAR buf[2048];
+    wsprintf(buf, L"NavicationCompleted, isSuccess: %d, navagationID: %d, webErrorStatus: %d",
+        isSuccess, navId, status);
+
+    SetStatusText(buf);
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
