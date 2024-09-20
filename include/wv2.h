@@ -54,14 +54,17 @@
 - Added support for the `webRequestedEventArgs.resourceContext` property.
 - Changed `wv2env_t` to `wv2environment_t`
 
-@@ 0.13(28)		2024-088-06
+## 0.13(28)		2024-08-06
 - Changed `navigationCompleted` event.
+
+## 0.14(29)		2024-09-19
+- 
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.13"
-#define WV2_VERSION_NUM		27
+#define WV2_VERSION			"0.14"
+#define WV2_VERSION_NUM		29
 
 #include <windows.h>
 #include <stdbool.h>
@@ -242,6 +245,14 @@ typedef enum wv2webErrorStatus
 	wv2webErrorStatus_valid_proxy_authentication_required = (wv2webErrorStatus_valid_authentication_credentials_required + 1)
 }wv2webErrorStatus;
 
+// @see COREWEBVIEW2_COOKIE_SAME_SITE_KIND
+typedef enum wv2cookieSameSiteKind
+{
+	wv2cookieSameSiteKind_undefined = -1,
+	wv2cookieSameSiteKind_none = 0,
+	wv2cookieSameSiteKind_lax = (wv2cookieSameSiteKind_none + 1),
+	wv2cookieSameSiteKind_strict = (wv2cookieSameSiteKind_lax + 1)
+}wv2cookieSameSiteKind;
 
 typedef struct {
 	wv2browserProcessExitKind browserProcessExitKind;
@@ -471,6 +482,96 @@ WV2_API uint64_t
 wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEventArgs_t args);
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2cookie_t; // ICoreWebView2Cookie
+WV2_API LPWSTR 
+wv2cookie_name(wv2cookie_t h);
+
+WV2_API LPWSTR 
+wv2cookie_value(wv2cookie_t h);
+
+WV2_API HRESULT 
+wv2cookie_setValue(wv2cookie_t h, LPWSTR domain);
+
+WV2_API LPWSTR 
+wv2cookie_domain(wv2cookie_t h);
+
+WV2_API LPWSTR 
+wv2cookie_path(wv2cookie_t h);
+
+WV2_API double 
+wv2cookie_expires(wv2cookie_t h);
+
+WV2_API HRESULT 
+wv2cookie_setExpires(wv2cookie_t h, double expires);
+
+WV2_API bool 
+wv2cookie_isHttpOnly(wv2cookie_t h);
+
+WV2_API HRESULT 
+wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly);
+
+WV2_API wv2cookieSameSiteKind 
+wv2cookie_sameSite(wv2cookie_t h);
+
+WV2_API HRESULT 
+wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite);
+
+WV2_API bool 
+wv2cookie_isSecure(wv2cookie_t h);
+
+WV2_API HRESULT 
+wv2cookie_setIsSecure(wv2cookie_t h, bool isSecure);
+
+WV2_API bool 
+wv2cookie_isSession(wv2cookie_t h);
+
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2cookieManager_t; // ICoreWebView2CookieManager
+/*
+WV2_API 
+wv2cookieManager_
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE CreateCookie(
+		LPCWSTR name,
+		LPCWSTR value,
+		LPCWSTR domain,
+		LPCWSTR path,
+		ICoreWebView2Cookie * *cookie) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE CopyCookie(
+		ICoreWebView2Cookie* cookieParam,
+		ICoreWebView2Cookie** cookie) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetCookies(
+		LPCWSTR uri,
+		ICoreWebView2GetCookiesCompletedHandler* handler) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE AddOrUpdateCookie(
+		ICoreWebView2Cookie* cookie) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE DeleteCookie(
+		ICoreWebView2Cookie* cookie) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE DeleteCookies(
+		LPCWSTR name,
+		LPCWSTR uri) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE DeleteCookiesWithDomainAndPath(
+		LPCWSTR name,
+		LPCWSTR domain,
+		LPCWSTR path) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE DeleteAllCookies(void) = 0;
+
+};
+*/
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2cookieList_t; // ICoreWebView2CookieList 
+WV2_API UINT wv2cookieList_count(wv2cookieList_t h);
+WV2_API wv2cookie_t wv2cookieList_getValueAtIndex(wv2cookieList_t h, UINT index);
+
+///////////////////////////////////////////////////////////////////////////////
 typedef void 
 (*createCompleted)(wv2_t w, HRESULT errorCode, void* userData);
 
@@ -520,6 +621,9 @@ typedef void
 
 typedef void
 (*webResourceRequested)(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
+
+typedef void
+(*getCookiesCompleted)(HRESULT result, wv2cookieList_t cookieList);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -932,7 +1036,41 @@ struct wv2environment {
 		IStream* content, int32_t statusCode, LPCWSTR reasonPhrase, LPCWSTR headers) = 0;
 };
 
+struct wv2cookie {
+	virtual void destroy() = 0;
 
+	virtual LPWSTR name() = 0;
+	virtual LPWSTR value() = 0;
+	virtual HRESULT setValue(LPCWSTR value) = 0;
+	virtual LPWSTR domain() = 0;
+	virtual LPWSTR path() = 0;
+	virtual double expires() = 0;
+	virtual HRESULT setExpires(double expires) = 0;
+	virtual bool isHttpOnly() = 0;
+	virtual HRESULT setIsHttpOnly(bool isHttpOnly) = 0;
+	virtual wv2cookieSameSiteKind sameSite() = 0;
+	virtual HRESULT setSameSite(wv2cookieSameSiteKind sameSite) = 0;
+	virtual bool isSecure() = 0;
+	virtual HRESULT setIsSecure(bool isSecure) = 0;
+	virtual bool isSession() = 0;
+};
+
+struct wv2cookieManager {
+	virtual wv2cookie* createCookie(LPCWSTR name, LPCWSTR value, LPCWSTR domain,
+		LPCWSTR path) = 0;
+	virtual wv2cookie* copyCookie(wv2cookie* cookieParam) = 0;
+	virtual HRESULT getCookies(LPCWSTR uri, getCookiesCompleted handler) = 0;
+	virtual HRESULT addOrUpdateCookie(wv2cookie* cookie) = 0;
+	virtual HRESULT deleteCookie(wv2cookie* cookie) = 0;
+	virtual HRESULT deleteCookies(LPCWSTR name, LPCWSTR uri) = 0;
+	virtual HRESULT deleteCookiesWithDomainAndPath(LPCWSTR name, LPCWSTR domain, LPCWSTR path) = 0;
+	virtual HRESULT deleteAllCookies(void) = 0;
+};
+
+struct wv2cookieList {
+	virtual UINT count() = 0;
+	virtual wv2cookie* getValueAtIndex(UINT index) = 0;
+};
 
 struct wv2 {
 	virtual ~wv2(){};
@@ -999,6 +1137,8 @@ struct wv2 {
 		const wv2webResourceContext resourceContext) = 0;
 	virtual HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
 		const wv2webResourceContext resourceContext) = 0;
+
+	virtual wv2cookieManager* cookieManager() = 0;
 };
 #endif // __cplusplus
 

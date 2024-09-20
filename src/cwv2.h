@@ -128,6 +128,8 @@ public:
 		const wv2webResourceContext resourceContext) OVERRIDE;
 	HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
 		const wv2webResourceContext resourceContext) OVERRIDE;
+
+	wv2cookieManager* cookieManager() OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)

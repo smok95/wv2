@@ -772,3 +772,72 @@ uint64_t wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEven
 	if (!args) return 0;
 	return NC_ARSG->navigationId();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+#define COOKIE ((wv2cookie*)h)
+
+LPWSTR wv2cookie_name(wv2cookie_t h) {
+	return COOKIE->name();
+}
+
+LPWSTR wv2cookie_value(wv2cookie_t h) {
+	return COOKIE->value();
+}
+
+HRESULT wv2cookie_setValue(wv2cookie_t h, LPWSTR domain) {
+	return COOKIE->setValue(domain);
+}
+
+LPWSTR wv2cookie_domain(wv2cookie_t h) {
+	return COOKIE->domain();
+}
+
+LPWSTR wv2cookie_path(wv2cookie_t h) {
+	return COOKIE->path();
+}
+
+double wv2cookie_expires(wv2cookie_t h) {
+	return COOKIE->expires();
+}
+
+HRESULT wv2cookie_setExpires(wv2cookie_t h, double expires) {
+	return COOKIE->setExpires(expires);
+}
+
+bool wv2cookie_isHttpOnly(wv2cookie_t h) {
+	return COOKIE->isHttpOnly();
+}
+
+HRESULT wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly) {
+	return COOKIE->setIsHttpOnly(isHttpOnly);
+}
+
+wv2cookieSameSiteKind wv2cookie_sameSite(wv2cookie_t h) {
+	return COOKIE->sameSite();
+}
+
+HRESULT wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite) {
+	return COOKIE->setSameSite(sameSite);
+}
+
+bool wv2cookie_isSecure(wv2cookie_t h) {
+	return COOKIE->isSecure();
+}
+
+HRESULT wv2cookie_setIsSecure(wv2cookie_t h, bool isSecure) {
+	return COOKIE->setIsSecure(isSecure);
+}
+
+bool wv2cookie_isSession(wv2cookie_t h) {
+	return COOKIE->isSession();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+#define CK_LIST ((wv2cookieList*)h)
+UINT wv2cookieList_count(wv2cookieList_t h) {
+	return CK_LIST->count();
+}
+
+wv2cookie_t wv2cookieList_getValueAtIndex(wv2cookieList_t h, UINT index) {
+	return CK_LIST->getValueAtIndex(index);
+}

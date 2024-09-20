@@ -252,6 +252,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		view2_3_->add_NavigationCompleted(this, &navigationCompletedToken_);
 		view2_3_->add_WebMessageReceived(this, &webMessageReceivedToken_);
 		view2_3_->add_NewWindowRequested(this, &newWindowRequestedToken_);
+		
 		documentTitleChangedHandler_.add(view2_3_);
 		contentLoadingHandler_.add(view2_3_);
 		scriptDialogOpeningHandler_.add(view2_3_);
@@ -727,6 +728,11 @@ wv2bool cwv2::setNewWindowRequestedHandler(newWindowRequested handler) {
 	newWindowRequestedHandler_ = handler;
 
 	return r;
+}
+
+wv2cookieManager* cwv2::cookieManager() {
+	if (!view2_3_) return nullptr;
+	view2_3_->get_CookieManager()
 }
 
 wv2bool cwv2::setDocumentTitleChangedHandler(documentTitleChanged handler) {

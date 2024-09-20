@@ -17,6 +17,9 @@
     <Filter Include="src\eventHandler">
       <UniqueIdentifier>{91eab4d5-9399-4208-aed4-06c3dd6087c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\cookie">
+      <UniqueIdentifier>{77b89cbf-03a6-41f7-aad3-2e81f5d7fcfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cwv2.h">
@@ -59,6 +62,15 @@
     <ClInclude Include="src\cwv2webResourceResponse.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\cookie\cookieManager.h">
+      <Filter>src\cookie</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cookie\cookieList.h">
+      <Filter>src\cookie</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cookie\cookie.h">
+      <Filter>src\cookie</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -90,6 +102,15 @@
     </ClCompile>
     <ClCompile Include="src\cwv2webResourceResponse.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cookie\cookieManager.cpp">
+      <Filter>src\cookie</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cookie\cookieList.cpp">
+      <Filter>src\cookie</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cookie\cookie.cpp">
+      <Filter>src\cookie</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
