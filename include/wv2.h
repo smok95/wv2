@@ -527,8 +527,8 @@ wv2cookie_isSession(wv2cookie_t h);
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2cookieManager_t; // ICoreWebView2CookieManager
-/*
-WV2_API 
+
+WV2_API wv2cookie_t //jktest 여기서부터 다시 작업...
 wv2cookieManager_
 {
 public:
@@ -884,6 +884,10 @@ WV2_API HRESULT wv2addWebResourceRequestedFilter(wv2_t w,
 WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w, 
 	LPCWSTR uri, const wv2webResourceContext resourceContext);
 
+/*
+@brief		Gets the CoreWebView2CookieManager object associated with this CoreWebView2.
+*/
+WV2_API wv2cookieManager_t wv2cookieManager(wv2_t w);
 
 WV2_API HRESULT wv2lastError(wv2_t w);
 

@@ -290,6 +290,11 @@ HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
 	return CWV2(w)->removeWebResourceRequestedFilter(uri, resourceContext);
 }
 
+wv2cookieManager_t wv2cookieManager(wv2_t w) {
+	if (!w) return nullptr;
+	return CWV2(w)->cookieManager();
+}
+
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
 	return CWV2(w)->stop();
