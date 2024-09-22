@@ -732,7 +732,15 @@ wv2bool cwv2::setNewWindowRequestedHandler(newWindowRequested handler) {
 
 wv2cookieManager* cwv2::cookieManager() {
 	if (!view2_3_) return nullptr;
-	view2_3_->get_CookieManager()
+
+	if (!cookieManager_.getCoreWebView2CookieManager()) {
+		CComPtr<ICoreWebView2CookieManager> cm;
+		if (SUCCEEDED(view2_3_->get_CookieManager(&cm))) {
+			cookieManager_.setCoreWebView2CookieManager(cm);
+		}
+	}
+
+	return &cookieManager_;
 }
 
 wv2bool cwv2::setDocumentTitleChangedHandler(documentTitleChanged handler) {

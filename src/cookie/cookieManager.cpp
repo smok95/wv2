@@ -2,8 +2,9 @@
 #include "cookieManager.h"
 #include "cwv2types.h"
 #include "cookie.h"
+#include "cookieList.h"
 
-using namespace cwv2;
+using namespace wv2_;
 
 ICoreWebView2CookieManager* cookieManager::getCoreWebView2CookieManager() {
 	return cm_;
@@ -30,7 +31,7 @@ wv2cookie* cookieManager::copyCookie(wv2cookie* cookieParam) {
 	if(!cookieParam) return nullptr;
 	
 	CComPtr<ICoreWebView2Cookie> cookie;
-	if (FAILED(cm_->CopyCookie(((cookie*)cookieParam)->getCoreWebView2Cookie(),
+	if (FAILED(cm_->CopyCookie(((wv2_::cookie*)cookieParam)->getCoreWebView2Cookie(),
 		&cookie))) {
 		return nullptr;
 	}
@@ -39,7 +40,7 @@ wv2cookie* cookieManager::copyCookie(wv2cookie* cookieParam) {
 }
 
 HRESULT cookieManager::getCookies(LPCWSTR uri, getCookiesCompleted handler) {
-	getCookiesCompletedHandler_ = handler;
+	handler_ = handler;
 	if (!uri or !handler) {
 		return E_INVALIDARG;
 	}
@@ -51,9 +52,16 @@ HRESULT cookieManager::addOrUpdateCookie(wv2cookie* cookie) {
 	if (!cookie) {
 		return E_INVALIDARG;
 	}
+
+	return cm_->AddOrUpdateCookie(((wv2_::cookie*)cookie)->getCoreWebView2Cookie());
 }
 
 HRESULT cookieManager::deleteCookie(wv2cookie* cookie) {
+	if (!cookie) {
+		return E_INVALIDARG;
+	}
+
+	return cm_->DeleteCookie(((wv2_::cookie*)cookie)->getCoreWebView2Cookie());
 }
 
 HRESULT cookieManager::deleteCookies(LPCWSTR name, LPCWSTR uri) {
@@ -82,8 +90,9 @@ HRESULT cookieManager::deleteAllCookies(void) {
 
 STDMETHODIMP cookieManager::Invoke(HRESULT result, ICoreWebView2CookieList* cookieList) {
 
-	if (getCookiesCompletedHandler_) {
-		getCookiesCompletedHandler_(result, );
+	if (handler_ and cookieList) {
+		wv2_::cookieList cl(*cookieList);
+		handler_(result, &cl);
 	}
 
 	return S_OK;

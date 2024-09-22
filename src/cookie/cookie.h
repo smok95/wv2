@@ -3,7 +3,7 @@
 #include "wv2.h"
 #include "WebView2.h"
 
-namespace cwv2 {
+namespace wv2_ {
 	class cookie :public wv2cookie {
 		cookie(CComPtr<ICoreWebView2Cookie> cookie) :cookie_(cookie) {};
 	public:

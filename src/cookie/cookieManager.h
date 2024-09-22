@@ -2,11 +2,12 @@
 #include <atlcomcli.h>
 #include "WebView2.h"
 #include "wv2.h"
+#include "eventHandler/eventHandler.h"
 
-namespace cwv2 {
+namespace wv2_ {
 	class cookieManager :
 		public wv2cookieManager,
-		public ICoreWebView2GetCookiesCompletedHandler {
+		public EventHandlerBase<getCookiesCompleted, ICoreWebView2GetCookiesCompletedHandler> {
 	public:
 		ICoreWebView2CookieManager* getCoreWebView2CookieManager();
 		void setCoreWebView2CookieManager(CComPtr<ICoreWebView2CookieManager> cm);
@@ -22,11 +23,11 @@ namespace cwv2 {
 			LPCWSTR path) override;
 		HRESULT deleteAllCookies(void) override;
 
-	protected:
+	protected:		
 		STDMETHODIMP Invoke(HRESULT result, ICoreWebView2CookieList* cookieList) override;
 	private:
-		CComPtr<ICoreWebView2CookieManager> cm_;
-		getCookiesCompleted getCookiesCompletedHandler_{ nullptr };
+		CComPtr<ICoreWebView2CookieManager> cm_;		
+		ULONG refCount_{ 1 };
 	};
 
 }; // namespace wv2

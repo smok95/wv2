@@ -14,6 +14,7 @@
 #include "eventHandler.h"
 #include "cwv2env.h"
 #include "cwv2settings.h"
+#include "cookie/cookieManager.h"
 
 class cwv2 :
 	public wv2,
@@ -193,6 +194,7 @@ private:
 	
 	HRESULT lastError_;
 	bool coInitilized_;
+	wv2_::cookieManager cookieManager_;
 };
 
 #endif // _WEBVIEW2_IMPLEMENT_H_

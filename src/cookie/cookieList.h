@@ -3,7 +3,7 @@
 #include "WebView2.h"
 #include "wv2.h"
 
-namespace cwv2 {
+namespace wv2_ {
 	class cookieList : public wv2cookieList {
 	public:
 		cookieList(ICoreWebView2CookieList& cookieList) :

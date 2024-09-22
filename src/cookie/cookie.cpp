@@ -1,10 +1,10 @@
 #include "cookie.h"
 #include "cwv2types.h"
 
-using namespace cwv2;
+using namespace wv2_;
 
-cwv2::cookie* cookie::newCookie(CComPtr<ICoreWebView2Cookie> cookie) {
-	return new cwv2::cookie(cookie);
+wv2_::cookie* cookie::newCookie(CComPtr<ICoreWebView2Cookie> cookie) {
+	return new wv2_::cookie(cookie);
 }
 
 void cookie::destroy() {
