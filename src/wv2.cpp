@@ -290,7 +290,7 @@ HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
 	return CWV2(w)->removeWebResourceRequestedFilter(uri, resourceContext);
 }
 
-wv2cookieManager_t wv2cookieManager(wv2_t w) {
+wv2cookieManager_t wv2getCookieManager(wv2_t w) {
 	if (!w) return nullptr;
 	return CWV2(w)->cookieManager();
 }
@@ -782,59 +782,79 @@ uint64_t wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEven
 #define COOKIE ((wv2cookie*)h)
 
 LPWSTR wv2cookie_name(wv2cookie_t h) {
+	if (!h) return nullptr;
 	return COOKIE->name();
 }
 
 LPWSTR wv2cookie_value(wv2cookie_t h) {
+	if (!h) return nullptr;
 	return COOKIE->value();
 }
 
 HRESULT wv2cookie_setValue(wv2cookie_t h, LPWSTR domain) {
+	if (!h) return E_INVALIDARG;
 	return COOKIE->setValue(domain);
 }
 
 LPWSTR wv2cookie_domain(wv2cookie_t h) {
+	if (!h) return nullptr;
 	return COOKIE->domain();
 }
 
 LPWSTR wv2cookie_path(wv2cookie_t h) {
+	if (!h) return nullptr;
 	return COOKIE->path();
 }
 
 double wv2cookie_expires(wv2cookie_t h) {
+	if (!h) return 0;
 	return COOKIE->expires();
 }
 
 HRESULT wv2cookie_setExpires(wv2cookie_t h, double expires) {
+	if (!h) return E_INVALIDARG;
 	return COOKIE->setExpires(expires);
 }
 
 bool wv2cookie_isHttpOnly(wv2cookie_t h) {
+	if (!h) return false;
 	return COOKIE->isHttpOnly();
 }
 
 HRESULT wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly) {
+	if (!h) return E_INVALIDARG;
 	return COOKIE->setIsHttpOnly(isHttpOnly);
 }
 
 wv2cookieSameSiteKind wv2cookie_sameSite(wv2cookie_t h) {
+	if (!h) return wv2cookieSameSiteKind_undefined;
 	return COOKIE->sameSite();
 }
 
 HRESULT wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite) {
+	if (!h) return E_INVALIDARG;
 	return COOKIE->setSameSite(sameSite);
 }
 
 bool wv2cookie_isSecure(wv2cookie_t h) {
+	if (!h) return false;
 	return COOKIE->isSecure();
 }
 
 HRESULT wv2cookie_setIsSecure(wv2cookie_t h, bool isSecure) {
+	if (!h) return E_INVALIDARG;
 	return COOKIE->setIsSecure(isSecure);
 }
 
 bool wv2cookie_isSession(wv2cookie_t h) {
+	if (!h) return false;
 	return COOKIE->isSession();
+}
+
+void wv2cookie_destroy(wv2cookie_t* h) {
+	if (!h) return;
+	((wv2cookie*)*h)->destroy();
+	*h = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -845,4 +865,50 @@ UINT wv2cookieList_count(wv2cookieList_t h) {
 
 wv2cookie_t wv2cookieList_getValueAtIndex(wv2cookieList_t h, UINT index) {
 	return CK_LIST->getValueAtIndex(index);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+#define CM ((wv2cookieManager*)h)
+
+wv2cookie_t wv2cookieManager_createCookie(wv2cookieManager_t h, LPCWSTR name,
+	LPCWSTR value, LPCWSTR domain, LPCWSTR path) {
+	if (!h) return nullptr;
+	return CM->createCookie(name, value, domain, path);
+}
+
+wv2cookie_t wv2cookieManager_copyCookie(wv2cookieManager_t h, wv2cookie_t cookieParam) {
+	if (!h) return nullptr;
+	return CM->copyCookie((wv2cookie*)cookieParam);
+}
+
+HRESULT wv2cookieManager_getCookies(wv2cookieManager_t h, LPCWSTR uri,
+	getCookiesCompleted handler) {
+	if (!h) return E_INVALIDARG;
+	return CM->getCookies(uri, handler);
+}
+
+HRESULT wv2cookieManager_addOrUpdateCookie(wv2cookieManager_t h, wv2cookie_t cookie) {
+	if (!h) return E_INVALIDARG;
+	return CM->addOrUpdateCookie((wv2cookie*)cookie);
+}
+
+HRESULT wv2cookieManager_deleteCookie(wv2cookieManager_t h, wv2cookie_t cookie) {
+	if (!h) return E_INVALIDARG;
+	return CM->deleteCookie((wv2cookie*)cookie);
+}
+
+HRESULT wv2cookieManager_deleteCookies(wv2cookieManager_t h, LPCWSTR name, LPCWSTR uri) {
+	if (!h) return E_INVALIDARG;
+	return CM->deleteCookies(name, uri);
+}
+
+HRESULT wv2cookieManager_deleteCookiesWithDomainAndPath(wv2cookieManager_t h,
+	LPCWSTR name, LPCWSTR domain, LPCWSTR path) {
+	if (!h) return E_INVALIDARG;
+	return CM->deleteCookiesWithDomainAndPath(name, domain, path);
+}
+
+HRESULT wv2cookieManager_deleteAllCookies(wv2cookieManager_t h) {
+	if (!h) return E_INVALIDARG;
+	return CM->deleteAllCookies();
 }

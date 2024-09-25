@@ -57,7 +57,8 @@
 ## 0.13(28)		2024-08-06
 - Changed `navigationCompleted` event.
 
-## 0.14(29)		2024-09-19
+## 0.14(29)		2024-09-25
+- Added support for the `cookieManager` property.
 - 
 */
 #ifndef WEBVIEW2_C_WRAPPER_H_
@@ -490,7 +491,7 @@ WV2_API LPWSTR
 wv2cookie_value(wv2cookie_t h);
 
 WV2_API HRESULT 
-wv2cookie_setValue(wv2cookie_t h, LPWSTR domain);
+wv2cookie_setValue(wv2cookie_t h, LPWSTR value);
 
 WV2_API LPWSTR 
 wv2cookie_domain(wv2cookie_t h);
@@ -525,47 +526,9 @@ wv2cookie_setIsSecure(wv2cookie_t h, bool isSecure);
 WV2_API bool 
 wv2cookie_isSession(wv2cookie_t h);
 
-///////////////////////////////////////////////////////////////////////////////
-typedef void* wv2cookieManager_t; // ICoreWebView2CookieManager
+WV2_API void
+wv2cookie_destroy(wv2cookie_t* h);
 
-WV2_API wv2cookie_t //jktest 여기서부터 다시 작업...
-wv2cookieManager_
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE CreateCookie(
-		LPCWSTR name,
-		LPCWSTR value,
-		LPCWSTR domain,
-		LPCWSTR path,
-		ICoreWebView2Cookie * *cookie) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE CopyCookie(
-		ICoreWebView2Cookie* cookieParam,
-		ICoreWebView2Cookie** cookie) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE GetCookies(
-		LPCWSTR uri,
-		ICoreWebView2GetCookiesCompletedHandler* handler) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE AddOrUpdateCookie(
-		ICoreWebView2Cookie* cookie) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE DeleteCookie(
-		ICoreWebView2Cookie* cookie) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE DeleteCookies(
-		LPCWSTR name,
-		LPCWSTR uri) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE DeleteCookiesWithDomainAndPath(
-		LPCWSTR name,
-		LPCWSTR domain,
-		LPCWSTR path) = 0;
-
-	virtual HRESULT STDMETHODCALLTYPE DeleteAllCookies(void) = 0;
-
-};
-*/
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2cookieList_t; // ICoreWebView2CookieList 
 WV2_API UINT wv2cookieList_count(wv2cookieList_t h);
@@ -622,8 +585,36 @@ typedef void
 typedef void
 (*webResourceRequested)(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
 
+///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2cookieManager_t; // ICoreWebView2CookieManager
+
 typedef void
-(*getCookiesCompleted)(HRESULT result, wv2cookieList_t cookieList);
+(*getCookiesCompleted)(wv2cookieManager_t sender, HRESULT result, wv2cookieList_t cookieList);
+
+WV2_API wv2cookie_t
+wv2cookieManager_createCookie(wv2cookieManager_t h, LPCWSTR name,
+	LPCWSTR value, LPCWSTR domain, LPCWSTR path);
+
+WV2_API wv2cookie_t
+wv2cookieManager_copyCookie(wv2cookieManager_t h, wv2cookie_t cookieParam);
+
+WV2_API HRESULT
+wv2cookieManager_getCookies(wv2cookieManager_t h, LPCWSTR uri, getCookiesCompleted handler);
+
+WV2_API HRESULT
+wv2cookieManager_addOrUpdateCookie(wv2cookieManager_t h, wv2cookie_t cookie);
+
+WV2_API HRESULT
+wv2cookieManager_deleteCookie(wv2cookieManager_t h, wv2cookie_t cookie);
+
+WV2_API HRESULT
+wv2cookieManager_deleteCookies(wv2cookieManager_t h, LPCWSTR name, LPCWSTR uri);
+
+WV2_API HRESULT
+wv2cookieManager_deleteCookiesWithDomainAndPath(wv2cookieManager_t h,
+	LPCWSTR name, LPCWSTR domain, LPCWSTR path);
+
+WV2_API HRESULT wv2cookieManager_deleteAllCookies(wv2cookieManager_t h);
 
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
@@ -887,7 +878,7 @@ WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
 /*
 @brief		Gets the CoreWebView2CookieManager object associated with this CoreWebView2.
 */
-WV2_API wv2cookieManager_t wv2cookieManager(wv2_t w);
+WV2_API wv2cookieManager_t wv2getCookieManager(wv2_t w);
 
 WV2_API HRESULT wv2lastError(wv2_t w);
 
@@ -1043,7 +1034,7 @@ struct wv2environment {
 struct wv2cookie {
 	virtual void destroy() = 0;
 
-	virtual LPWSTR name() = 0;
+	virtual LPWSTR name() = 0;	
 	virtual LPWSTR value() = 0;
 	virtual HRESULT setValue(LPCWSTR value) = 0;
 	virtual LPWSTR domain() = 0;

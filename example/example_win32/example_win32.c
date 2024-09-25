@@ -47,6 +47,7 @@ void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args);
 void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t args);
 void OnWebMessageReceived(wv2_t sender, LPCWSTR message);
 void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args);
+void OnGetCookiesCompleted(wv2cookieManager_t sender, HRESULT result, wv2cookieList_t cookieList);
 
 void NavigatePostExample();
 void SetStatusText(LPCWSTR text);
@@ -147,6 +148,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";   
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_alert";
    url = L"https://www.youtube.com";
+   
    if (webview = wv2createSync2(NULL, NULL, options, hWnd)) {
 
        // set browserProcessExited event handler
@@ -202,6 +204,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
        }
 
+       // set cookie
+       wv2cookieManager_t cookieMgr = wv2getCookieManager(webview);
+       if (cookieMgr) {
+           wv2cookie_t cookie = wv2cookieManager_createCookie(cookieMgr, L"MyCookieName", L"MyCookieValue", NULL, NULL);
+           if (cookie) {
+               wv2cookieManager_addOrUpdateCookie(cookieMgr, cookie);
+                wv2cookie_destroy(&cookie);
+           }
+
+           cookie = wv2cookieManager_createCookie(cookieMgr, L"MyYouTubeCookieName", L"MyYouTubeCookieValue", L".youtube.com", NULL);
+           if (cookie) {
+               wv2cookieManager_addOrUpdateCookie(cookieMgr, cookie);
+               wv2cookie_destroy(&cookie);
+           }
+       }
+       
        wv2navigate(webview, url);
    }
    else {
@@ -492,6 +510,21 @@ void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args)
         isSuccess, navId, status);
 
     SetStatusText(buf);
+
+    wv2cookieManager_t cookieMgr = wv2getCookieManager(sender);
+    wv2cookieManager_getCookies(cookieMgr, wv2getSource(sender), OnGetCookiesCompleted);
+}
+
+void OnGetCookiesCompleted(wv2cookieManager_t sender, HRESULT result, wv2cookieList_t cookieList) {
+    UINT count = wv2cookieList_count(cookieList);
+    for (UINT i = 0; i < count; i++) {
+        wv2cookie_t cookie = wv2cookieList_getValueAtIndex(cookieList, i);
+        if (cookie) {
+            LPCWSTR name = wv2cookie_name(cookie);
+            wv2freeMemory(name);
+            wv2cookie_destroy(&cookie);
+        }
+    }
 }
 
 void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {

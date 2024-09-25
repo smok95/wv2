@@ -41,7 +41,7 @@ wv2cookie* cookieManager::copyCookie(wv2cookie* cookieParam) {
 
 HRESULT cookieManager::getCookies(LPCWSTR uri, getCookiesCompleted handler) {
 	handler_ = handler;
-	if (!uri or !handler) {
+	if (!handler) {
 		return E_INVALIDARG;
 	}
 
@@ -92,7 +92,7 @@ STDMETHODIMP cookieManager::Invoke(HRESULT result, ICoreWebView2CookieList* cook
 
 	if (handler_ and cookieList) {
 		wv2_::cookieList cl(*cookieList);
-		handler_(result, &cl);
+		handler_(this, result, &cl);
 	}
 
 	return S_OK;
