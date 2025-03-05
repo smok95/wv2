@@ -672,7 +672,7 @@ cwv2::CreateStatus cwv2::createStatus() const {
 }
 
 bool cwv2::setVirtualHostNameToFolderMapping(LPCWSTR hostName,
-	LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) {
+	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
 	if (!view2_3_) return false;
 	if (!hostName or !folderPath) return false;
 	
@@ -827,14 +827,14 @@ wv2bool cwv2::setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) {
 }
 
 HRESULT cwv2::addWebResourceRequestedFilter(LPCWSTR uri,
-	const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
+	const wv2webResourceContext resourceContext) {
 	if (!view2_3_) return E_NOINTERFACE;
 	return view2_3_->AddWebResourceRequestedFilter(uri, 
 		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);
 }
 
 HRESULT cwv2::removeWebResourceRequestedFilter(LPCWSTR uri,
-	const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
+	const wv2webResourceContext resourceContext) {
 	if (!view2_3_) return E_NOINTERFACE;
 	return view2_3_->RemoveWebResourceRequestedFilter(uri, 
 		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);

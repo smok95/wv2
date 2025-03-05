@@ -184,7 +184,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        // set webResourceRequested event handler
        wv2setWebResourceRequestedHandler(webview, OnWebResourceRequested);
 
-       wv2addWebResourceRequestedFilter(webview, testFilterUri, COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
+       wv2addWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
 
        // set navigationCompleted event handler
        wv2setNavigationCompletedHandler(webview, OnNavigationCompleted);
@@ -433,7 +433,7 @@ void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args) {
 
 void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args) {
 
-    if(wv2scriptDialogOpeningEventArgs_kind(args) == COREWEBVIEW2_SCRIPT_DIALOG_KIND_ALERT) {
+    if(wv2scriptDialogOpeningEventArgs_kind(args) == wv2scriptDialogKind_alert) {        
         LPWSTR message = wv2scriptDialogOpeningEventArgs_message(args);
         MessageBox(NULL, message, L"Custom Alert", MB_OK|MB_ICONWARNING);
         wv2freeMemory((void*)message);
@@ -498,7 +498,7 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
 	}
 
 
-    wv2removeWebResourceRequestedFilter(webview, testFilterUri, COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
+    wv2removeWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
 }
 
 void OnWebMessageReceived(wv2_t sender, LPCWSTR message) {
@@ -508,7 +508,7 @@ void OnWebMessageReceived(wv2_t sender, LPCWSTR message) {
 void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args) {
     const bool isSuccess = wv2navigationCompletedEventArgs_isSuccess(args);
     const uint64_t navId = wv2navigationCompletedEventArgs_navigationId(args);
-    const COREWEBVIEW2_WEB_ERROR_STATUS status = wv2navigationCompletedEventArgs_webErrorStatus(args);
+    const wv2webErrorStatus status = wv2navigationCompletedEventArgs_webErrorStatus(args);
     WCHAR buf[2048];
     wsprintf(buf, L"NavicationCompleted, isSuccess: %d, navagationID: %d, webErrorStatus: %d",
         isSuccess, navId, status);
@@ -532,14 +532,14 @@ void OnGetCookiesCompleted(wv2cookieManager_t sender, HRESULT result, wv2cookieL
 }
 
 void OnAcceleratorKeyPressed(wv2_t sender, wv2acceleratorKeyPressedEventArgs_t args) {
-    const COREWEBVIEW2_KEY_EVENT_KIND eventKind = wv2acceleratorKeyPressedEventArgs_keyEventKind(args);
+    const wv2KeyEventKind eventKind = wv2acceleratorKeyPressedEventArgs_keyEventKind(args);
     const uint32_t vKey = wv2acceleratorKeyPressedEventArgs_virtualKey(args);
 
     WCHAR buf[2048];
     wsprintf(buf, L"AcceleratorKeyPressed, event=%d, virtuak key: %d", eventKind, vKey);
     SetStatusText(buf);
 
-    if (eventKind == COREWEBVIEW2_KEY_EVENT_KIND_KEY_DOWN && vKey == VK_ESCAPE) {
+    if (eventKind == wv2KeyEventKind_key_down && vKey == VK_ESCAPE) {
         SetStatusText(L"Esc pressed");
         wv2acceleratorKeyPressedEventArgs_setHandled(args, true);
     }

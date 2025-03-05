@@ -100,7 +100,7 @@ public:
 	bool setUserData(void* userData) OVERRIDE;
 
 	bool setVirtualHostNameToFolderMapping(LPCWSTR hostName, LPCWSTR folderPath, 
-		COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) OVERRIDE;
+		wv2HostResourceAccessKind accessKind) OVERRIDE;
 
 	void freeMemory(void* p) OVERRIDE;
 
@@ -126,9 +126,9 @@ public:
 	wv2bool setWebResourceRequestedHandler(webResourceRequested handler) OVERRIDE;
 
 	HRESULT addWebResourceRequestedFilter(LPCWSTR uri,
-		const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) OVERRIDE;
+		const wv2webResourceContext resourceContext) OVERRIDE;
 	HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
-		const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) OVERRIDE;
+		const wv2webResourceContext resourceContext) OVERRIDE;
 	wv2bool setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) OVERRIDE;
 
 	wv2cookieManager* cookieManager() OVERRIDE;

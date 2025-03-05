@@ -242,8 +242,8 @@ public:
 			});
 	}
 
-	COREWEBVIEW2_SCRIPT_DIALOG_KIND kind() override {
-		COREWEBVIEW2_SCRIPT_DIALOG_KIND kind = COREWEBVIEW2_SCRIPT_DIALOG_KIND_ALERT;
+	wv2scriptDialogKind kind() override {
+		wv2scriptDialogKind kind = wv2scriptDialogKind_undefined;
 		args_.get_Kind((COREWEBVIEW2_SCRIPT_DIALOG_KIND*)&kind);
 		return kind;
 	}
@@ -508,8 +508,8 @@ public:
 		return &response_;
 	}
 
-	COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext() override {
-		COREWEBVIEW2_WEB_RESOURCE_CONTEXT context = COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL;
+	wv2webResourceContext resourceContext() override {
+		wv2webResourceContext context = wv2webResourceContext_undefined;
 		args_.get_ResourceContext((COREWEBVIEW2_WEB_RESOURCE_CONTEXT*)&context);
 		return context;
 	}
@@ -557,10 +557,10 @@ class cwv2acceleratorKeyPressedEventArgs : public  wv2acceleratorKeyPressedEvent
 public:
 	cwv2acceleratorKeyPressedEventArgs(ICoreWebView2AcceleratorKeyPressedEventArgs& args) :args_(args) {}
 
-	inline COREWEBVIEW2_KEY_EVENT_KIND keyEventKind() override {
+	inline wv2KeyEventKind keyEventKind() override {
 		COREWEBVIEW2_KEY_EVENT_KIND kind = COREWEBVIEW2_KEY_EVENT_KIND_KEY_DOWN;
 		args_.get_KeyEventKind(&kind);
-		return kind;
+		return (wv2KeyEventKind)kind;
 	};
 
 	inline uint32_t virtualKey() override {
@@ -575,9 +575,17 @@ public:
 		return (int32_t)lp;
 	}
 
-	inline COREWEBVIEW2_PHYSICAL_KEY_STATUS physicalKeyStatus() override {
-		COREWEBVIEW2_PHYSICAL_KEY_STATUS status = { 0, };
-		args_.get_PhysicalKeyStatus(&status);
+	inline wv2physicalKeyStatus physicalKeyStatus() override {
+		COREWEBVIEW2_PHYSICAL_KEY_STATUS realStatus = { 0, };
+		args_.get_PhysicalKeyStatus(&realStatus);
+
+		wv2physicalKeyStatus status;
+		status.IsExtendedKey = realStatus.IsExtendedKey;
+		status.IsKeyReleased = realStatus.IsKeyReleased;
+		status.IsMenuKeyDown = realStatus.IsMenuKeyDown;
+		status.RepeatCount = realStatus.RepeatCount;
+		status.ScanCode = realStatus.ScanCode;
+		status.WasKeyDown = realStatus.WasKeyDown;
 		return status;
 	}
 
@@ -636,10 +644,10 @@ public:
 		return b == TRUE;
 	}
 	
-	COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus() override {
+	wv2webErrorStatus webErrorStatus() override {
 		COREWEBVIEW2_WEB_ERROR_STATUS status = COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
 		args_.get_WebErrorStatus(&status);
-		return (COREWEBVIEW2_WEB_ERROR_STATUS)status;
+		return (wv2webErrorStatus)status;
 	}
 
 	uint64_t navigationId() override {

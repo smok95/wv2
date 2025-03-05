@@ -284,13 +284,13 @@ LPCWSTR wv2documentTitle(wv2_t w) {
 }
 
 HRESULT wv2addWebResourceRequestedFilter(wv2_t w,
-	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
+	LPCWSTR uri, const wv2webResourceContext resourceContext) {
 	if (!w || !uri) return E_INVALIDARG;
 	return CWV2(w)->addWebResourceRequestedFilter(uri, resourceContext);
 }
 
 HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
-	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
+	LPCWSTR uri, const wv2webResourceContext resourceContext) {
 	if (!w || !uri) return E_INVALIDARG;
 	return CWV2(w)->removeWebResourceRequestedFilter(uri, resourceContext);
 }
@@ -330,7 +330,7 @@ wv2bool wv2isDocumentPlayingAudio(wv2_t w) {
 }
 
 bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName,
-	LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) {
+	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
 	if (!w) return false;
 	return CWV2(w)->setVirtualHostNameToFolderMapping(hostName, 
 		folderPath, accessKind);
@@ -529,8 +529,8 @@ LPWSTR wv2scriptDialogOpeningEventArgs_uri(wv2scriptDialogOpeningEventArgs_t arg
 	return ((wv2scriptDialogOpeningEventArgs*)args)->uri();
 }
 
-COREWEBVIEW2_SCRIPT_DIALOG_KIND wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args) {
-	if(!args) return COREWEBVIEW2_SCRIPT_DIALOG_KIND_ALERT;
+wv2scriptDialogKind wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return wv2scriptDialogKind_undefined;
 	return ((wv2scriptDialogOpeningEventArgs*)args)->kind();
 }
 
@@ -736,9 +736,9 @@ wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t arg
 	return WRREQUESTED_ARGS->response();
 }
 
-COREWEBVIEW2_WEB_RESOURCE_CONTEXT
+wv2webResourceContext
 wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args) {
-	if (!args) return COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL;
+	if (!args) return wv2webResourceContext_undefined;
 	return WRREQUESTED_ARGS->resourceContext();
 }
 
@@ -773,8 +773,8 @@ bool wv2navigationCompletedEventArgs_isSuccess(wv2navigationCompletedEventArgs_t
 	return NC_ARSG->isSuccess();
 }
 
-COREWEBVIEW2_WEB_ERROR_STATUS wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args) {
-	if (!args) return COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
+wv2webErrorStatus wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args) {
+	if (!args) return wv2webErrorStatus_unknown;
 	return NC_ARSG->webErrorStatus();
 }
 
@@ -786,9 +786,9 @@ uint64_t wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEven
 ///////////////////////////////////////////////////////////////////////////////
 #define AKP_ARGS ((wv2acceleratorKeyPressedEventArgs*)args)
 
-WV2_API COREWEBVIEW2_KEY_EVENT_KIND
+WV2_API wv2KeyEventKind
 wv2acceleratorKeyPressedEventArgs_keyEventKind(wv2acceleratorKeyPressedEventArgs_t args) {
-	if (!args) return COREWEBVIEW2_KEY_EVENT_KIND_KEY_DOWN;
+	if (!args) return wv2KeyEventKind_undefiend;
 	return AKP_ARGS->keyEventKind();
 }
 
@@ -804,9 +804,9 @@ wv2acceleratorKeyPressedEventArgs_keyEventLParam(wv2acceleratorKeyPressedEventAr
 	return AKP_ARGS->keyEventLParam();
 }
 
-WV2_API COREWEBVIEW2_PHYSICAL_KEY_STATUS
+WV2_API wv2physicalKeyStatus
 wv2acceleratorKeyPressedEventArgs_physicalKeyStatus(wv2acceleratorKeyPressedEventArgs_t args) {
-	COREWEBVIEW2_PHYSICAL_KEY_STATUS result = { 0, };
+	wv2physicalKeyStatus result = { 0, };
 	if (!args) return result;
 	result = AKP_ARGS->physicalKeyStatus();
 	return result;
@@ -872,12 +872,12 @@ HRESULT wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly) {
 	return COOKIE->setIsHttpOnly(isHttpOnly);
 }
 
-COREWEBVIEW2_COOKIE_SAME_SITE_KIND wv2cookie_sameSite(wv2cookie_t h) {
-	if (!h) return COREWEBVIEW2_COOKIE_SAME_SITE_KIND_NONE;
+wv2cookieSameSiteKind wv2cookie_sameSite(wv2cookie_t h) {
+	if (!h) return wv2cookieSameSiteKind_undefined;
 	return COOKIE->sameSite();
 }
 
-HRESULT wv2cookie_setSameSite(wv2cookie_t h, COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite) {
+HRESULT wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite) {
 	if (!h) return E_INVALIDARG;
 	return COOKIE->setSameSite(sameSite);
 }

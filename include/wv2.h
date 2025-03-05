@@ -64,23 +64,23 @@
 - Switched to using original WebView2 enum definitions instead of custom 
   redefinitions for better compatibility and maintainability.
 - Added support for `acceleratorKeyPressed` event.
+
+## 0.15.1(31)	2025-03-06
+- Reverted to custom redefinitions of WebView2 enums instead of using 
+  original WebView2 enum definitions due to include problems
 */
 
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.15"
-#define WV2_VERSION_NUM		30
+#define WV2_VERSION			"0.15.1"
+#define WV2_VERSION_NUM		31
 
 #include <windows.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <objidl.h>
 #include "wv2envOpts.h"
-
-#ifndef __webview2_h__
-#include "WebView2/include/WebView2.h"
-#endif // __webview2_h__
 
 #if defined(_MSC_VER) && _MSC_VER < 1900 // Visual Studio 2013 
 #define DEPRECATED(message) __declspec(deprecated(message))
@@ -102,6 +102,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// @see COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND ( WebView2.h )
+#ifndef __wv2HostResourceAccessKind__DEFINED__
+#define __wv2HostResourceAccessKind__DEFINED__
+typedef enum wv2HostResourceAccessKind {
+	wv2HostResourceAccessKindDeny = 0,
+	wv2HostResourceAccessKindAllow = (wv2HostResourceAccessKindDeny + 1),
+	wv2HostResourceAccessKindDenyCors = (wv2HostResourceAccessKindAllow + 1)
+}wv2HostResourceAccessKind;
+#endif // __wv2HostResourceAccessKind__DEFINED__
 
 typedef void* wv2_t;
 typedef void* wv2environment_t;	// CoreWebView2Environment
@@ -182,10 +192,102 @@ wv2settings_userAgent(wv2settings_t s);
 WV2_API HRESULT
 wv2settings_setUserAgent(wv2settings_t s, LPCWSTR userAgent);
 
+// @see COREWEBVIEW2_BROWSER_PROCESS_EXIT_KIND ( WebView2.h )
+typedef enum wv2browserProcessExitKind {
+	wv2browserProcessExitKindNormal = 0,
+	wv2browserProcessExitKindFailed = (wv2browserProcessExitKindNormal + 1)
+}wv2browserProcessExitKind;
+
+// @see COREWEBVIEW2_SCRIPT_DIALOG_KIND
+typedef enum wv2scriptDialogKind {
+	wv2scriptDialogKind_undefined = -1,
+	wv2scriptDialogKind_alert = 0,
+	wv2scriptDialogKind_confirm = (wv2scriptDialogKind_alert + 1),
+	wv2scriptDialogKind_prompt = (wv2scriptDialogKind_confirm + 1),
+	wv2scriptDialogKind_beforeunload = (wv2scriptDialogKind_prompt + 1)
+}wv2scriptDialogKind;
+
+
+// @see COREWEBVIEW2_WEB_RESOURCE_CONTEXT
+typedef enum wv2webResourceContext
+{
+	wv2webResourceContext_undefined = -1,
+	wv2webResourceContext_all = 0,
+	wv2webResourceContext_document = (wv2webResourceContext_all + 1),
+	wv2webResourceContext_stylesheet = (wv2webResourceContext_document + 1),
+	wv2webResourceContext_image = (wv2webResourceContext_stylesheet + 1),
+	wv2webResourceContext_media = (wv2webResourceContext_image + 1),
+	wv2webResourceContext_font = (wv2webResourceContext_media + 1),
+	wv2webResourceContext_script = (wv2webResourceContext_font + 1),
+	wv2webResourceContext_xml_http_request = (wv2webResourceContext_script + 1),
+	wv2webResourceContext_fetch = (wv2webResourceContext_xml_http_request + 1),
+	wv2webResourceContext_text_track = (wv2webResourceContext_fetch + 1),
+	wv2webResourceContext_event_source = (wv2webResourceContext_text_track + 1),
+	wv2webResourceContext_websocket = (wv2webResourceContext_event_source + 1),
+	wv2webResourceContext_manifest = (wv2webResourceContext_websocket + 1),
+	wv2webResourceContext_signed_exchange = (wv2webResourceContext_manifest + 1),
+	wv2webResourceContext_ping = (wv2webResourceContext_signed_exchange + 1),
+	wv2webResourceContext_csp_violation_report = (wv2webResourceContext_ping + 1),
+	wv2webResourceContext_other = (wv2webResourceContext_csp_violation_report + 1)
+}wv2webResourceContext;
+
+// @see COREWEBVIEW2_WEB_ERROR_STATUS
+typedef enum wv2webErrorStatus
+{
+	wv2webErrorStatus_unknown = 0,
+	wv2webErrorStatus_certificate_common_name_is_incorrect = (wv2webErrorStatus_unknown + 1),
+	wv2webErrorStatus_certificate_expired = (wv2webErrorStatus_certificate_common_name_is_incorrect + 1),
+	wv2webErrorStatus_client_certificate_contains_errors = (wv2webErrorStatus_certificate_expired + 1),
+	wv2webErrorStatus_certificate_revoked = (wv2webErrorStatus_client_certificate_contains_errors + 1),
+	wv2webErrorStatus_certificate_is_invalid = (wv2webErrorStatus_certificate_revoked + 1),
+	wv2webErrorStatus_server_unreachable = (wv2webErrorStatus_certificate_is_invalid + 1),
+	wv2webErrorStatus_timeout = (wv2webErrorStatus_server_unreachable + 1),
+	wv2webErrorStatus_error_http_invalid_server_response = (wv2webErrorStatus_timeout + 1),
+	wv2webErrorStatus_connection_aborted = (wv2webErrorStatus_error_http_invalid_server_response + 1),
+	wv2webErrorStatus_connection_reset = (wv2webErrorStatus_connection_aborted + 1),
+	wv2webErrorStatus_disconnected = (wv2webErrorStatus_connection_reset + 1),
+	wv2webErrorStatus_cannot_connect = (wv2webErrorStatus_disconnected + 1),
+	wv2webErrorStatus_host_name_not_resolved = (wv2webErrorStatus_cannot_connect + 1),
+	wv2webErrorStatus_operation_canceled = (wv2webErrorStatus_host_name_not_resolved + 1),
+	wv2webErrorStatus_redirect_failed = (wv2webErrorStatus_operation_canceled + 1),
+	wv2webErrorStatus_unexpected_error = (wv2webErrorStatus_redirect_failed + 1),
+	wv2webErrorStatus_valid_authentication_credentials_required = (wv2webErrorStatus_unexpected_error + 1),
+	wv2webErrorStatus_valid_proxy_authentication_required = (wv2webErrorStatus_valid_authentication_credentials_required + 1)
+}wv2webErrorStatus;
+
+// @see COREWEBVIEW2_COOKIE_SAME_SITE_KIND
+typedef enum wv2cookieSameSiteKind
+{
+	wv2cookieSameSiteKind_undefined = -1,
+	wv2cookieSameSiteKind_none = 0,
+	wv2cookieSameSiteKind_lax = (wv2cookieSameSiteKind_none + 1),
+	wv2cookieSameSiteKind_strict = (wv2cookieSameSiteKind_lax + 1)
+}wv2cookieSameSiteKind;
+
+// @see COREWEBVIEW2_KEY_EVENT_KIND
+typedef /* [v1_enum] */
+enum wv2KeyEventKind
+{
+	wv2KeyEventKind_undefiend = -1,
+	wv2KeyEventKind_key_down = 0,
+	wv2KeyEventKind_key_up = (wv2KeyEventKind_key_down + 1),
+	wv2KeyEventKind_system_key_down = (wv2KeyEventKind_key_up + 1),
+	wv2KeyEventKind_system_key_up = (wv2KeyEventKind_system_key_down + 1)
+} 	wv2KeyEventKind;
+
 typedef struct {
-	COREWEBVIEW2_BROWSER_PROCESS_EXIT_KIND browserProcessExitKind;
+	wv2browserProcessExitKind browserProcessExitKind;
 	uint32_t browserProcessId;
 }wv2browserProcessExitedEventArgs;
+
+typedef struct {
+	uint32_t RepeatCount;
+	uint32_t ScanCode;
+	BOOL IsExtendedKey;
+	BOOL IsMenuKeyDown;
+	BOOL WasKeyDown;
+	BOOL IsKeyReleased;
+} wv2physicalKeyStatus;
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2windowFeatures_t; // ICoreWebView2WindowFeatures
@@ -280,7 +382,7 @@ typedef void* wv2scriptDialogOpeningEventArgs_t; // ICoreWebView2ScriptDialogOpe
 WV2_API LPWSTR 
 wv2scriptDialogOpeningEventArgs_uri(wv2scriptDialogOpeningEventArgs_t args);
 
-WV2_API COREWEBVIEW2_SCRIPT_DIALOG_KIND 
+WV2_API wv2scriptDialogKind 
 wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args);
 
 WV2_API LPWSTR 
@@ -392,7 +494,7 @@ wv2webResourceRequestedEventArgs_request(wv2webResourceRequestedEventArgs_t args
 WV2_API wv2webResourceResponse_t
 wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t args);
 
-WV2_API COREWEBVIEW2_WEB_RESOURCE_CONTEXT
+WV2_API wv2webResourceContext
 wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args);
 // HRESULT put_Response(ICoreWebView2WebResourceResponse* response)
 // HRESULT GetDeferral(ICoreWebView2Deferral** deferral)
@@ -403,7 +505,7 @@ typedef void* wv2navigationCompletedEventArgs_t; // ICoreWebView2NavigationCompl
 WV2_API bool 
 wv2navigationCompletedEventArgs_isSuccess(wv2navigationCompletedEventArgs_t args);
 
-WV2_API COREWEBVIEW2_WEB_ERROR_STATUS
+WV2_API wv2webErrorStatus
 wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args);
 
 WV2_API uint64_t
@@ -412,7 +514,7 @@ wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEventArgs_t a
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2acceleratorKeyPressedEventArgs_t; // ICoreWebView2AcceleratorKeyPressedEventArgs
 
-WV2_API COREWEBVIEW2_KEY_EVENT_KIND
+WV2_API wv2KeyEventKind
 wv2acceleratorKeyPressedEventArgs_keyEventKind(wv2acceleratorKeyPressedEventArgs_t args);
 
 WV2_API uint32_t 
@@ -421,7 +523,7 @@ wv2acceleratorKeyPressedEventArgs_virtualKey(wv2acceleratorKeyPressedEventArgs_t
 WV2_API int32_t 
 wv2acceleratorKeyPressedEventArgs_keyEventLParam(wv2acceleratorKeyPressedEventArgs_t args);
 
-WV2_API COREWEBVIEW2_PHYSICAL_KEY_STATUS
+WV2_API wv2physicalKeyStatus
 wv2acceleratorKeyPressedEventArgs_physicalKeyStatus(wv2acceleratorKeyPressedEventArgs_t args);
 
 WV2_API bool 
@@ -459,11 +561,11 @@ wv2cookie_isHttpOnly(wv2cookie_t h);
 WV2_API HRESULT 
 wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly);
 
-WV2_API COREWEBVIEW2_COOKIE_SAME_SITE_KIND 
+WV2_API wv2cookieSameSiteKind 
 wv2cookie_sameSite(wv2cookie_t h);
 
 WV2_API HRESULT 
-wv2cookie_setSameSite(wv2cookie_t h, COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite);
+wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite);
 
 WV2_API bool 
 wv2cookie_isSecure(wv2cookie_t h);
@@ -601,7 +703,7 @@ WV2_API void* wv2getUserData(wv2_t w);
 WV2_API wv2settings_t wv2getSettings(wv2_t w);
 
 WV2_API bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName, 
-	LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind);
+	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind);
 
 WV2_API bool wv2executeScript(wv2_t w, LPCWSTR script, executeScriptCompleted handler);
 
@@ -823,13 +925,13 @@ WV2_API LPCWSTR wv2documentTitle(wv2_t w);
 @brief		Adds a URI and resource context filter for the WebResourceRequested event.
 */
 WV2_API HRESULT wv2addWebResourceRequestedFilter(wv2_t w, 
-	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext);
+	LPCWSTR uri, const wv2webResourceContext resourceContext);
 
 /*
 @brief		Removes a matching WebResource filter that was previously added for the WebResourceRequested event.
 */
 WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w, 
-	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext);
+	LPCWSTR uri, const wv2webResourceContext resourceContext);
 
 /*
 @brief		Gets the CoreWebView2CookieManager object associated with this CoreWebView2.
@@ -924,7 +1026,7 @@ struct wv2contentLoadingEventArgs {
 struct wv2scriptDialogOpeningEventArgs {
 	virtual ~wv2scriptDialogOpeningEventArgs() {};
 	virtual LPWSTR uri() = 0;
-	virtual COREWEBVIEW2_SCRIPT_DIALOG_KIND kind() = 0;
+	virtual wv2scriptDialogKind kind() = 0;
 	virtual LPWSTR message() = 0;
 	virtual HRESULT accept() = 0;
 	virtual LPWSTR defaultText() = 0;
@@ -946,7 +1048,7 @@ struct wv2downloadStartingEventArgs {
 
 struct wv2navigationCompletedEventArgs {
 	virtual bool isSuccess() = 0;
-	virtual COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus() = 0;
+	virtual wv2webErrorStatus webErrorStatus() = 0;
 	virtual uint64_t navigationId() = 0;
 };
 
@@ -975,14 +1077,14 @@ struct wv2webResourceResponse {
 struct wv2webResourceRequestedEventArgs {
 	virtual wv2webResourceRequest* request() = 0;
 	virtual wv2webResourceResponse* response() = 0;
-	virtual COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext() = 0;
+	virtual wv2webResourceContext resourceContext() = 0;
 };
 
 struct wv2acceleratorKeyPressedEventArgs {
-	virtual COREWEBVIEW2_KEY_EVENT_KIND keyEventKind() = 0;
+	virtual wv2KeyEventKind keyEventKind() = 0;
 	virtual uint32_t virtualKey() = 0;
 	virtual int32_t keyEventLParam() = 0;
-	virtual COREWEBVIEW2_PHYSICAL_KEY_STATUS physicalKeyStatus() = 0;
+	virtual wv2physicalKeyStatus physicalKeyStatus() = 0;
 	virtual bool handled() = 0;
 	virtual HRESULT setHandled(bool handled) = 0;
 };
@@ -1008,8 +1110,8 @@ struct wv2cookie {
 	virtual HRESULT setExpires(double expires) = 0;
 	virtual bool isHttpOnly() = 0;
 	virtual HRESULT setIsHttpOnly(bool isHttpOnly) = 0;
-	virtual COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite() = 0;
-	virtual HRESULT setSameSite(COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite) = 0;
+	virtual wv2cookieSameSiteKind sameSite() = 0;
+	virtual HRESULT setSameSite(wv2cookieSameSiteKind sameSite) = 0;
 	virtual bool isSecure() = 0;
 	virtual HRESULT setIsSecure(bool isSecure) = 0;
 	virtual bool isSession() = 0;
@@ -1066,7 +1168,7 @@ struct wv2 {
 	virtual bool setUserData(void* userData) = 0;
 
 	virtual bool setVirtualHostNameToFolderMapping(LPCWSTR hostName, 
-		LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) = 0;
+		LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) = 0;
 	virtual void freeMemory(void* p) = 0;
 
 	virtual bool navigateWithWebResource(LPCWSTR uri, LPCWSTR method,
@@ -1094,9 +1196,9 @@ struct wv2 {
 	virtual wv2bool setDownloadingStartingHandler(downloadStarting handler) = 0;
 	virtual wv2bool setWebResourceRequestedHandler(webResourceRequested handler) = 0;
 	virtual HRESULT addWebResourceRequestedFilter(LPCWSTR uri, 
-		const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) = 0;
+		const wv2webResourceContext resourceContext) = 0;
 	virtual HRESULT removeWebResourceRequestedFilter(LPCWSTR uri,
-		const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) = 0;
+		const wv2webResourceContext resourceContext) = 0;
 	virtual wv2bool setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) = 0;
 
 	virtual wv2cookieManager* cookieManager() = 0;
