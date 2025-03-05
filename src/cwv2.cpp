@@ -126,6 +126,8 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		view2_8_.Release();
 	}
 
+	acceleratorKeyPressedHandler_.remove();
+
 	if (controller_) {
 		if (detachController) {
 			controller_.Detach();
@@ -252,7 +254,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		view2_3_->add_NavigationCompleted(this, &navigationCompletedToken_);
 		view2_3_->add_WebMessageReceived(this, &webMessageReceivedToken_);
 		view2_3_->add_NewWindowRequested(this, &newWindowRequestedToken_);
-		
+
 		documentTitleChangedHandler_.add(view2_3_);
 		contentLoadingHandler_.add(view2_3_);
 		scriptDialogOpeningHandler_.add(view2_3_);
@@ -267,6 +269,8 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 	else {
 		createStatus_ = failed;
 	}
+
+	acceleratorKeyPressedHandler_.add(controller);
 
 	if (view2_8_ != nullptr) {
 		isMutedChangedHandler_.add(view2_8_);
@@ -668,7 +672,7 @@ cwv2::CreateStatus cwv2::createStatus() const {
 }
 
 bool cwv2::setVirtualHostNameToFolderMapping(LPCWSTR hostName,
-	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
+	LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) {
 	if (!view2_3_) return false;
 	if (!hostName or !folderPath) return false;
 	
@@ -814,15 +818,23 @@ wv2bool cwv2::setWebResourceRequestedHandler(webResourceRequested handler) {
 	return r;
 }
 
+wv2bool cwv2::setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) {
+	wv2bool r;
+	r.hr = S_OK;
+	r.value = true;
+	acceleratorKeyPressedHandler_.bind(handler, this);
+	return r;
+}
+
 HRESULT cwv2::addWebResourceRequestedFilter(LPCWSTR uri,
-	const wv2webResourceContext resourceContext) {
+	const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
 	if (!view2_3_) return E_NOINTERFACE;
 	return view2_3_->AddWebResourceRequestedFilter(uri, 
 		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);
 }
 
 HRESULT cwv2::removeWebResourceRequestedFilter(LPCWSTR uri,
-	const wv2webResourceContext resourceContext) {
+	const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
 	if (!view2_3_) return E_NOINTERFACE;
 	return view2_3_->RemoveWebResourceRequestedFilter(uri, 
 		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);

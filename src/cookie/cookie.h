@@ -19,8 +19,8 @@ namespace wv2_ {
 		HRESULT setExpires(double expires) override;
 		bool isHttpOnly() override;
 		HRESULT setIsHttpOnly(bool isHttpOnly) override;
-		wv2cookieSameSiteKind sameSite() override;
-		HRESULT setSameSite(wv2cookieSameSiteKind sameSite) override;
+		COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite() override;
+		HRESULT setSameSite(COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite) override;
 		bool isSecure() override;
 		HRESULT setIsSecure(bool isSecure) override;
 		bool isSession() override;

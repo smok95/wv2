@@ -72,15 +72,15 @@ HRESULT cookie::setIsHttpOnly(bool isHttpOnly) {
 	return cookie_->put_IsHttpOnly(isHttpOnly ? TRUE : FALSE);
 }
 
-wv2cookieSameSiteKind cookie::sameSite() {
-	if (!cookie_) return wv2cookieSameSiteKind_undefined;
+COREWEBVIEW2_COOKIE_SAME_SITE_KIND cookie::sameSite() {
+	if (!cookie_) return COREWEBVIEW2_COOKIE_SAME_SITE_KIND_NONE;
 
 	COREWEBVIEW2_COOKIE_SAME_SITE_KIND v = COREWEBVIEW2_COOKIE_SAME_SITE_KIND_NONE;
 	cookie_->get_SameSite(&v);
-	return (wv2cookieSameSiteKind)v;
+	return (COREWEBVIEW2_COOKIE_SAME_SITE_KIND)v;
 }
 
-HRESULT cookie::setSameSite(wv2cookieSameSiteKind sameSite) {
+HRESULT cookie::setSameSite(COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite) {
 	if (!cookie_) return E_UNEXPECTED;
 	return cookie_->put_SameSite((COREWEBVIEW2_COOKIE_SAME_SITE_KIND)sameSite);
 }

@@ -242,8 +242,8 @@ public:
 			});
 	}
 
-	wv2scriptDialogKind kind() override {
-		wv2scriptDialogKind kind = wv2scriptDialogKind_undefined;
+	COREWEBVIEW2_SCRIPT_DIALOG_KIND kind() override {
+		COREWEBVIEW2_SCRIPT_DIALOG_KIND kind = COREWEBVIEW2_SCRIPT_DIALOG_KIND_ALERT;
 		args_.get_Kind((COREWEBVIEW2_SCRIPT_DIALOG_KIND*)&kind);
 		return kind;
 	}
@@ -508,8 +508,8 @@ public:
 		return &response_;
 	}
 
-	wv2webResourceContext resourceContext() override {
-		wv2webResourceContext context = wv2webResourceContext_undefined;
+	COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext() override {
+		COREWEBVIEW2_WEB_RESOURCE_CONTEXT context = COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL;
 		args_.get_ResourceContext((COREWEBVIEW2_WEB_RESOURCE_CONTEXT*)&context);
 		return context;
 	}
@@ -552,6 +552,76 @@ private:
 	CComPtr<ICoreWebView2> webview_;
 };
 
+/// ///////////////////////////////////////////////////////////////////////////.
+class cwv2acceleratorKeyPressedEventArgs : public  wv2acceleratorKeyPressedEventArgs {
+public:
+	cwv2acceleratorKeyPressedEventArgs(ICoreWebView2AcceleratorKeyPressedEventArgs& args) :args_(args) {}
+
+	inline COREWEBVIEW2_KEY_EVENT_KIND keyEventKind() override {
+		COREWEBVIEW2_KEY_EVENT_KIND kind = COREWEBVIEW2_KEY_EVENT_KIND_KEY_DOWN;
+		args_.get_KeyEventKind(&kind);
+		return kind;
+	};
+
+	inline uint32_t virtualKey() override {
+		UINT key = 0;
+		args_.get_VirtualKey(&key);
+		return (uint32_t)key;
+	};
+
+	inline int32_t keyEventLParam() override {
+		INT lp = 0;
+		args_.get_KeyEventLParam(&lp);
+		return (int32_t)lp;
+	}
+
+	inline COREWEBVIEW2_PHYSICAL_KEY_STATUS physicalKeyStatus() override {
+		COREWEBVIEW2_PHYSICAL_KEY_STATUS status = { 0, };
+		args_.get_PhysicalKeyStatus(&status);
+		return status;
+	}
+
+	inline bool handled() override {
+		BOOL value = FALSE;
+		args_.get_Handled(&value);
+		return value == TRUE;
+	}
+
+	HRESULT setHandled(bool handled) override {
+		return args_.put_Handled(handled ? TRUE : FALSE);
+	}
+private:
+	ICoreWebView2AcceleratorKeyPressedEventArgs& args_;
+};
+
+class AcceleratorKeyPressed : public 
+	EventHandlerBase<acceleratorKeyPressed, ICoreWebView2AcceleratorKeyPressedEventHandler> {
+public:
+	STDMETHODIMP Invoke(ICoreWebView2Controller* sender,
+		ICoreWebView2AcceleratorKeyPressedEventArgs* args) override {
+		if (handler_ && args) {
+			cwv2acceleratorKeyPressedEventArgs argsWrap(*args);
+			handler_(userData_, &argsWrap);
+		}
+		return S_OK;
+	}
+
+	void add(CComPtr<ICoreWebView2Controller> controller) {
+		if (!controller) return;
+		controller_ = controller;
+
+		controller_->add_AcceleratorKeyPressed(this, &token_);
+	}
+
+	void remove() {
+		if (!controller_) return;
+		controller_->remove_AcceleratorKeyPressed(token_);
+	}
+
+private:
+	CComPtr<ICoreWebView2Controller> controller_;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -566,10 +636,10 @@ public:
 		return b == TRUE;
 	}
 	
-	wv2webErrorStatus webErrorStatus() override {
+	COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus() override {
 		COREWEBVIEW2_WEB_ERROR_STATUS status = COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
 		args_.get_WebErrorStatus(&status);
-		return (wv2webErrorStatus)status;
+		return (COREWEBVIEW2_WEB_ERROR_STATUS)status;
 	}
 
 	uint64_t navigationId() override {

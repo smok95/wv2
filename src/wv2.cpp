@@ -273,19 +273,24 @@ wv2bool wv2setWebResourceRequestedHandler(wv2_t w, webResourceRequested handler)
 	return CWV2(w)->setWebResourceRequestedHandler(handler);
 }
 
+wv2bool wv2setAcceleratorKeyPressedHandler(wv2_t w, acceleratorKeyPressed handler) {
+	if (!w) return wv2boolInvalidArg();
+	return CWV2(w)->setAcceleratorKeyPressedHandler(handler);
+}
+
 LPCWSTR wv2documentTitle(wv2_t w) {
 	if(!w) return nullptr;
 	return CWV2(w)->documentTitle();
 }
 
 HRESULT wv2addWebResourceRequestedFilter(wv2_t w,
-	LPCWSTR uri, const wv2webResourceContext resourceContext) {
+	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
 	if (!w || !uri) return E_INVALIDARG;
 	return CWV2(w)->addWebResourceRequestedFilter(uri, resourceContext);
 }
 
 HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
-	LPCWSTR uri, const wv2webResourceContext resourceContext) {
+	LPCWSTR uri, const COREWEBVIEW2_WEB_RESOURCE_CONTEXT resourceContext) {
 	if (!w || !uri) return E_INVALIDARG;
 	return CWV2(w)->removeWebResourceRequestedFilter(uri, resourceContext);
 }
@@ -325,7 +330,7 @@ wv2bool wv2isDocumentPlayingAudio(wv2_t w) {
 }
 
 bool wv2setVirtualHostNameToFolderMapping(wv2_t w, LPCWSTR hostName,
-	LPCWSTR folderPath, wv2HostResourceAccessKind accessKind) {
+	LPCWSTR folderPath, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND accessKind) {
 	if (!w) return false;
 	return CWV2(w)->setVirtualHostNameToFolderMapping(hostName, 
 		folderPath, accessKind);
@@ -524,8 +529,8 @@ LPWSTR wv2scriptDialogOpeningEventArgs_uri(wv2scriptDialogOpeningEventArgs_t arg
 	return ((wv2scriptDialogOpeningEventArgs*)args)->uri();
 }
 
-wv2scriptDialogKind wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args) {
-	if(!args) return wv2scriptDialogKind_undefined;
+COREWEBVIEW2_SCRIPT_DIALOG_KIND wv2scriptDialogOpeningEventArgs_kind(wv2scriptDialogOpeningEventArgs_t args) {
+	if(!args) return COREWEBVIEW2_SCRIPT_DIALOG_KIND_ALERT;
 	return ((wv2scriptDialogOpeningEventArgs*)args)->kind();
 }
 
@@ -731,9 +736,9 @@ wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t arg
 	return WRREQUESTED_ARGS->response();
 }
 
-wv2webResourceContext
+COREWEBVIEW2_WEB_RESOURCE_CONTEXT
 wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args) {
-	if (!args) return wv2webResourceContext_undefined;
+	if (!args) return COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL;
 	return WRREQUESTED_ARGS->resourceContext();
 }
 
@@ -768,14 +773,55 @@ bool wv2navigationCompletedEventArgs_isSuccess(wv2navigationCompletedEventArgs_t
 	return NC_ARSG->isSuccess();
 }
 
-wv2webErrorStatus wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args) {
-	if (!args) return wv2webErrorStatus_unknown;
+COREWEBVIEW2_WEB_ERROR_STATUS wv2navigationCompletedEventArgs_webErrorStatus(wv2navigationCompletedEventArgs_t args) {
+	if (!args) return COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
 	return NC_ARSG->webErrorStatus();
 }
 
 uint64_t wv2navigationCompletedEventArgs_navigationId(wv2navigationCompletedEventArgs_t args) {
 	if (!args) return 0;
 	return NC_ARSG->navigationId();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+#define AKP_ARGS ((wv2acceleratorKeyPressedEventArgs*)args)
+
+WV2_API COREWEBVIEW2_KEY_EVENT_KIND
+wv2acceleratorKeyPressedEventArgs_keyEventKind(wv2acceleratorKeyPressedEventArgs_t args) {
+	if (!args) return COREWEBVIEW2_KEY_EVENT_KIND_KEY_DOWN;
+	return AKP_ARGS->keyEventKind();
+}
+
+WV2_API uint32_t
+wv2acceleratorKeyPressedEventArgs_virtualKey(wv2acceleratorKeyPressedEventArgs_t args) {
+	if (!args) return 0;
+	return AKP_ARGS->virtualKey();
+}
+
+WV2_API int32_t
+wv2acceleratorKeyPressedEventArgs_keyEventLParam(wv2acceleratorKeyPressedEventArgs_t args) {
+	if (!args) return 0;
+	return AKP_ARGS->keyEventLParam();
+}
+
+WV2_API COREWEBVIEW2_PHYSICAL_KEY_STATUS
+wv2acceleratorKeyPressedEventArgs_physicalKeyStatus(wv2acceleratorKeyPressedEventArgs_t args) {
+	COREWEBVIEW2_PHYSICAL_KEY_STATUS result = { 0, };
+	if (!args) return result;
+	result = AKP_ARGS->physicalKeyStatus();
+	return result;
+}
+
+WV2_API bool
+wv2acceleratorKeyPressedEventArgs_handled(wv2acceleratorKeyPressedEventArgs_t args) {
+	if (!args) return false;
+	return AKP_ARGS->handled();
+}
+
+WV2_API HRESULT
+wv2acceleratorKeyPressedEventArgs_setHandled(wv2acceleratorKeyPressedEventArgs_t args, bool handled) {
+	if (!args) return E_INVALIDARG;
+	return AKP_ARGS->setHandled(handled);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -826,12 +872,12 @@ HRESULT wv2cookie_t_setIsHttpOnly(wv2cookie_t h, bool isHttpOnly) {
 	return COOKIE->setIsHttpOnly(isHttpOnly);
 }
 
-wv2cookieSameSiteKind wv2cookie_sameSite(wv2cookie_t h) {
-	if (!h) return wv2cookieSameSiteKind_undefined;
+COREWEBVIEW2_COOKIE_SAME_SITE_KIND wv2cookie_sameSite(wv2cookie_t h) {
+	if (!h) return COREWEBVIEW2_COOKIE_SAME_SITE_KIND_NONE;
 	return COOKIE->sameSite();
 }
 
-HRESULT wv2cookie_setSameSite(wv2cookie_t h, wv2cookieSameSiteKind sameSite) {
+HRESULT wv2cookie_setSameSite(wv2cookie_t h, COREWEBVIEW2_COOKIE_SAME_SITE_KIND sameSite) {
 	if (!h) return E_INVALIDARG;
 	return COOKIE->setSameSite(sameSite);
 }
