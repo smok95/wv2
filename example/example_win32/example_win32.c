@@ -27,6 +27,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 wv2_t webview = NULL;
 HWND hStatusWnd = NULL; // statusBar
 LPCWSTR testFilterUri = L"*youtube*";
+LPCWSTR testFilterUri2 = L"*bing.com*";
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -149,6 +150,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_document_getelementbyid2";   
    //url = L"https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_alert";
    url = L"https://www.youtube.com";
+   //url = L"https://www.bing.com"; // for wv2webResourceRequestedEventArgs_setResponse(args, response);
    
    if (webview = wv2createSync2(NULL, NULL, options, hWnd)) {
 
@@ -185,6 +187,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        wv2setWebResourceRequestedHandler(webview, OnWebResourceRequested);
 
        wv2addWebResourceRequestedFilter(webview, testFilterUri, wv2webResourceContext_all);
+       wv2addWebResourceRequestedFilter(webview, testFilterUri2, wv2webResourceContext_all);
 
        // set navigationCompleted event handler
        wv2setNavigationCompletedHandler(webview, OnNavigationCompleted);
@@ -464,6 +467,33 @@ void OnDownloadStarting(wv2_t sender, wv2downloadStartingEventArgs_t args) {
 void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t args) {
     wv2webResourceRequest_t request = wv2webResourceRequestedEventArgs_request(args);
     if (request) {
+        LPCWSTR uri = wv2webResourceRequest_uri(request);
+        if (uri) {
+            MessageBox(NULL, uri, L"webResourceRequested", MB_OK | MB_ICONINFORMATION);
+
+            // URI가 bing.com을 포함하는지 확인
+            if (wcsstr(uri, L"bing.com") != NULL) {
+                // 웹뷰 환경 객체 가져오기
+                wv2environment_t env = wv2getEnvironment(sender);
+
+                // 리디렉션을 위한 응답 생성 (302 Found)
+                wv2webResourceResponse_t response = wv2environment_createWebResourceResponse(
+                    env,
+                    NULL,
+                    302,
+                    L"Found",
+                    L"Location: https://www.google.com/\r\nContent-Type: text/html"
+                );
+                                
+                wv2webResourceRequestedEventArgs_setResponse(args, response);
+
+                // 내 참조 해제 (WebView2는 이미 참조를 유지하고 있음)
+                wv2freeMemory((void*)uri);
+            }
+        }
+
+        
+
         wv2httpRequestHeaders_t headers = wv2webResourceRequest_headers(request);
         if (headers) {
             LPWSTR value = NULL;
@@ -475,13 +505,6 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
 			}
 
             wv2freeMemory((void*)value);
-        }
-
-        LPCWSTR uri = wv2webResourceRequest_uri(request);
-        if (uri) {
-            MessageBox(NULL, uri, L"webResourceRequested", MB_OK | MB_ICONINFORMATION);
-
-            wv2freeMemory((void*)uri);
         }
     }
 

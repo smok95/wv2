@@ -10,6 +10,7 @@ public:
 	cwv2webResourceResponse(CComPtr<ICoreWebView2WebResourceResponse> response);
 
 	void setResponse(CComPtr<ICoreWebView2WebResourceResponse> response);
+	CComPtr<ICoreWebView2WebResourceResponse> getResponse();
 	int32_t statusCode() override;
 	HRESULT setStatusCode(int32_t statusCode) override;
 	LPWSTR reasonPhrase() override;

@@ -68,6 +68,9 @@
 ## 0.15.1(31)	2025-03-06
 - Reverted to custom redefinitions of WebView2 enums instead of using 
   original WebView2 enum definitions due to include problems
+
+## 0.16(32)		2025-05-03
+- Added support for `webResourceRequestedEventArgs_setResponse` method
 */
 
 #ifndef WEBVIEW2_C_WRAPPER_H_
@@ -496,7 +499,10 @@ wv2webResourceRequestedEventArgs_response(wv2webResourceRequestedEventArgs_t arg
 
 WV2_API wv2webResourceContext
 wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArgs_t args);
-// HRESULT put_Response(ICoreWebView2WebResourceResponse* response)
+
+WV2_API HRESULT 
+wv2webResourceRequestedEventArgs_setResponse(wv2webResourceRequestedEventArgs_t args,
+	wv2webResourceResponse_t response);
 // HRESULT GetDeferral(ICoreWebView2Deferral** deferral)
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1078,6 +1084,7 @@ struct wv2webResourceRequestedEventArgs {
 	virtual wv2webResourceRequest* request() = 0;
 	virtual wv2webResourceResponse* response() = 0;
 	virtual wv2webResourceContext resourceContext() = 0;
+	virtual HRESULT setResponse(wv2webResourceResponse* response) = 0;
 };
 
 struct wv2acceleratorKeyPressedEventArgs {

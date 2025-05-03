@@ -33,3 +33,7 @@ HRESULT cwv2webResourceResponse::setReasonPhrase(LPCWSTR reasonPhrase) {
 	if (!response_) return E_NOINTERFACE;
 	return response_->put_ReasonPhrase(reasonPhrase);
 }
+
+CComPtr<ICoreWebView2WebResourceResponse> cwv2webResourceResponse::getResponse() {
+	return response_;
+}

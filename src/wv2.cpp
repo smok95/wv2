@@ -742,6 +742,13 @@ wv2webResourceRequestedEventArgs_resourceContext(wv2webResourceRequestedEventArg
 	return WRREQUESTED_ARGS->resourceContext();
 }
 
+HRESULT
+wv2webResourceRequestedEventArgs_setResponse(wv2webResourceRequestedEventArgs_t args,
+	wv2webResourceResponse_t response) {
+	if (!response || !args) return E_INVALIDARG;
+	return WRREQUESTED_ARGS->setResponse((wv2webResourceResponse*)response);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 #define REQ_HDRS ((wv2httpRequestHeaders*)handle)
 

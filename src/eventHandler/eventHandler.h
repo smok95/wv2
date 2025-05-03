@@ -514,6 +514,19 @@ public:
 		return context;
 	}
 
+	HRESULT setResponse(wv2webResourceResponse* response) override {
+		if (!response) {
+			return E_INVALIDARG;
+		}
+
+		cwv2webResourceResponse* pResp = dynamic_cast<cwv2webResourceResponse*>(response);
+		if (!pResp) {
+			return E_INVALIDARG;
+		}
+
+		return args_.put_Response(pResp->getResponse());
+	}
+
 private:
 	ICoreWebView2WebResourceRequestedEventArgs& args_;
 	cwv2webResourceRequest request_;
