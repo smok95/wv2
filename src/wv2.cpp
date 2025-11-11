@@ -345,6 +345,11 @@ HRESULT wv2lastError(wv2_t w) {
 	return w ? CWV2(w)->lastError() : theLastError_;
 }
 
+wv2controller_t wv2getController(wv2_t w) {
+	if (!w) return nullptr;
+	return CWV2(w)->getController();
+}
+
 LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder) {
 	LPWSTR versionInfo = nullptr;
 	HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(browserExecutableFolder,
@@ -964,4 +969,16 @@ HRESULT wv2cookieManager_deleteCookiesWithDomainAndPath(wv2cookieManager_t h,
 HRESULT wv2cookieManager_deleteAllCookies(wv2cookieManager_t h) {
 	if (!h) return E_INVALIDARG;
 	return CM->deleteAllCookies();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+wv2color wv2controller_getDefaultBackgroundColor(wv2controller_t c) {
+	wv2color color = { 0, };
+	if (!c) return color;
+	return ((wv2controller*)c)->getDefaultBackgroundColor();
+}
+
+HRESULT wv2controller_setDefaultBackgroundColor(wv2controller_t c, wv2color color) {
+	if (!c) return E_INVALIDARG;
+	return ((wv2controller*)c)->setDefaultBackgroundColor(color);
 }

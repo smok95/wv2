@@ -16,6 +16,25 @@
 #include "cwv2settings.h"
 #include "cookie/cookieManager.h"
 
+class cwv2controller : public wv2controller {
+	public:
+	cwv2controller();
+	virtual ~cwv2controller();
+
+	void setController(CComPtr<ICoreWebView2Controller3> controller);
+	ICoreWebView2Controller3* getController();
+
+	void detachController();
+	void releaseController();
+
+	// wv2controller interface	///////////////////////////////////////////////
+	wv2color getDefaultBackgroundColor() OVERRIDE;
+	HRESULT setDefaultBackgroundColor(wv2color color) OVERRIDE;
+	// wv2controller interface	///////////////////////////////////////////////
+	private:
+		CComPtr<ICoreWebView2Controller3> controller_;
+};
+
 class cwv2 :
 	public wv2,
 	public ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler,
@@ -132,6 +151,7 @@ public:
 	wv2bool setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) OVERRIDE;
 
 	wv2cookieManager* cookieManager() OVERRIDE;
+	wv2controller* getController() OVERRIDE;
 	// wv2 interface	///////////////////////////////////////////////////////
 
 	// 웹뷰 초기화가 완료 여부 (초기화가 성공되었음을 의미하지 않음)
@@ -151,7 +171,8 @@ private:
 	CComPtr<ICoreWebView2_3> view2_3_;
 	CComPtr<ICoreWebView2_4> view2_4_;
 	CComPtr<ICoreWebView2_8> view2_8_;
-	CComPtr<ICoreWebView2Controller3> controller_;
+	cwv2controller controller_;
+
 	cwv2env env_;
 	
 	request lastRequest_;	// 처리되지 않은 마지막 요청정보

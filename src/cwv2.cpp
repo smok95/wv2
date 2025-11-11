@@ -128,16 +128,13 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 
 	acceleratorKeyPressedHandler_.remove();
 
-	if (controller_) {
-		if (detachController) {
-			controller_.Detach();
-		}
-		else {
-			controller_->Close();
-			controller_.Release();
-		}		
+	if (detachController) {
+		controller_.detachController();
 	}
-
+	else {
+		controller_.releaseController();
+	}
+	
 	env_.Release();
 }
 
@@ -239,10 +236,13 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 	GetClientRect(parentWindow_, &bounds);
 	controller->put_Bounds(bounds);
 
-	hr = controller->QueryInterface(IID_ICoreWebView2Controller3, (void**)&controller_);
+	CComPtr<ICoreWebView2Controller3> controller3;
+	hr = controller->QueryInterface(IID_ICoreWebView2Controller3, (void**)&controller3);
 	if (FAILED(hr)) {
 		return setStatusCreateFail(hr);
 	}
+
+	controller_.setController(controller3);
 			
 	if (view2_3_ != nullptr) {
 		createStatus_ = completed;
@@ -288,7 +288,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 		lastRequest_.clear();
 	}
 
-	controller_->put_IsVisible(TRUE);
+	controller_.getController()->put_IsVisible(TRUE);
 
 	if (createCompletedHandler_) {
 		createCompletedHandler_(this, errorCode, userData_);
@@ -550,12 +550,12 @@ bool cwv2::reload() {
 }
 
 bool cwv2::resize(int width, int height) {
-	if (!controller_) return false;
+	if(!controller_.getController()) return false;
 
 	RECT bounds = { 0, };
 	bounds.right = bounds.left + width;
 	bounds.bottom = bounds.top + height;
-	return SUCCEEDED(lastError_ = controller_->put_Bounds(bounds));
+	return SUCCEEDED(lastError_ = controller_.getController()->put_Bounds(bounds));
 }
 
 bool cwv2::setHistoryChangedHandler(historyChanged handler) {
@@ -616,16 +616,18 @@ bool cwv2::stop() {
 	
 double cwv2::zoomFactor(const double* newZoomFactor) {
 	double curZoomFactor = -1.0;
-	if (!controller_) return curZoomFactor;
+
+	auto* controller = controller_.getController();
+	if (!controller) return curZoomFactor;
 
 
 	if (newZoomFactor) {
-		if (SUCCEEDED(controller_->put_ZoomFactor(*newZoomFactor))) {
+		if (SUCCEEDED(controller->put_ZoomFactor(*newZoomFactor))) {
 			curZoomFactor = *newZoomFactor;
 		}
 	}
 	else {
-		controller_->get_ZoomFactor(&curZoomFactor);
+		controller->get_ZoomFactor(&curZoomFactor);
 	}
 	return curZoomFactor;
 }
@@ -747,6 +749,14 @@ wv2cookieManager* cwv2::cookieManager() {
 	return &cookieManager_;
 }
 
+wv2controller* cwv2::getController() {
+	if (!controller_.getController()) {
+		return nullptr;
+	}
+
+	return &controller_;
+}
+
 wv2bool cwv2::setDocumentTitleChangedHandler(documentTitleChanged handler) {
 	wv2bool r = wv2boolNotSupported();
 	if(!view2_3_) return r;
@@ -838,4 +848,50 @@ HRESULT cwv2::removeWebResourceRequestedFilter(LPCWSTR uri,
 	if (!view2_3_) return E_NOINTERFACE;
 	return view2_3_->RemoveWebResourceRequestedFilter(uri, 
 		(COREWEBVIEW2_WEB_RESOURCE_CONTEXT)resourceContext);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+cwv2controller::cwv2controller() {
+}
+cwv2controller::~cwv2controller() {
+	controller_.Release();
+}
+
+void cwv2controller::setController(CComPtr<ICoreWebView2Controller3> controller) {
+	controller_ = controller;
+}
+
+ICoreWebView2Controller3* cwv2controller::getController() {
+	return controller_;
+}
+
+wv2color cwv2controller::getDefaultBackgroundColor() {
+	wv2color color = { 0, };
+	if (!controller_) return color;
+		
+	controller_->get_DefaultBackgroundColor((COREWEBVIEW2_COLOR*)&color);
+	return color;
+}
+
+HRESULT cwv2controller::setDefaultBackgroundColor(wv2color color) {
+	if (!controller_) return E_NOINTERFACE;
+
+	COREWEBVIEW2_COLOR c = *((COREWEBVIEW2_COLOR*)&color);
+	return controller_->put_DefaultBackgroundColor(c);
+}
+
+void cwv2controller::detachController() {
+	if (controller_)
+	{
+		controller_.Detach();
+	}
+}
+
+void cwv2controller::releaseController() {
+	if (controller_)
+	{
+		controller_->Close();
+		controller_.Release();
+	}
 }

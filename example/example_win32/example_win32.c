@@ -52,6 +52,7 @@ void OnGetCookiesCompleted(wv2cookieManager_t sender, HRESULT result, wv2cookieL
 void OnAcceleratorKeyPressed(wv2_t sender, wv2acceleratorKeyPressedEventArgs_t args);
 
 void NavigatePostExample();
+void GetBackgroundColor();
 void SetStatusText(LPCWSTR text);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -296,6 +297,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_NAVIGATE_WITH_POST:
                 NavigatePostExample();
                 break;
+            case IDM_GET_BACKGROUND_COLOR:
+                GetBackgroundColor();
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -583,4 +586,17 @@ void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
 void SetStatusText(LPCWSTR text) {
     if(!IsWindow(hStatusWnd)) return;
     SendMessage(hStatusWnd, SB_SETTEXT, 0, (LPARAM)text);
+}
+
+void GetBackgroundColor() {
+	if (!webview) return;
+
+	wv2controller_t controller = wv2getController(webview);
+	if (controller) {
+		wv2color color = wv2controller_getDefaultBackgroundColor(controller);
+		WCHAR buf[1024];
+		wsprintf(buf, L"Default Background Color - A: %d, R: %d, G: %d, B: %d",
+            color.A, color.R, color.G, color.B);
+		MessageBoxW(NULL, buf, L"GetBackgroundColor", MB_ICONINFORMATION);
+	}
 }

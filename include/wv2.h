@@ -71,13 +71,16 @@
 
 ## 0.16(32)		2025-05-03
 - Added support for `webResourceRequestedEventArgs_setResponse` method
+
+## 0.17(33)		2025-11-11
+- Controller(wv2controller_t) support added.
 */
 
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.15.1"
-#define WV2_VERSION_NUM		31
+#define WV2_VERSION			"0.17"
+#define WV2_VERSION_NUM		33
 
 #include <windows.h>
 #include <stdbool.h>
@@ -119,7 +122,6 @@ typedef enum wv2HostResourceAccessKind {
 typedef void* wv2_t;
 typedef void* wv2environment_t;	// CoreWebView2Environment
 typedef wv2environment_t wv2env_t;
-
 
 // Structure representing the result and support status of a function
 typedef struct wv2bool {
@@ -291,6 +293,14 @@ typedef struct {
 	BOOL WasKeyDown;
 	BOOL IsKeyReleased;
 } wv2physicalKeyStatus;
+
+typedef struct {
+	BYTE A;
+	BYTE R;
+	BYTE G;
+	BYTE B;
+} wv2color;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef void* wv2windowFeatures_t; // ICoreWebView2WindowFeatures
@@ -676,6 +686,15 @@ wv2cookieManager_deleteCookiesWithDomainAndPath(wv2cookieManager_t h,
 WV2_API HRESULT wv2cookieManager_deleteAllCookies(wv2cookieManager_t h);
 
 ///////////////////////////////////////////////////////////////////////////////
+typedef void* wv2controller_t;	// ICoreWebView2Controller
+
+WV2_API wv2color 
+wv2controller_getDefaultBackgroundColor(wv2controller_t c);
+
+WV2_API HRESULT
+wv2controller_setDefaultBackgroundColor(wv2controller_t c, wv2color color);
+
+///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
 DEPRECATED("wv2create deprecated. Use wv2create2 instead.")
@@ -696,6 +715,15 @@ WV2_API wv2_t wv2createSync2(LPCWSTR browserExecutableFolder, LPCWSTR userDataFo
 DEPRECATED("wv2getEnv deprecated. Use wv2environment instead.")
 WV2_API wv2environment_t wv2getEnv(wv2_t w);
 WV2_API wv2environment_t wv2getEnvironment(wv2_t w);
+
+/*
+@brief		Returns the WebView2 Controller handle associated with the given wv2_t instance.
+			The returned wv2controller_t is managed internally and does not require manual release.
+			Use the controller to control layout, visibility, and other display properties of the WebView2 component.
+@param w	Handle to the wv2_t (WebView2 instance)
+@return		wv2controller_t (WebView2 Controller handle)
+*/
+WV2_API wv2controller_t wv2getController(wv2_t w);
 
 WV2_API void wv2destroy(wv2_t* w);
 
@@ -1136,6 +1164,11 @@ struct wv2cookieManager {
 	virtual HRESULT deleteAllCookies(void) = 0;
 };
 
+struct wv2controller {
+	virtual wv2color getDefaultBackgroundColor() = 0;
+	virtual HRESULT setDefaultBackgroundColor(wv2color color) = 0;
+};
+
 struct wv2cookieList {
 	virtual UINT count() = 0;
 	virtual wv2cookie* getValueAtIndex(UINT index) = 0;
@@ -1209,6 +1242,7 @@ struct wv2 {
 	virtual wv2bool setAcceleratorKeyPressedHandler(acceleratorKeyPressed handler) = 0;
 
 	virtual wv2cookieManager* cookieManager() = 0;
+	virtual wv2controller* getController() = 0;
 };
 #endif // __cplusplus
 
