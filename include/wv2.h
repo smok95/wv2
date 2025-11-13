@@ -74,13 +74,16 @@
 
 ## 0.17(33)		2025-11-11
 - Controller(wv2controller_t) support added.
+
+## 0.18(34)		2025-11-13
+- Profile(wv2profile_t) support added.
 */
 
 #ifndef WEBVIEW2_C_WRAPPER_H_
 #define WEBVIEW2_C_WRAPPER_H_
 
-#define WV2_VERSION			"0.17"
-#define WV2_VERSION_NUM		33
+#define WV2_VERSION			"0.18"
+#define WV2_VERSION_NUM		34
 
 #include <windows.h>
 #include <stdbool.h>
@@ -694,6 +697,36 @@ wv2controller_getDefaultBackgroundColor(wv2controller_t c);
 WV2_API HRESULT
 wv2controller_setDefaultBackgroundColor(wv2controller_t c, wv2color color);
 
+////////////////////////////////////////////////////////////////////////////////
+typedef enum wv2preferredColorScheme { // COREWEBVIEW2_PREFERRED_COLOR_SCHEME
+	wv2preferredColorScheme_undefined = -1,
+	wv2preferredColorScheme_auto = 0,
+	wv2preferredColorScheme_light = wv2preferredColorScheme_auto + 1,
+	wv2preferredColorScheme_dark = wv2preferredColorScheme_light + 1
+}wv2preferredColorScheme;
+
+typedef void* wv2profile_t; // ICoreWebView2Profile
+WV2_API LPWSTR
+wv2profile_getProfileName(wv2profile_t p);
+
+WV2_API bool
+wv2profile_getIsInPrivateModeEnabled(wv2profile_t p);
+
+WV2_API LPWSTR
+wv2profile_getProfilePath(wv2profile_t p);
+
+WV2_API LPWSTR
+wv2profile_getDefaultDownloadFolderPath(wv2profile_t p);
+
+WV2_API HRESULT
+wv2profile_setDefaultDownloadFolderPath(wv2profile_t p, LPCWSTR value);
+
+WV2_API wv2preferredColorScheme
+wv2profile_getPreferredColorScheme(wv2profile_t p);
+
+WV2_API HRESULT
+wv2profile_setPreferredColorScheme(wv2profile_t p, wv2preferredColorScheme value);
+
 ///////////////////////////////////////////////////////////////////////////////
 WV2_API LPWSTR wv2getAvailableBrowserVersionString(LPCWSTR browserExecutableFolder);
 
@@ -972,6 +1005,11 @@ WV2_API HRESULT wv2removeWebResourceRequestedFilter(wv2_t w,
 */
 WV2_API wv2cookieManager_t wv2getCookieManager(wv2_t w);
 
+/*
+@brief		Gets the CoreWebView2Profile object associated with this CoreWebView2.
+*/
+WV2_API wv2profile_t wv2getProfile(wv2_t w);
+
 WV2_API HRESULT wv2lastError(wv2_t w);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1174,6 +1212,16 @@ struct wv2cookieList {
 	virtual wv2cookie* getValueAtIndex(UINT index) = 0;
 };
 
+struct wv2profile {
+	virtual LPWSTR getProfileName() = 0;
+	virtual bool getIsInPrivateModeEnabled() = 0;
+	virtual LPWSTR getProfilePath() = 0;
+	virtual LPWSTR getDefaultDownloadFolderPath() = 0;
+	virtual HRESULT setDefaultDownloadFolderPath(LPCWSTR value) = 0;
+	virtual wv2preferredColorScheme getPreferredColorScheme() = 0;
+	virtual HRESULT setPreferredColorScheme(wv2preferredColorScheme value) = 0;
+};
+
 struct wv2 {
 	virtual ~wv2(){};
 	virtual void destroy() = 0;
@@ -1243,6 +1291,7 @@ struct wv2 {
 
 	virtual wv2cookieManager* cookieManager() = 0;
 	virtual wv2controller* getController() = 0;
+	virtual wv2profile* getProfile() = 0;
 };
 #endif // __cplusplus
 

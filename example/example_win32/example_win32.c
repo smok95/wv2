@@ -53,7 +53,7 @@ void OnAcceleratorKeyPressed(wv2_t sender, wv2acceleratorKeyPressedEventArgs_t a
 
 void NavigatePostExample();
 void GetBackgroundColor();
-void SetStatusText(LPCWSTR text);
+void SetStatusText(LPCWSTR text, LPCWSTR function);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -69,6 +69,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_EXAMPLEWIN32, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
+
+	if (AllocConsole()) {
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
+	}
 
     // 애플리케이션 초기화를 수행합니다:
     if (!InitInstance (hInstance, nCmdShow))
@@ -90,6 +95,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
+    FreeConsole();
     return (int) msg.wParam;
 }
 
@@ -227,7 +233,34 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
                wv2cookie_destroy(&cookie);
            }
        }
-       
+
+	   // profile
+	   wv2profile_t profile = wv2getProfile(webview);
+	   if (profile) {
+		   LPCWSTR path = wv2profile_getProfilePath(profile);
+		   SetStatusText(path, L"wv2getProfile");
+		   wv2freeMemory((void*)path);
+
+		   wv2profile_setPreferredColorScheme(profile, wv2preferredColorScheme_light);
+
+		   wv2preferredColorScheme scheme = wv2profile_getPreferredColorScheme(profile);
+		   switch (scheme)
+		   {
+		   case wv2preferredColorScheme_auto:
+			   SetStatusText(L"preferredColorScheme: auto", L"wv2getPreferredColorScheme");
+			   break;
+		   case wv2preferredColorScheme_light:
+			   SetStatusText(L"preferredColorScheme: light", L"wv2getPreferredColorScheme");
+			   break;
+		   case wv2preferredColorScheme_dark:
+			   SetStatusText(L"preferredColorScheme: dark", L"wv2getPreferredColorScheme");
+			   break;
+		   default:
+			   SetStatusText(L"preferredColorScheme: unknown", L"wv2getPreferredColorScheme");
+			   break;
+		   }
+	   }
+
        wv2navigate(webview, url);
    }
    else {
@@ -372,11 +405,11 @@ void OnIsMutedChanged(wv2_t sender) {
 		const bool isMuted = result.value;
 		if (isMuted) {
 			// The WebView is muted.
-            SetStatusText(L"The WebView is muted.");
+            SetStatusText(L"The WebView is muted.", __FUNCTIONW__);
 		}
 		else {
 			// The WebView is not muted.
-            SetStatusText(L"The WebView is not muted.");
+            SetStatusText(L"The WebView is not muted.", __FUNCTIONW__);
 		}
 	}
 }
@@ -398,16 +431,16 @@ void OnIsDocumentPlayingAudioChanged(wv2_t sender) {
 		// Show a message box based on the result
 		if (isDocumentPlayingAudio) {
 			// The document in the WebView is playing audio.
-            SetStatusText(L"The document in the WebView is playing audio.");
+            SetStatusText(L"The document in the WebView is playing audio.", __FUNCTIONW__);
 		}
 		else {
 			// The document in the WebView is not playing audio.
-            SetStatusText(L"The document in the WebView is not playing audio.");
+            SetStatusText(L"The document in the WebView is not playing audio.", __FUNCTIONW__);
 		}
 	}
 }
 
-void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e) {
+void OnBrowserProcessExited(wv2env_t sender, wv2browserProcessExitedEventArgs* e) {    
     MessageBox(NULL, L"browserProcessExited", L"Process Status", MB_OK | MB_ICONWARNING);
 }
 
@@ -426,7 +459,7 @@ void OnDocumentTitleChanged(wv2_t sender) {
     WCHAR buf[2048];
     LPCWSTR title = wv2documentTitle(sender);
     wsprintf(buf, L"documentTitleChanged - %s", title);
-    SetStatusText(buf);
+    SetStatusText(buf, __FUNCTIONW__);
     wv2freeMemory((void*)title);
 }
 
@@ -434,7 +467,7 @@ void OnDomContentLoaded(wv2_t sender, wv2domContentLoadedEventArgs_t args) {
     WCHAR buf[2048];
     uint64_t navigationId = wv2domContentLoadedEventArgs_navigationId(args);
     wsprintf(buf, L"domContentLoaded: navigationId=%I64u", navigationId);
-    SetStatusText(buf);
+    SetStatusText(buf, __FUNCTIONW__);
 }
 
 void OnScriptDialogOpening(wv2_t sender, wv2scriptDialogOpeningEventArgs_t args) {
@@ -472,7 +505,7 @@ void OnWebResourceRequested(wv2_t sender, wv2webResourceRequestedEventArgs_t arg
     if (request) {
         LPCWSTR uri = wv2webResourceRequest_uri(request);
         if (uri) {
-            MessageBox(NULL, uri, L"webResourceRequested", MB_OK | MB_ICONINFORMATION);
+			SetStatusText(uri, __FUNCTIONW__);
 
             // URI가 bing.com을 포함하는지 확인
             if (wcsstr(uri, L"bing.com") != NULL) {
@@ -539,7 +572,7 @@ void OnNavigationCompleted(wv2_t sender, wv2navigationCompletedEventArgs_t args)
     wsprintf(buf, L"NavicationCompleted, isSuccess: %d, navagationID: %d, webErrorStatus: %d",
         isSuccess, navId, status);
 
-    SetStatusText(buf);
+    SetStatusText(buf, __FUNCTIONW__);
 
     wv2cookieManager_t cookieMgr = wv2getCookieManager(sender);
     wv2cookieManager_getCookies(cookieMgr, wv2getSource(sender), OnGetCookiesCompleted);
@@ -563,10 +596,10 @@ void OnAcceleratorKeyPressed(wv2_t sender, wv2acceleratorKeyPressedEventArgs_t a
 
     WCHAR buf[2048];
     wsprintf(buf, L"AcceleratorKeyPressed, event=%d, virtuak key: %d", eventKind, vKey);
-    SetStatusText(buf);
+    SetStatusText(buf, __FUNCTIONW__);
 
     if (eventKind == wv2KeyEventKind_key_down && vKey == VK_ESCAPE) {
-        SetStatusText(L"Esc pressed");
+        SetStatusText(L"Esc pressed", __FUNCTIONW__);
         wv2acceleratorKeyPressedEventArgs_setHandled(args, true);
     }
 }
@@ -583,8 +616,13 @@ void GetErrorMessage(DWORD errorCode, LPWSTR buffer, DWORD bufferSize) {
 	);
 }
 
-void SetStatusText(LPCWSTR text) {
+void SetStatusText(LPCWSTR text, LPCWSTR function) {
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    wprintf(L"%02d:%02d:%02d.%03d [%s] %s\n", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, function, text);
+
     if(!IsWindow(hStatusWnd)) return;
+
     SendMessage(hStatusWnd, SB_SETTEXT, 0, (LPARAM)text);
 }
 

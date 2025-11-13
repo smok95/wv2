@@ -300,6 +300,11 @@ wv2cookieManager_t wv2getCookieManager(wv2_t w) {
 	return CWV2(w)->cookieManager();
 }
 
+wv2profile_t wv2getProfile(wv2_t w) {
+	if (!w) return nullptr;
+	return CWV2(w)->getProfile();
+}
+
 bool wv2stop(wv2_t w) {
 	if (!w) return false;
 	return CWV2(w)->stop();
@@ -981,4 +986,41 @@ wv2color wv2controller_getDefaultBackgroundColor(wv2controller_t c) {
 HRESULT wv2controller_setDefaultBackgroundColor(wv2controller_t c, wv2color color) {
 	if (!c) return E_INVALIDARG;
 	return ((wv2controller*)c)->setDefaultBackgroundColor(color);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+LPWSTR wv2profile_getProfileName(wv2profile_t p) {
+	if (!p) return nullptr;
+	return ((wv2profile*)p)->getProfileName();
+}
+
+bool wv2profile_getIsInPrivateModeEnabled(wv2profile_t p) {
+	if (!p) return false;
+	return ((wv2profile*)p)->getIsInPrivateModeEnabled();
+
+}
+
+LPWSTR wv2profile_getProfilePath(wv2profile_t p) {
+	if (!p) return nullptr;
+	return ((wv2profile*)p)->getProfilePath();
+}
+
+LPWSTR wv2profile_getDefaultDownloadFolderPath(wv2profile_t p) {
+	if (!p) return nullptr;
+	return ((wv2profile*)p)->getDefaultDownloadFolderPath();
+}
+
+HRESULT wv2profile_setDefaultDownloadFolderPath(wv2profile_t p, LPCWSTR value) {
+	if (!p) return E_INVALIDARG;
+	return ((wv2profile*)p)->setDefaultDownloadFolderPath(value);
+}
+
+wv2preferredColorScheme wv2profile_getPreferredColorScheme(wv2profile_t p) {
+	if (!p) return wv2preferredColorScheme_undefined;
+	return ((wv2profile*)p)->getPreferredColorScheme();
+}
+
+HRESULT wv2profile_setPreferredColorScheme(wv2profile_t p, wv2preferredColorScheme value) {
+	if(!p) return E_INVALIDARG;
+	return ((wv2profile*)p)->setPreferredColorScheme(value);
 }

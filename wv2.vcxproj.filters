@@ -71,6 +71,9 @@
     <ClInclude Include="src\cookie\cookie.h">
       <Filter>src\cookie</Filter>
     </ClInclude>
+    <ClInclude Include="profile.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cwv2.cpp">
@@ -111,6 +114,9 @@
     </ClCompile>
     <ClCompile Include="src\cookie\cookie.cpp">
       <Filter>src\cookie</Filter>
+    </ClCompile>
+    <ClCompile Include="profile.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

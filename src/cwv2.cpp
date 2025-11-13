@@ -126,6 +126,7 @@ void cwv2::clearAll(bool detachController/*=false*/) {
 		view2_8_.Release();
 	}
 
+	profile_.releaseProfile();
 	acceleratorKeyPressedHandler_.remove();
 
 	if (detachController) {
@@ -230,7 +231,7 @@ STDMETHODIMP cwv2::Invoke(HRESULT errorCode, ICoreWebView2Controller* controller
 
 	// WebView2 8번째 버전 획득
 	hr = webview2->QueryInterface(IID_ICoreWebView2_8, (void**)&view2_8_);
-		
+	
 	// 부모화면 사이즈에 맞게 변경
 	RECT bounds = { 0, };
 	GetClientRect(parentWindow_, &bounds);
@@ -755,6 +756,33 @@ wv2controller* cwv2::getController() {
 	}
 
 	return &controller_;
+}
+
+wv2profile* cwv2::getProfile() {
+	if (profile_.getProfile() == nullptr) {
+
+		if (!view2_3_) {			
+			lastError_ = E_NOINTERFACE;
+			return nullptr;
+		}
+
+		// WebView2 13번째 버전 획득
+		CComPtr<ICoreWebView2_13> webview2_13;
+		lastError_ = view2_3_->QueryInterface(IID_ICoreWebView2_13, (void**)&webview2_13);
+		if(FAILED(lastError_)) {
+			return nullptr;
+		}
+
+		CComPtr<ICoreWebView2Profile> profile;
+		lastError_ = webview2_13->get_Profile(&profile);
+		if (FAILED(lastError_)) {
+			return nullptr;
+		}
+
+		profile_.setProfile(profile);
+	}
+	
+	return &profile_;
 }
 
 wv2bool cwv2::setDocumentTitleChangedHandler(documentTitleChanged handler) {
